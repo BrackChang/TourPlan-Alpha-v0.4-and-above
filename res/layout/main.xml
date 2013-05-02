@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@drawable/Beige"
+    android:orientation="vertical" xmlns:android1="http://schemas.android.com/apk/res/android">
+    
+    <TextView
+        android:id="@+id/LoginText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:text="@string/LoginLabel"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textColor="@drawable/Brown"
+        android:textSize="32sp" />
+
+    <LinearLayout
+        android:id="@+id/InputLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" >
+
+        <TextView
+            android:id="@+id/EmailLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/emailLabel"
+            android:textColor="@drawable/Black"
+            android:textSize="20sp" />
+
+        <EditText
+            android:id="@+id/EmailInput"
+            android:hint="@string/EmailInput_hint"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:inputType="textEmailAddress" android1:text="g10049013@thu.edu.tw">
+
+        </EditText>
+
+        <TextView
+            android:id="@+id/PassLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/passLabel"
+            android:textColor="@drawable/Black"
+            android:textSize="20sp" />
+
+        <EditText
+            android:id="@+id/PassInput"
+            android:hint="@string/PassInput_hint"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:inputType="textPassword" android1:text="vansttt">
+        </EditText>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/BtnLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" >
+
+        <Button
+            android:id="@+id/SignInBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="@string/SignIn" android:onClick="btn1Click" android1:clickable="true"/>
+
+        <TextView
+            android:id="@+id/Or"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="@string/or"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@drawable/Black" />
+
+        <Button
+            android:id="@+id/SignUpBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="@string/SignUp" android1:onClick="btn2Click"/>
+    </LinearLayout>
+
+
+
+    <LinearLayout
+        android1:id="@+id/FooterLayout"
+        android1:layout_width="match_parent"
+        android1:layout_height="wrap_content" android1:gravity="right">
+
+        <TextView
+            android1:id="@+id/goWeb"
+            android1:layout_width="wrap_content"
+            android1:layout_height="wrap_content"
+            android1:text="@string/goWeb"
+            android1:textAppearance="?android:attr/textAppearanceMedium"
+            android1:textColor="@drawable/SteelBlue" android1:onClick="textClick" android1:clickable="true"/>
+
+    </LinearLayout>
+
+</LinearLayout>

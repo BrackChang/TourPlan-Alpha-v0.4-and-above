@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <drawable name="Ivory">#FFFFF0</drawable>
+    <drawable name="Beige">#F5F5DC</drawable>
+    <drawable name="Black">#000000</drawable>
+    <drawable name="AliceBlue">#F0F8FF</drawable>
+    <drawable name="Orange">#FFA500</drawable>
+    <drawable name="SteelBlue">#4682B4</drawable>
+    <drawable name="Purple">#800080</drawable>
+    <drawable name="Brown">#A52A2A</drawable>
+    <drawable name="White">#FFFFFF</drawable>
+    
+</resources>
