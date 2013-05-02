@@ -9,5 +9,7 @@
     <drawable name="Purple">#800080</drawable>
     <drawable name="Brown">#A52A2A</drawable>
     <drawable name="White">#FFFFFF</drawable>
+    <drawable name="LightBrown">#372C24</drawable>
+    <drawable name="DarkOrange">#EA7500</drawable>
     
 </resources>

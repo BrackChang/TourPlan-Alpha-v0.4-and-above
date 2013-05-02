@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">MapMobile</string>
-    <string name="LoginLabel">Login Page</string>
+    <string name="TitleText">TourPlan-Alpha</string>
     <string name="emailLabel">E-Mail</string>
     <string name="passLabel">Password</string>
     <string name="SignIn">Sign In</string>
@@ -13,4 +13,5 @@
     <string name="Labm406">http://labm406.serveftp.com/mobile/index.php</string>
     <string name="goWeb">Go to Web version</string>
     <string name="TestButton">Get Something!</string>
+    <string name="NewGuy">A new guy? Come here\n for sign up and join us!</string>
 </resources>

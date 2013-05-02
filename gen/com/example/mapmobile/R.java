@@ -21,64 +21,66 @@ public final class R {
         public static final int activity_vertical_margin=0x7f040001;
     }
     public static final class drawable {
-        public static final int AliceBlue=0x7f020004;
-        public static final int Beige=0x7f020002;
-        public static final int Black=0x7f020003;
-        public static final int Brown=0x7f020008;
-        public static final int Ivory=0x7f020001;
-        public static final int Orange=0x7f020005;
-        public static final int Purple=0x7f020007;
-        public static final int SteelBlue=0x7f020006;
-        public static final int White=0x7f020009;
-        public static final int ic_launcher=0x7f020000;
+        public static final int AliceBlue=0x7f020006;
+        public static final int Beige=0x7f020004;
+        public static final int Black=0x7f020005;
+        public static final int Brown=0x7f02000a;
+        public static final int DarkOrange=0x7f02000d;
+        public static final int Ivory=0x7f020003;
+        public static final int LightBrown=0x7f02000c;
+        public static final int Orange=0x7f020007;
+        public static final int Purple=0x7f020009;
+        public static final int SteelBlue=0x7f020008;
+        public static final int White=0x7f02000b;
+        public static final int cloud_bg=0x7f020000;
+        public static final int ic_launcher=0x7f020001;
+        public static final int tour_icon=0x7f020002;
     }
     public static final class id {
-        public static final int AddInfo=0x7f080019;
-        public static final int BtnLayout=0x7f080006;
-        public static final int EmailInput=0x7f080003;
-        public static final int EmailLabel=0x7f080002;
-        public static final int FooterLayout=0x7f08000a;
-        public static final int Functions=0x7f080015;
-        public static final int HelloLabel=0x7f08000e;
-        public static final int Info1=0x7f08001a;
-        public static final int InputLayout=0x7f080001;
-        public static final int Line1=0x7f080010;
-        public static final int Line2=0x7f080013;
-        public static final int LoginText=0x7f080000;
-        public static final int MapArea=0x7f080011;
-        public static final int MapView=0x7f080012;
-        public static final int Or=0x7f080008;
-        public static final int PassInput=0x7f080005;
-        public static final int PassLabel=0x7f080004;
-        public static final int PlanSelector=0x7f080016;
-        public static final int SayHi=0x7f08000d;
-        public static final int ScrollArea=0x7f080014;
-        public static final int SignInBtn=0x7f080007;
-        public static final int SignUpBtn=0x7f080009;
-        public static final int UserName=0x7f08000f;
-        public static final int action_settings=0x7f08001b;
-        public static final int displayText=0x7f080018;
-        public static final int goWeb=0x7f08000b;
-        public static final int mapLayout=0x7f08000c;
-        public static final int testBut=0x7f080017;
+        public static final int AddInfo=0x7f070019;
+        public static final int EmailInput=0x7f070006;
+        public static final int EmailLabel=0x7f070005;
+        public static final int Functions=0x7f070015;
+        public static final int Header=0x7f070001;
+        public static final int HelloLabel=0x7f07000e;
+        public static final int Info1=0x7f07001a;
+        public static final int Line1=0x7f070010;
+        public static final int Line2=0x7f070013;
+        public static final int LoginForm=0x7f070004;
+        public static final int MapArea=0x7f070011;
+        public static final int MapView=0x7f070012;
+        public static final int PassInput=0x7f070008;
+        public static final int PassLabel=0x7f070007;
+        public static final int PlanSelector=0x7f070016;
+        public static final int Register=0x7f07000a;
+        public static final int SayHi=0x7f07000d;
+        public static final int ScrollArea=0x7f070014;
+        public static final int ScrollView1=0x7f070000;
+        public static final int SignInBtn=0x7f070009;
+        public static final int TitleText=0x7f070002;
+        public static final int UserName=0x7f07000f;
+        public static final int displayText=0x7f070018;
+        public static final int footer=0x7f070003;
+        public static final int goWeb=0x7f07000b;
+        public static final int mapLayout=0x7f07000c;
+        public static final int testBut=0x7f070017;
     }
     public static final class layout {
-        public static final int main=0x7f030000;
-        public static final int map=0x7f030001;
-    }
-    public static final class menu {
-        public static final int main=0x7f070000;
+        public static final int footer_repeat=0x7f030000;
+        public static final int header_gradient=0x7f030001;
+        public static final int main=0x7f030002;
+        public static final int map=0x7f030003;
     }
     public static final class string {
         public static final int EmailInput_hint=0x7f050007;
         public static final int HelloLabel=0x7f050009;
         public static final int Labm406=0x7f05000a;
-        public static final int LoginLabel=0x7f050001;
+        public static final int NewGuy=0x7f05000d;
         public static final int PassInput_hint=0x7f050008;
         public static final int SignIn=0x7f050004;
         public static final int SignUp=0x7f050006;
         public static final int TestButton=0x7f05000c;
-        public static final int action_settings=0x7f05000d;
+        public static final int TitleText=0x7f050001;
         public static final int app_name=0x7f050000;
         public static final int emailLabel=0x7f050002;
         public static final int goWeb=0x7f05000b;
