@@ -3,7 +3,6 @@ package com.example.mapmobile;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.StringReader;
 import java.io.InputStream;
 
 import org.xmlpull.v1.XmlPullParser;
@@ -85,7 +84,7 @@ public class XmlParser extends Activity {
 			e.printStackTrace();
 		}
 		
-		Log.i("Brack", "XmlParser.ParseSucceed");
+		Log.i("Brack", "XmlParser.ParseSuccessful");
 
 		return planVO;
 	}

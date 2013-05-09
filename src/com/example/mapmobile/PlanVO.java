@@ -54,14 +54,18 @@ public class PlanVO {
 		return lat;
 	}
 	public void setLat(String lat) {
-		this.lat = this.lat + "," + lat;
+		StringBuffer sb = new StringBuffer(this.lat = this.lat + "," + lat);
+		sb.delete(0, sb.indexOf(","));
+		this.lat = sb.toString();
 	}
 	
 	public String getLng() {
 		return lng;
 	}
 	public void setLng(String lng) {
-		this.lng = this.lng + "," + lng;
+		StringBuffer sb = new StringBuffer(this.lng = this.lng + "," + lng);
+		sb.delete(0, sb.indexOf(","));
+		this.lng = sb.toString();
 	}
 	
 	

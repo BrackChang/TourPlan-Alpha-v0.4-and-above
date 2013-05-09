@@ -13,7 +13,7 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:paddingBottom="5dp">
+        android:paddingBottom="2dp" >
 
         <TextView
             android:id="@+id/HelloLabel"
@@ -40,11 +40,11 @@
     <LinearLayout
         android:id="@+id/MapArea"
         android:layout_width="fill_parent"
-        android:layout_height="220dp"
+        android:layout_height="200dp"
         android:isScrollContainer="true"
         android:overScrollMode="always"
         android:scrollbarAlwaysDrawVerticalTrack="true"
-        android:scrollbars="horizontal|vertical">
+        android:scrollbars="horizontal|vertical" >
 
         <com.google.android.maps.MapView
             android:id="@+id/MapView"
@@ -55,8 +55,6 @@
             android:isScrollContainer="true"
             android:keepScreenOn="true"
             android:overScrollMode="always"
-            android:scrollbarAlwaysDrawHorizontalTrack="true"
-            android:scrollbarAlwaysDrawVerticalTrack="true"
             android:scrollbars="horizontal|vertical" >
         </com.google.android.maps.MapView>
     </LinearLayout>
@@ -89,10 +87,10 @@
                     android:layout_height="wrap_content" />
 
                 <Button
-                    android:id="@+id/testBut"
+                    android:id="@+id/testBtn"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:onClick="testButClick"
+                    android:onClick="testBtnClick"
                     android:text="@string/TestButton" />
 
                 <TextView
@@ -109,14 +107,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/Functions">
-
-
-                <TableRow
-                    android:id="@+id/Info1"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" >
-
-                </TableRow>
 
             </TableLayout>
 

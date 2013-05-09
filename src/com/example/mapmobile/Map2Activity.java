@@ -2,6 +2,7 @@ package com.example.mapmobile;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -14,30 +15,44 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
 
 import com.google.android.maps.GeoPoint;
+import com.google.android.maps.ItemizedOverlay;
 import com.google.android.maps.MapActivity;
 import com.google.android.maps.MapController;
 import com.google.android.maps.MapView;
+import com.google.android.maps.MyLocationOverlay;
+import com.google.android.maps.Overlay;
+import com.google.android.maps.OverlayItem;
 
-import android.content.Intent;
+import android.annotation.SuppressLint;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Debug;
 import android.os.Handler;
 import android.os.Message;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup.LayoutParams;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
+import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
+@SuppressLint("HandlerLeak")
 public class Map2Activity extends MapActivity 
 {    
-    MapView mapView; 
-    MapController mc;
-    GeoPoint gp;
+    private MapView mapView; 
+    private MapController mapControl;
+    private MyLocationOverlay myLayer;
+    private GeoPoint gp;
+    private MapOverlay Marker;
+    TextView displayText;
     Spinner PlanSelector;
     protected static final int REFRESH_DATA = 0x00000001;
     
@@ -48,27 +63,11 @@ public class Map2Activity extends MapActivity
         super.onCreate(savedInstanceState);
         Debug.startMethodTracing("report");
         setContentView(R.layout.map);
-        this.setTitle("TourPlan-Alpha_v0.4");
+        this.setTitle("TourPlan-Alpha_v0.5");
         Debug.stopMethodTracing();
         
-        
-        mapView = (MapView) findViewById(R.id.MapView);  
-        mapView.setBuiltInZoomControls(true);
-        mapView.setSatellite(false);
+        findMapControl();
 
-        mc = mapView.getController();
-        String coordinates[] = {"23.94", "121.00"};
-        double lat = Double.parseDouble(coordinates[0]);
-        double lng = Double.parseDouble(coordinates[1]);
-        
-        gp = new GeoPoint(
-        		(int)(lat*1E6),
-        		(int)(lng*1E6));
-        
-        mc.animateTo(gp);
-        mc.setZoom(8);
-        mapView.invalidate();
-        
         TextView UserName = (TextView)findViewById(R.id.UserName);
         
         Bundle userName = this.getIntent().getExtras();		//Obtain Bundle
@@ -81,7 +80,6 @@ public class Map2Activity extends MapActivity
     	th.start();
     	
     	//String xmlString = getStringByUrl(xmlURL);
-
 			
 			/*
 			String resSpot = "Spots:";
@@ -94,6 +92,49 @@ public class Map2Activity extends MapActivity
 			*/
     }
     
+    private void findMapControl()
+    {
+    	mapView = (MapView) findViewById(R.id.MapView);
+        mapView.setBuiltInZoomControls(true);
+        mapView.setSatellite(false);
+        
+        mapControl = mapView.getController();
+        String coordinates[] = {"23.94", "121.00"};
+        double lat = Double.parseDouble(coordinates[0]);
+        double lng = Double.parseDouble(coordinates[1]);
+        
+        gp = new GeoPoint(
+        		(int)(lat*1E6),(int)(lng*1E6));
+        
+        mapControl.animateTo(gp);
+        mapControl.setZoom(8);
+        
+        /* Find My Location */
+        List<Overlay> overlays = mapView.getOverlays();
+        myLayer = new MyLocationOverlay(this, mapView);
+        
+        myLayer.enableCompass();
+        myLayer.enableMyLocation();
+        myLayer.runOnFirstFix(new Runnable()
+        {
+        	public void run()
+        	{
+        		mapControl.animateTo(myLayer.getMyLocation());
+        	}
+        });
+        overlays.add(myLayer);
+        /* Find My Location */
+        
+        mapView.invalidate();
+    }
+    /*
+    private void markerOverlay()
+    {
+    	Drawable marker = getResources().getDrawable(R.drawable.here_icon);
+    	Marker = new MapOverlay(marker);
+    	mapView.getOverlays().add(Marker);
+    }
+    */
     Handler planMove = new Handler()
    	{
    		@Override
@@ -109,7 +150,7 @@ public class Map2Activity extends MapActivity
    				if (msg.obj instanceof String)
    					xmlString = (String) msg.obj;
    				
-   				final TextView displayText = (TextView)findViewById(R.id.displayText);
+   				displayText = (TextView)findViewById(R.id.displayText);
    		        PlanSelector = (Spinner) findViewById(R.id.PlanSelector);
    		        Bundle userName = Map2Activity.this.getIntent().getExtras();
    		        final String Name = userName.getString("name").toString();
@@ -135,18 +176,18 @@ public class Map2Activity extends MapActivity
    					PlanSelector.setOnItemSelectedListener(new Spinner.OnItemSelectedListener() {
    						public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
    							//TODO Auto-generated method stub
-   							//Toast.makeText(Map1Activity.this, "Plan: " + arg0.getSelectedItem().toString(), Toast.LENGTH_LONG).show();
    							
    							String selected = plans[arg2];
-   							final String pid = selected.substring(0,3);
-   							
-   							if (pid.contains("--")) 
+
+   							if (selected.contains("---")) 
    							{
-   								displayText.setText(pid);
+   								Toast.makeText(Map2Activity.this, "Now, Please choose your plan!", Toast.LENGTH_SHORT).show();
+   								displayText.setText(selected);
    							} else {
-   								Toast.makeText(Map2Activity.this, "Plan: " + arg0.getSelectedItem().toString(), Toast.LENGTH_LONG).show();
-   								String pidBuffer = pid.trim();
-	   							final String xmlPidUrl = "http://140.128.198.44:408/plandata/" +Name +"/" +pidBuffer;
+   								Toast.makeText(Map2Activity.this, "Plan: " + arg0.getSelectedItem().toString(), Toast.LENGTH_SHORT).show();
+   								//String pidBuffer = pid.trim();
+   								String pid = selected.substring(0,selected.indexOf(" "));
+	   							final String xmlPidUrl = "http://140.128.198.44:408/plandata/" +Name +"/" +pid;
    								
    								new Thread()
    								{
@@ -182,48 +223,185 @@ public class Map2Activity extends MapActivity
    				if (url.obj instanceof String)
    					xmlPidString = (String) url.obj;
    					
-   					TextView displayText = (TextView)findViewById(R.id.displayText);
+   					displayText = (TextView)findViewById(R.id.displayText);
+   					TableLayout addInfo = (TableLayout)findViewById(R.id.AddInfo);
+   					addInfo.setStretchAllColumns(true);
+   					TableLayout.LayoutParams row_layout = new TableLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+   					TableRow.LayoutParams view_layout = new TableRow.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+   					addInfo.removeAllViews();
+   					
    					PlanVO pidVO = XmlParser.parse(xmlPidString);
 						
-					String spot = pidVO.getSpot();
-					String[] spotList = spot.split(",");
+					String Lat = pidVO.getLat();
+					StringBuffer LatBuf = new StringBuffer(Lat);
+					LatBuf.deleteCharAt(0);
+					String Lat2 = new String(LatBuf);
+					
+					String Lng = pidVO.getLng();
+					StringBuffer LngBuf = new StringBuffer(Lng);
+					LngBuf.deleteCharAt(0);
+					String Lng2 = new String(LngBuf);
+					
+					String[] latList = Lat2.split(",");
+					String[] lngList = Lng2.split(",");
+					
+					//String latList[] = {Lat2};
+					//String lngList[] = {Lng2};
+					
+					Drawable marker = getResources().getDrawable(R.drawable.here_icon);
+					Marker = new MapOverlay(marker);	
+			    	
+					List<GeoPoint> points = new ArrayList<GeoPoint>();
+					
+			
+					
+					GeoPoint station_taipei = new GeoPoint(
+							(int)(25.047192 * 1E6),
+							(int)(121.516981 * 1E6)
+					);
+					GeoPoint station_tainan = new GeoPoint(
+							(int)(22.99724179778664 * 1E6),
+							(int)(120.2126014372952 * 1E6)
+					);
+					Marker.setPoint(station_taipei, "0.0", "CCC");
+					Marker.setPoint(station_tainan, "0.0", "KerKer~");		
+					
+					Marker.finish();
+					mapView.getOverlays().add(Marker);
+					mapView.invalidate();
+					
+					for (int i = 0; i < latList.length; i++)
+					{
+						/*
+						String coordinates[] = {latList[i], lngList[i]};
+						double latitude = Double.parseDouble(coordinates[0]);
+						double longitude = Double.parseDouble(coordinates[1]);
 						
-					TableRow info1 = (TableRow)findViewById(R.id.Info1);
-					info1.removeAllViews();
-					for(int i = 0; i < spotList.length; i++) {
-						TextView infoList = new TextView(Map2Activity.this);
-						infoList.setText(spotList[i]);
-						info1.addView(infoList);
-					}	
-					displayText.setText(spot); 
+						GeoPoint mark = new GeoPoint(
+											(int)(latitude * 1E6),
+											(int)(longitude * 1E6));
+						points.add(mark);
+						
+						Marker.setPoint(position, "title[i]", "snippet[i]");
+						*/
+						
+						TableRow tr = new TableRow(Map2Activity.this);
+						tr.setLayoutParams(row_layout);
+						tr.setGravity(Gravity.CENTER_HORIZONTAL);
+						
+						TextView latInfo = new TextView(Map2Activity.this);
+						latInfo.setText(latList[i]);
+						latInfo.setLayoutParams(view_layout);
+						
+						TextView lngInfo = new TextView(Map2Activity.this);
+						lngInfo.setText(lngList[i]);
+						lngInfo.setLayoutParams(view_layout);
+						
+						tr.addView(latInfo);
+						tr.addView(lngInfo);
+						addInfo.addView(tr);
+					}
+					
+					
+					displayText.setText(Lat2 + "\n" + Lng2); 
    			}
    		}
    	};
    	
-    
-    
+   	
+   	public class MapOverlay extends ItemizedOverlay<OverlayItem> {
+   		
+   		private List<OverlayItem> Items = new ArrayList<OverlayItem>();
+   		
+   		public MapOverlay (Drawable defaultMarker) {
+   			super (boundCenterBottom(defaultMarker));
+   		}
+   		
+   		public void setPoint (GeoPoint pos, String title, String snippet)
+   		{
+   			Items.add (new OverlayItem((GeoPoint) pos, title, snippet));
+   		}
+   		
+   		public void finish()
+   		{
+   			populate();
+   		}
+   		
+   		@Override
+   		protected OverlayItem createItem(int i) {
+   			return Items.get(i);
+   		}
+   		
+   		@Override
+   		public int size() {
+   			return Items.size();
+   		}
+   		
+   		@Override
+   		protected boolean onTap(int index) {
+   			
+   			AlertDialog.Builder infoDialog = new AlertDialog.Builder(Map2Activity.this);
+   			infoDialog.setTitle(Items.get(index).getTitle());
+   			infoDialog.setMessage(Items.get(index).getSnippet());
+   			infoDialog.setPositiveButton("OK!", 
+   					new DialogInterface.OnClickListener()
+   					{
+   						public void onClick(DialogInterface dialog, int which)
+   						{
+   						//Actions after you press OK!	
+   						}
+   					});
+   			infoDialog.show();
+   			
+   			//Toast.makeText(Map2Activity.this, Items.get(index).getSnippet(), Toast.LENGTH_SHORT).show();
+   			return true;
+   		}
+   	}
+   	
+   	
+   	
+ 
 
-    public void testButClick(View testClick) {
-    	//Bundle userName = this.getIntent().getExtras();
-    	//String Name = userName.getString("name").toString();
+    public void testBtnClick(View testClick) {
     	
-    	TextView displayText = (TextView)findViewById(R.id.displayText);
-        PlanSelector = (Spinner) findViewById(R.id.PlanSelector);
-        
-    	String xmlURL = "http://labm406.serveftp.com/mobileApp/xml/plan_spot.php?uid=22";
-    	String xmlString = getStringByUrl(xmlURL);
-
-        PlanVO planVO = XmlParser.parse(xmlString);
-
-        String res = "-----";
-        StringTokenizer stPlan = new StringTokenizer(planVO.getPlan(),",");
-		stPlan.nextToken();
-			while (stPlan.hasMoreTokens()) {
-					res = res + "\n" + stPlan.nextToken();
-        
-					displayText.setText(res);
-			}
+        new Thread()
+        {
+        	public void run()
+        	{
+        		String xmlURL = "http://labm406.serveftp.com/mobileApp/xml/plan_spot.php?uid=22";
+        		String xmlString = getStringByUrl(xmlURL);
+        		testBtn.obtainMessage(REFRESH_DATA, xmlString).sendToTarget();
+        	}
+        }.start();
     }
+    
+    Handler testBtn = new Handler()
+    {
+    	@Override
+    	public void handleMessage(Message msg)
+    	{
+    		switch (msg.what)
+    		{
+    		case REFRESH_DATA:
+    			String xmlString = null;
+    			if (msg.obj instanceof String)
+    				xmlString = (String) msg.obj;
+    			
+    	    	displayText = (TextView)findViewById(R.id.displayText);
+    	        PlanSelector = (Spinner) findViewById(R.id.PlanSelector);
+    	        
+    		    PlanVO planVO = XmlParser.parse(xmlString);
+
+    	        String res = "-----";
+    	        StringTokenizer stPlan = new StringTokenizer(planVO.getPlan(),",");
+    			stPlan.nextToken();
+    				while (stPlan.hasMoreTokens()) {
+    						res = res + "\n" + stPlan.nextToken();
+    				}
+    			displayText.setText(res);
+    		}
+    	}
+    };
 
     
     class sendItToRun implements Runnable 

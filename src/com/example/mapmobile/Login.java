@@ -12,6 +12,7 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
@@ -22,6 +23,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
+@SuppressLint("HandlerLeak")
 public class Login extends Activity {
 
 	protected static final int REFRESH_DATA = 0x00000001;
@@ -31,7 +33,14 @@ public class Login extends Activity {
     public void onCreate(Bundle savedInstanceState) {
     	super.onCreate(savedInstanceState);
     	setContentView(R.layout.main);
-    	this.setTitle("TourPlan-Alpha_v0.4");
+    	this.setTitle("TourPlan-Alpha_v0.5");
+    	
+    	EditText emailInput = (EditText)findViewById(R.id.EmailInput);
+    	EditText passInput = (EditText)findViewById(R.id.PassInput);
+    	emailInput.setFocusable(true);
+    	emailInput.setFocusableInTouchMode(true);
+    	passInput.setFocusable(true);
+    	passInput.setFocusableInTouchMode(true);
     }
     
     
@@ -79,7 +88,7 @@ public class Login extends Activity {
 				if (msg.obj instanceof String)
 					echoResult = (String) msg.obj;
 				
-				if (echoResult.contains("Dude! Who the hell are you?!"))
+				if (echoResult.contains("Dude"))
     			{
     				Toast.makeText(Login.this,echoResult,Toast.LENGTH_LONG).show();
 		    	    		

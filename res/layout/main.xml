@@ -52,15 +52,15 @@
 
 		</LinearLayout>
 
-            
-        
         <LinearLayout
             android1:id="@+id/LoginForm"
             android1:layout_width="match_parent"
             android1:layout_height="wrap_content"
+            android:layout_below="@+id/Header"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
             android1:orientation="vertical"
-            android:padding="10dip"
-          	android:layout_below="@+id/Header" >
+            android1:padding="5dp" >
 
             <TextView
                 android1:id="@+id/EmailLabel"
@@ -75,11 +75,13 @@
                 android1:id="@+id/EmailInput"
                 android1:layout_width="match_parent"
                 android1:layout_height="wrap_content"
-                android1:ems="10"
                 android:layout_marginTop="5dip"
+                android:singleLine="true"
+                android1:ems="10"
+                android1:focusable="false"
+                android1:focusableInTouchMode="false"
                 android1:hint="@string/EmailInput_hint"
                 android1:inputType="textEmailAddress"
-                android:singleLine="true"
                 android1:text="g10049013@thu.edu.tw" />
 
             <TextView
@@ -95,12 +97,16 @@
                 android1:id="@+id/PassInput"
                 android1:layout_width="match_parent"
                 android1:layout_height="wrap_content"
+                android1:layout_marginTop="5dip"
                 android1:ems="10"
-                android:layout_marginTop="5dip"
+                android1:focusable="false"
+                android1:focusableInTouchMode="false"
                 android1:hint="@string/PassInput_hint"
                 android1:inputType="textPassword"
-                android:singleLine="true"
-                android1:text="vansttt" />
+                android1:singleLine="true"
+                android1:text="vansttt" >
+
+            </EditText>
 
             <Button
                 android1:id="@+id/SignInBtn"
