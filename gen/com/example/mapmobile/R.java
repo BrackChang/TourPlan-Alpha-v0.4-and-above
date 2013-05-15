@@ -139,24 +139,25 @@ containing a value of this type.
         public static final int activity_vertical_margin=0x7f060001;
     }
     public static final class drawable {
-        public static final int AliceBlue=0x7f020007;
-        public static final int Beige=0x7f020005;
-        public static final int Black=0x7f020006;
-        public static final int Brown=0x7f02000b;
-        public static final int DarkOrange=0x7f02000e;
-        public static final int Ivory=0x7f020004;
-        public static final int LightBrown=0x7f02000d;
-        public static final int Orange=0x7f020008;
-        public static final int Purple=0x7f02000a;
-        public static final int SteelBlue=0x7f020009;
-        public static final int White=0x7f02000c;
+        public static final int AliceBlue=0x7f020008;
+        public static final int Beige=0x7f020006;
+        public static final int Black=0x7f020007;
+        public static final int Brown=0x7f02000c;
+        public static final int DarkOrange=0x7f02000f;
+        public static final int Ivory=0x7f020005;
+        public static final int LightBrown=0x7f02000e;
+        public static final int Orange=0x7f020009;
+        public static final int Purple=0x7f02000b;
+        public static final int SteelBlue=0x7f02000a;
+        public static final int White=0x7f02000d;
         public static final int cloud_bg=0x7f020000;
         public static final int here_icon=0x7f020001;
         public static final int ic_launcher=0x7f020002;
-        public static final int tour_icon=0x7f020003;
+        public static final int info_icon=0x7f020003;
+        public static final int tour_icon=0x7f020004;
     }
     public static final class id {
-        public static final int AddInfo=0x7f04001e;
+        public static final int AddInfo=0x7f04001d;
         public static final int EmailInput=0x7f04000b;
         public static final int EmailLabel=0x7f04000a;
         public static final int Functions=0x7f04001a;
@@ -177,7 +178,7 @@ containing a value of this type.
         public static final int SignInBtn=0x7f04000e;
         public static final int TitleText=0x7f040007;
         public static final int UserName=0x7f040014;
-        public static final int displayText=0x7f04001d;
+        public static final int displayText=0x7f04001c;
         public static final int footer=0x7f040008;
         public static final int goWeb=0x7f040010;
         public static final int hybrid=0x7f040004;
@@ -186,13 +187,13 @@ containing a value of this type.
         public static final int normal=0x7f040001;
         public static final int satellite=0x7f040002;
         public static final int terrain=0x7f040003;
-        public static final int testBtn=0x7f04001c;
     }
     public static final class layout {
-        public static final int footer_repeat=0x7f030000;
-        public static final int header_gradient=0x7f030001;
-        public static final int main=0x7f030002;
-        public static final int map=0x7f030003;
+        public static final int big_spinner_dropdown_item=0x7f030000;
+        public static final int footer_repeat=0x7f030001;
+        public static final int header_gradient=0x7f030002;
+        public static final int main=0x7f030003;
+        public static final int map=0x7f030004;
     }
     public static final class string {
         public static final int EmailInput_hint=0x7f050018;
@@ -200,10 +201,15 @@ containing a value of this type.
         public static final int Labm406=0x7f05001b;
         public static final int NewGuy=0x7f05001e;
         public static final int PassInput_hint=0x7f050019;
+        public static final int Pass_Brack=0x7f050023;
+        public static final int Pass_dogman=0x7f050021;
         public static final int SignIn=0x7f050015;
         public static final int SignUp=0x7f050017;
         public static final int TestButton=0x7f05001d;
         public static final int TitleText=0x7f050012;
+        public static final int User_Brack=0x7f050022;
+        public static final int User_dogman=0x7f050020;
+        public static final int VersionName=0x7f05001f;
         public static final int app_name=0x7f050011;
         /**   Title for notification shown when GooglePlayServices is unavailable [CHAR LIMIT=70] 
          */

@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:android1="http://schemas.android.com/apk/res/android"
+    android1:id="@+id/ScrollView1"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent" >
+
+    <RelativeLayout
+        android1:layout_width="match_parent"
+        android1:layout_height="wrap_content" >
+
+        <LinearLayout
+            android:id="@+id/Header"
+            android:layout_width="fill_parent"
+            android:layout_height="100dp"
+            android:background="@layout/header_gradient"
+            android:paddingBottom="5dip"
+            android:paddingTop="5dip"
+            android1:orientation="horizontal" >
+
+            <!-- Logo Start -->
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android1:layout_gravity="center"
+                android1:layout_marginLeft="20dp"
+                android1:layout_marginRight="20dp"
+                android:src="@drawable/tour_icon"
+                android1:minHeight="80dp"
+                android1:minWidth="80dp" />
+
+            <!-- Logo Ends -->
+
+            <TextView
+                android1:id="@+id/TitleText"
+                android1:layout_width="wrap_content"
+                android1:layout_height="wrap_content"
+                android1:layout_gravity="center"
+                android1:gravity="center"
+                android1:text="@string/TitleText"
+                android1:textColor="@drawable/Beige"
+                android1:textSize="45sp"
+                android1:textStyle="italic|bold" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/footer"
+            android:layout_width="fill_parent"
+            android:layout_height="96dp"
+            android:layout_alignParentBottom="true"
+            android:layout_below="@+id/LoginForm"
+            android:background="@layout/footer_repeat" >
+
+		</LinearLayout>
+
+        <LinearLayout
+            android1:id="@+id/LoginForm"
+            android1:layout_width="match_parent"
+            android1:layout_height="wrap_content"
+            android:layout_below="@+id/Header"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android1:orientation="vertical"
+            android1:padding="25dp" >
+
+            <TextView
+                android1:id="@+id/EmailLabel"
+                android1:layout_width="fill_parent"
+                android1:layout_height="wrap_content"
+                android1:text="@string/emailLabel"
+                android1:textColor="@drawable/LightBrown"
+                android1:textSize="30sp"
+                android1:textStyle="bold" />
+
+            <EditText
+                android1:id="@+id/EmailInput"
+                android1:layout_width="match_parent"
+                android1:layout_height="wrap_content"
+                android:layout_marginTop="5dip"
+                android:singleLine="true"
+                android1:ems="10"
+                android1:focusable="false"
+                android1:focusableInTouchMode="false"
+                android1:hint="@string/EmailInput_hint"
+                android1:inputType="textEmailAddress"
+                android1:text="g10049013@thu.edu.tw"
+                android1:textSize="25sp" />
+
+            <TextView
+                android1:id="@+id/PassLabel"
+                android1:layout_width="fill_parent"
+                android1:layout_height="wrap_content"
+                android1:text="@string/passLabel"
+                android1:textColor="@drawable/LightBrown"
+                android1:textSize="30sp"
+                android1:textStyle="bold" />
+
+            <EditText
+                android1:id="@+id/PassInput"
+                android1:layout_width="match_parent"
+                android1:layout_height="wrap_content"
+                android1:layout_marginTop="5dip"
+                android1:ems="10"
+                android1:focusable="false"
+                android1:focusableInTouchMode="false"
+                android1:hint="@string/PassInput_hint"
+                android1:inputType="textPassword"
+                android1:singleLine="true"
+                android1:text="vansttt"
+                android1:textSize="25sp" >
+
+            </EditText>
+
+            <Button
+                android1:id="@+id/SignInBtn"
+                android1:layout_width="fill_parent"
+                android1:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
+                android1:minHeight="72dip"
+                android1:onClick="btn1Click"
+                android1:text="@string/SignIn"
+                android1:textSize="30sp" />
+            
+            <TextView
+                android:id="@+id/Register"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="20dp"
+                android1:layout_marginTop="20dp"
+                android:gravity="center"
+                android:text="@string/NewGuy"
+                android:textColor="#0b84aa"
+                android:textSize="30sp"
+                android1:textStyle="italic" />
+
+            <TextView
+                android1:id="@+id/goWeb"
+                android1:layout_width="wrap_content"
+                android1:layout_height="wrap_content"
+                android1:layout_gravity="right"
+                android1:clickable="true"
+                android1:onClick="textClick"
+                android1:text="@string/goWeb"
+                android1:textAppearance="?android:attr/textAppearanceMedium"
+                android1:textColor="@drawable/DarkOrange"
+                android1:textSize="25sp"
+                android1:textStyle="bold" />
+
+        </LinearLayout>
+
+    </RelativeLayout>
+
+</ScrollView>

@@ -11,7 +11,6 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
-
 import org.apache.http.util.EntityUtils;
 
 import com.google.android.maps.GeoPoint;
@@ -23,9 +22,12 @@ import com.google.android.maps.MyLocationOverlay;
 import com.google.android.maps.Overlay;
 import com.google.android.maps.OverlayItem;
 
+import android.R.drawable;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Debug;
@@ -36,6 +38,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
+
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
@@ -54,6 +57,7 @@ public class Map2Activity extends MapActivity
     private MapOverlay Marker;
     TextView displayText;
     Spinner PlanSelector;
+    private String tourURL = "http://140.128.198.44:408/plandata/";
     protected static final int REFRESH_DATA = 0x00000001;
     
     /** Called when the activity is first created. **/
@@ -63,7 +67,7 @@ public class Map2Activity extends MapActivity
         super.onCreate(savedInstanceState);
         Debug.startMethodTracing("report");
         setContentView(R.layout.map);
-        this.setTitle("TourPlan-Alpha_v0.5");
+        this.setTitle(R.string.VersionName);
         Debug.stopMethodTracing();
         
         findMapControl();
@@ -74,22 +78,12 @@ public class Map2Activity extends MapActivity
         String Name = userName.getString("name").toString();
         UserName.setText(Name);								//Output the contents of Bundle
         
-    	String xmlURL = "http://140.128.198.44:408/plandata/"+Name;
+    	String xmlURL = tourURL + Name;
     	
     	Thread th = new Thread(new sendItToRun(xmlURL));
     	th.start();
     	
     	//String xmlString = getStringByUrl(xmlURL);
-			
-			/*
-			String resSpot = "Spots:";
-			StringTokenizer stSpot = new StringTokenizer(planVO.getSpot(),",");
-			stSpot.nextToken();
-				while (stSpot.hasMoreTokens()) {
-						resSpot = resSpot + "\n"+ stSpot.nextToken();
-					}
-			displayText.setText(resSpot);
-			*/
     }
     
     private void findMapControl()
@@ -127,14 +121,7 @@ public class Map2Activity extends MapActivity
         
         mapView.invalidate();
     }
-    /*
-    private void markerOverlay()
-    {
-    	Drawable marker = getResources().getDrawable(R.drawable.here_icon);
-    	Marker = new MapOverlay(marker);
-    	mapView.getOverlays().add(Marker);
-    }
-    */
+
     Handler planMove = new Handler()
    	{
    		@Override
@@ -187,7 +174,7 @@ public class Map2Activity extends MapActivity
    								Toast.makeText(Map2Activity.this, "Plan: " + arg0.getSelectedItem().toString(), Toast.LENGTH_SHORT).show();
    								//String pidBuffer = pid.trim();
    								String pid = selected.substring(0,selected.indexOf(" "));
-	   							final String xmlPidUrl = "http://140.128.198.44:408/plandata/" +Name +"/" +pid;
+	   							final String xmlPidUrl = tourURL +Name +"/" +pid;
    								
    								new Thread()
    								{
@@ -226,8 +213,10 @@ public class Map2Activity extends MapActivity
    					displayText = (TextView)findViewById(R.id.displayText);
    					TableLayout addInfo = (TableLayout)findViewById(R.id.AddInfo);
    					addInfo.setStretchAllColumns(true);
-   					TableLayout.LayoutParams row_layout = new TableLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-   					TableRow.LayoutParams view_layout = new TableRow.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+   					TableLayout.LayoutParams row_layout = new TableLayout.LayoutParams
+   														(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+   					TableRow.LayoutParams view_layout = new TableRow.LayoutParams
+   														(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
    					addInfo.removeAllViews();
    					
    					PlanVO pidVO = XmlParser.parse(xmlPidString);
@@ -242,68 +231,96 @@ public class Map2Activity extends MapActivity
 					LngBuf.deleteCharAt(0);
 					String Lng2 = new String(LngBuf);
 					
+					String Spot = pidVO.getSpot();
+					StringBuffer SpotBuf = new StringBuffer(Spot);
+					SpotBuf.deleteCharAt(0);
+					String Spot2 = new String(SpotBuf);
+					
+					String SpotInfo = pidVO.getSpotInfo();
+					StringBuffer SpotInfoBuf = new StringBuffer(SpotInfo);
+					SpotInfoBuf.deleteCharAt(0);
+					String SpotInfo2 = new String(SpotInfoBuf);
+					
+					String Day = pidVO.getDay();
+					StringBuffer DayBuf = new StringBuffer(Day);
+					DayBuf.deleteCharAt(0);
+					String Day2 = new String(DayBuf);
+					
+					String Que = pidVO.getQue();
+					StringBuffer QueBuf = new StringBuffer(Que);
+					QueBuf.deleteCharAt(0);
+					String Que2 = new String(QueBuf);
+					
 					String[] latList = Lat2.split(",");
 					String[] lngList = Lng2.split(",");
+					String[] spotList = Spot2.split(",");
+					String[] spotInfoList = SpotInfo2.split(",");
+					String[] dayList = Day2.split(",");
+					String[] queList = Que2.split(",");
 					
-					//String latList[] = {Lat2};
-					//String lngList[] = {Lng2};
+					mapView.getOverlays().remove(0);
+					Drawable marker1 = getResources().getDrawable(R.drawable.here_icon);
+					Bitmap markerScale = ((BitmapDrawable) marker1).getBitmap();
+					Drawable marker = new BitmapDrawable(getResources(), Bitmap.createScaledBitmap(markerScale, 35, 45, true));
 					
-					Drawable marker = getResources().getDrawable(R.drawable.here_icon);
-					Marker = new MapOverlay(marker);	
-			    	
-					List<GeoPoint> points = new ArrayList<GeoPoint>();
+					Marker = new MapOverlay(marker);
 					
-			
+					TableRow titleRow = new TableRow(Map2Activity.this);
+					titleRow.setLayoutParams(row_layout);
+					titleRow.setGravity(Gravity.CENTER_HORIZONTAL);
+					titleRow.setBackgroundResource(R.drawable.SteelBlue);
+					titleRow.setPadding(3, 3, 0, 5);
 					
-					GeoPoint station_taipei = new GeoPoint(
-							(int)(25.047192 * 1E6),
-							(int)(121.516981 * 1E6)
-					);
-					GeoPoint station_tainan = new GeoPoint(
-							(int)(22.99724179778664 * 1E6),
-							(int)(120.2126014372952 * 1E6)
-					);
-					Marker.setPoint(station_taipei, "0.0", "CCC");
-					Marker.setPoint(station_tainan, "0.0", "KerKer~");		
+					TextView dayTitle = new TextView(Map2Activity.this);
+					dayTitle.setText("Priority:");
+					dayTitle.setLayoutParams(view_layout);
+					dayTitle.setTextColor(getResources().getColor(R.drawable.White));
 					
-					Marker.finish();
-					mapView.getOverlays().add(Marker);
-					mapView.invalidate();
+					TextView spotTitle = new TextView(Map2Activity.this);
+					spotTitle.setText("Spots:");
+					spotTitle.setLayoutParams(view_layout);
+					spotTitle.setTextColor(getResources().getColor(R.drawable.White));
+					
+					titleRow.addView(dayTitle);
+					titleRow.addView(spotTitle);
+					addInfo.addView(titleRow);
 					
 					for (int i = 0; i < latList.length; i++)
 					{
-						/*
 						String coordinates[] = {latList[i], lngList[i]};
 						double latitude = Double.parseDouble(coordinates[0]);
 						double longitude = Double.parseDouble(coordinates[1]);
 						
-						GeoPoint mark = new GeoPoint(
+						GeoPoint points = new GeoPoint(
 											(int)(latitude * 1E6),
 											(int)(longitude * 1E6));
-						points.add(mark);
 						
-						Marker.setPoint(position, "title[i]", "snippet[i]");
-						*/
+						Marker.setPoint(points, spotList[i], spotInfoList[i]);
 						
-						TableRow tr = new TableRow(Map2Activity.this);
-						tr.setLayoutParams(row_layout);
-						tr.setGravity(Gravity.CENTER_HORIZONTAL);
+						TableRow contentRow = new TableRow(Map2Activity.this);
+						contentRow.setLayoutParams(row_layout);
+						contentRow.setGravity(Gravity.CENTER_HORIZONTAL);
+						contentRow.setBackgroundResource(drawable.menuitem_background);
+						contentRow.setClickable(true);
+						contentRow.setPadding(3, 5, 0, 5);
 						
-						TextView latInfo = new TextView(Map2Activity.this);
-						latInfo.setText(latList[i]);
-						latInfo.setLayoutParams(view_layout);
+						TextView dayCount = new TextView(Map2Activity.this);
+						dayCount.setText(queList[i] + "-Day" + dayList[i]);
+						dayCount.setLayoutParams(view_layout);
 						
-						TextView lngInfo = new TextView(Map2Activity.this);
-						lngInfo.setText(lngList[i]);
-						lngInfo.setLayoutParams(view_layout);
+						TextView spot = new TextView(Map2Activity.this);
+						spot.setText(spotList[i]);
+						spot.setLayoutParams(view_layout);
 						
-						tr.addView(latInfo);
-						tr.addView(lngInfo);
-						addInfo.addView(tr);
+						contentRow.addView(dayCount);
+						contentRow.addView(spot);
+						addInfo.addView(contentRow);
 					}
+					Marker.finish();
+					mapView.getOverlays().add(0, Marker);
+					mapView.invalidate();
 					
-					
-					displayText.setText(Lat2 + "\n" + Lng2); 
+					//displayText.setText(Lat2 + "\n" + Lng2); 
    			}
    		}
    	};
@@ -317,9 +334,9 @@ public class Map2Activity extends MapActivity
    			super (boundCenterBottom(defaultMarker));
    		}
    		
-   		public void setPoint (GeoPoint pos, String title, String snippet)
+   		public void setPoint (GeoPoint points, String title, String snippet)
    		{
-   			Items.add (new OverlayItem((GeoPoint) pos, title, snippet));
+   			Items.add (new OverlayItem(points, title, snippet));
    		}
    		
    		public void finish()
@@ -339,8 +356,8 @@ public class Map2Activity extends MapActivity
    		
    		@Override
    		protected boolean onTap(int index) {
-   			
    			AlertDialog.Builder infoDialog = new AlertDialog.Builder(Map2Activity.this);
+   			infoDialog.setIcon(R.drawable.info_icon);
    			infoDialog.setTitle(Items.get(index).getTitle());
    			infoDialog.setMessage(Items.get(index).getSnippet());
    			infoDialog.setPositiveButton("OK!", 
@@ -352,7 +369,6 @@ public class Map2Activity extends MapActivity
    						}
    					});
    			infoDialog.show();
-   			
    			//Toast.makeText(Map2Activity.this, Items.get(index).getSnippet(), Toast.LENGTH_SHORT).show();
    			return true;
    		}
@@ -361,7 +377,7 @@ public class Map2Activity extends MapActivity
    	
    	
  
-
+/*
     public void testBtnClick(View testClick) {
     	
         new Thread()
@@ -402,7 +418,7 @@ public class Map2Activity extends MapActivity
     		}
     	}
     };
-
+*/
     
     class sendItToRun implements Runnable 
     {

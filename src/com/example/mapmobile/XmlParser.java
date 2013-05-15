@@ -56,6 +56,17 @@ public class XmlParser extends Activity {
 						Log.i("Brack", "Spot= " + parser.getAttributeValue(0));
 						planVO.setSpot(parser.getAttributeValue(0));
 					}
+					
+					if (tagName.equals("infocontent")) {
+						Log.i("Brack", "Info= " + parser.getAttributeValue(0));
+						planVO.setSpotInfo(parser.getAttributeValue(0));
+					}
+					
+					if (tagName.equals("day")) {
+						Log.i("Brack", "Day " + parser.getAttributeValue(0));
+						planVO.setDay(parser.getAttributeValue(0));
+					}
+					
 					if (tagName.equals("lat")) {
 						Log.i("Brack", "Latitude= " + parser.getAttributeValue(0));
 						planVO.setLat(parser.getAttributeValue(0));
@@ -65,6 +76,10 @@ public class XmlParser extends Activity {
 						planVO.setLng(parser.getAttributeValue(0));
 					}
 					
+					if (tagName.equals("queue")) {
+						Log.i("Brack", "Queue= " + parser.getAttributeValue(0));
+						planVO.setQue(parser.getAttributeValue(0));
+					}
 					break;
 				case XmlPullParser.END_TAG:
 					break;

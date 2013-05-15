@@ -4,11 +4,12 @@ public class PlanVO {
 
 	String plan;
 	String spot;
-	String loc;
+	String spotInfo;
 	String pid;
-	String spotPid;
+	String day;
 	String lat;
 	String lng;
+	String que;
 	    
 	public String getPlan() {
 		return plan;
@@ -24,14 +25,15 @@ public class PlanVO {
 		StringBuffer sb = new StringBuffer(this.spot + "," + spot);
 		sb.delete(0,sb.indexOf(","));
 		this.spot = sb.toString();
-		//this.spot = this.spot + "," + spot;
 	}
 	
-	public String getLoc() {
-		return loc;
+	public String getSpotInfo() {
+		return spotInfo;
 	}
-	public void setLoc(String loc) {
-		this.loc = this.loc + "," + loc;
+	public void setSpotInfo(String spotInfo) {
+		StringBuffer sb = new StringBuffer(this.spotInfo + "," + spotInfo);
+		sb.delete(0, sb.indexOf(","));
+		this.spotInfo = sb.toString();
 	}
 	
 	public String getPid() {
@@ -42,12 +44,14 @@ public class PlanVO {
 		this.pid = this.pid + ",:" + pid;
 	}
 	
-	public String getSpotPid() {
-		return spotPid;
+	public String getDay() {
+		return day;
 	}
 	
-	public void setSpotPid(String spotPid) {
-		this.spotPid = this.spotPid + ",:" + spotPid;
+	public void setDay(String day) {
+		StringBuffer sb = new StringBuffer(this.day = this.day + "," + day);
+		sb.delete(0, sb.indexOf(","));
+		this.day = sb.toString();
 	}
 	
 	public String getLat() {
@@ -68,16 +72,26 @@ public class PlanVO {
 		this.lng = sb.toString();
 	}
 	
+	public String getQue() {
+		return que;
+	}
+	public void setQue(String que) {
+		StringBuffer sb = new StringBuffer(this.que = this.que + "," + que);
+		sb.delete(0, sb.indexOf(","));
+		this.que = sb.toString();
+	}
 	
-	public PlanVO(String plan, String spot, String loc, String pid, String spotPid, String lat, String lng) {
+	
+	public PlanVO(String plan, String spot, String spotInfo, String pid, String day, String lat, String lng, String que) {
 		super();
 		this.plan = plan;
 		this.spot = spot;
-		this.loc = loc;
+		this.spotInfo = spotInfo;
 		this.pid = pid;
-		this.spotPid = spotPid;
+		this.day = day;
 		this.lat = lat;
 		this.lng = lng;
+		this.que = que;
 	}
 
 	public PlanVO() {

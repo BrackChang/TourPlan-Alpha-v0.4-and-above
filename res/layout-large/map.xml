@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/mapLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/Ivory"
+    android:orientation="vertical"
+    android:scrollbarAlwaysDrawVerticalTrack="true"
+    android:scrollbars="horizontal|vertical" >
+
+    <LinearLayout
+        android:id="@+id/SayHi"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingBottom="2dp" >
+
+        <TextView
+            android:id="@+id/HelloLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/HelloLabel"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textColor="@drawable/Black"
+            android:textSize="30sp" />
+
+        <TextView
+            android:id="@+id/UserName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textColor="@drawable/Brown"
+            android:textSize="30sp" />
+
+    </LinearLayout>
+    
+    <View
+        android:id="@+id/Line1"
+        android:layout_width="fill_parent"
+        android:layout_height="2dp"
+        android:background="#000000" />
+
+    <LinearLayout
+        android:id="@+id/MapArea"
+        android:layout_width="fill_parent"
+        android:layout_height="380dp"
+        android:isScrollContainer="true"
+        android:overScrollMode="always"
+        android:scrollbarAlwaysDrawVerticalTrack="true"
+        android:scrollbars="horizontal|vertical" >
+
+        <com.google.android.maps.MapView
+            android:id="@+id/MapView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:apiKey="0nBP-9OdMeXA2iC6Qdpy6NjXh6wKMZN9DhaakFQ"
+            android:clickable="true"
+            android:isScrollContainer="true"
+            android:keepScreenOn="true"
+            android:overScrollMode="always"
+            android:scrollbars="horizontal|vertical" >
+        </com.google.android.maps.MapView>
+    </LinearLayout>
+    
+    <View
+        android:id="@+id/Line2"
+        android:layout_width="fill_parent"
+        android:layout_height="2dp"
+        android:background="#000000" />
+
+    <ScrollView
+        android:id="@+id/ScrollArea"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent" >
+
+        <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:background="#ffffff" >
+
+            <LinearLayout
+                android:id="@+id/Functions"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" android:paddingTop="5dp">
+
+                <Spinner
+                    android:id="@+id/PlanSelector"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <TextView
+                    android:id="@+id/displayText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="TextView" />
+
+            </LinearLayout>
+
+
+            <TableLayout
+                android:id="@+id/AddInfo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/Functions">
+
+            </TableLayout>
+
+        </RelativeLayout>
+
+    </ScrollView>
+
+</LinearLayout>

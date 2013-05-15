@@ -33,7 +33,7 @@ public class Login extends Activity {
     public void onCreate(Bundle savedInstanceState) {
     	super.onCreate(savedInstanceState);
     	setContentView(R.layout.main);
-    	this.setTitle("TourPlan-Alpha_v0.5");
+    	this.setTitle(R.string.VersionName);
     	
     	EditText emailInput = (EditText)findViewById(R.id.EmailInput);
     	EditText passInput = (EditText)findViewById(R.id.PassInput);
