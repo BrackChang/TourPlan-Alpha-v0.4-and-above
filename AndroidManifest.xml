@@ -34,6 +34,7 @@
         
         <activity
             android:name="com.example.mapmobile.Login"
+            android:windowSoftInputMode="adjustPan"
             android:label="@string/app_name" >
             
             <intent-filter>
@@ -44,7 +45,10 @@
         
         <uses-library android:name="com.google.android.maps"/>
         
-        <activity android:name="Map2Activity"></activity>
+        <activity 
+            android:name="Map2Activity"
+            android:windowSoftInputMode="adjustPan">
+        </activity>
         
     </application>
 

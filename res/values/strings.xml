@@ -14,9 +14,13 @@
     <string name="goWeb">Go to Web version</string>
     <string name="TestButton">Get Something!</string>
     <string name="NewGuy">A new guy? Come here\n for sign up and join us!</string>
-    <string name="VersionName">TourPlan-Alpha_v0.6</string>
+    <string name="VersionName">TourPlan-Alpha_v0.7</string>
     <string name="User_dogman">g10049013@thu.edu.tw</string>
     <string name="Pass_dogman">vansttt</string>
     <string name="User_Brack">brack.clare@gmail.com</string>
     <string name="Pass_Brack">dagger</string>
+    <string name="searchBotton">Find</string>
+    <string name="goOffLine">Offline Mode</string>
+    <string name="rememberMe">Remember Me</string>
+    <string name="SearchSomething">Search Something~</string>
 </resources>

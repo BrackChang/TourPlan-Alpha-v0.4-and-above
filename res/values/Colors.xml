@@ -11,5 +11,14 @@
     <drawable name="White">#FFFFFF</drawable>
     <drawable name="LightBrown">#372C24</drawable>
     <drawable name="DarkOrange">#EA7500</drawable>
+    <drawable name="anotherBlue">#0B84AA</drawable>
+    <drawable name="SeeGreen">#2E8B57</drawable>
+    <drawable name="PaleGreen">#98FB98</drawable>
+    <drawable name="SkyBlue">#87CEEB</drawable>
+    <drawable name="Tan">#D2B48C</drawable>
+    <drawable name="Red">#FF0000</drawable>
+    <drawable name="Turquoise">#40E0D0</drawable>
+    <drawable name="Gold">#FFD700</drawable>
+    <drawable name="Marron">#800000</drawable>
     
 </resources>

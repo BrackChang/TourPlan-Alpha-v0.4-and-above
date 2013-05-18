@@ -2,6 +2,7 @@ package com.example.mapmobile;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.StringTokenizer;
 import java.util.regex.Matcher;
@@ -25,22 +26,35 @@ import com.google.android.maps.OverlayItem;
 import android.R.drawable;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.location.Address;
+import android.location.Geocoder;
 import android.os.Bundle;
 import android.os.Debug;
 import android.os.Handler;
 import android.os.Message;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.util.Log;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnKeyListener;
 import android.view.ViewGroup.LayoutParams;
+import android.view.inputmethod.InputMethodManager;
 
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
+import android.widget.ListView;
+import android.widget.SimpleAdapter;
 import android.widget.Spinner;
 import android.widget.TableLayout;
 import android.widget.TableRow;
@@ -55,9 +69,11 @@ public class Map2Activity extends MapActivity
     private MyLocationOverlay myLayer;
     private GeoPoint gp;
     private MapOverlay Marker;
-    TextView displayText;
-    Spinner PlanSelector;
-    private String tourURL = "http://140.128.198.44:408/plandata/";
+    private SearchOverlay locMarker;
+    private ListView PlanList;
+    private Spinner PlanSelector;
+    private AutoCompleteTextView typingText;
+    private String tourURL = "http://140.128.198.44:406/plandata/";
     protected static final int REFRESH_DATA = 0x00000001;
     
     /** Called when the activity is first created. **/
@@ -71,7 +87,8 @@ public class Map2Activity extends MapActivity
         Debug.stopMethodTracing();
         
         findMapControl();
-
+        
+        typingText = (AutoCompleteTextView)findViewById(R.id.typingText);
         TextView UserName = (TextView)findViewById(R.id.UserName);
         
         Bundle userName = this.getIntent().getExtras();		//Obtain Bundle
@@ -82,6 +99,8 @@ public class Map2Activity extends MapActivity
     	
     	Thread th = new Thread(new sendItToRun(xmlURL));
     	th.start();
+    	
+    	typingText.setOnKeyListener(searchKey);
     	
     	//String xmlString = getStringByUrl(xmlURL);
     }
@@ -98,13 +117,19 @@ public class Map2Activity extends MapActivity
         double lng = Double.parseDouble(coordinates[1]);
         
         gp = new GeoPoint(
-        		(int)(lat*1E6),(int)(lng*1E6));
+        		(int)(lat * 1E6),(int)(lng * 1E6));
         
-        mapControl.animateTo(gp);
+        //mapControl.animateTo(gp);
         mapControl.setZoom(8);
         
         /* Find My Location */
-        List<Overlay> overlays = mapView.getOverlays();
+        findMyLocation();
+        /* Find My Location */
+    }
+    
+    private void findMyLocation()
+    {
+    	List<Overlay> locOverlays = mapView.getOverlays();
         myLayer = new MyLocationOverlay(this, mapView);
         
         myLayer.enableCompass();
@@ -116,8 +141,7 @@ public class Map2Activity extends MapActivity
         		mapControl.animateTo(myLayer.getMyLocation());
         	}
         });
-        overlays.add(myLayer);
-        /* Find My Location */
+        locOverlays.add(myLayer);
         
         mapView.invalidate();
     }
@@ -137,8 +161,11 @@ public class Map2Activity extends MapActivity
    				if (msg.obj instanceof String)
    					xmlString = (String) msg.obj;
    				
-   				displayText = (TextView)findViewById(R.id.displayText);
    		        PlanSelector = (Spinner) findViewById(R.id.PlanSelector);
+   		        typingText = (AutoCompleteTextView)findViewById(R.id.typingText);
+				typingText.setFocusable(true);
+		        typingText.setFocusableInTouchMode(true);
+		        
    		        Bundle userName = Map2Activity.this.getIntent().getExtras();
    		        final String Name = userName.getString("name").toString();
    				
@@ -169,12 +196,11 @@ public class Map2Activity extends MapActivity
    							if (selected.contains("---")) 
    							{
    								Toast.makeText(Map2Activity.this, "Now, Please choose your plan!", Toast.LENGTH_SHORT).show();
-   								displayText.setText(selected);
    							} else {
    								Toast.makeText(Map2Activity.this, "Plan: " + arg0.getSelectedItem().toString(), Toast.LENGTH_SHORT).show();
    								//String pidBuffer = pid.trim();
    								String pid = selected.substring(0,selected.indexOf(" "));
-	   							final String xmlPidUrl = tourURL +Name +"/" +pid;
+	   							final String xmlPidUrl = tourURL + Name +"/" +pid;
    								
    								new Thread()
    								{
@@ -210,8 +236,12 @@ public class Map2Activity extends MapActivity
    				if (url.obj instanceof String)
    					xmlPidString = (String) url.obj;
    					
-   					displayText = (TextView)findViewById(R.id.displayText);
-   					TableLayout addInfo = (TableLayout)findViewById(R.id.AddInfo);
+   					PlanList = (ListView)findViewById(R.id.PlanList);
+   					typingText = (AutoCompleteTextView)findViewById(R.id.typingText);
+   					typingText.setFocusable(true);
+   			        typingText.setFocusableInTouchMode(true);
+   			        
+   			        TableLayout addInfo = (TableLayout)findViewById(R.id.AddInfo);
    					addInfo.setStretchAllColumns(true);
    					TableLayout.LayoutParams row_layout = new TableLayout.LayoutParams
    														(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
@@ -251,12 +281,12 @@ public class Map2Activity extends MapActivity
 					QueBuf.deleteCharAt(0);
 					String Que2 = new String(QueBuf);
 					
-					String[] latList = Lat2.split(",");
-					String[] lngList = Lng2.split(",");
-					String[] spotList = Spot2.split(",");
-					String[] spotInfoList = SpotInfo2.split(",");
-					String[] dayList = Day2.split(",");
-					String[] queList = Que2.split(",");
+					final String[] latList = Lat2.split(",");
+					final String[] lngList = Lng2.split(",");
+					final String[] spotList = Spot2.split(",");
+					final String[] spotInfoList = SpotInfo2.split(",");
+					final String[] dayList = Day2.split(",");
+					final String[] queList = Que2.split(",");
 					
 					mapView.getOverlays().remove(0);
 					Drawable marker1 = getResources().getDrawable(R.drawable.here_icon);
@@ -265,25 +295,34 @@ public class Map2Activity extends MapActivity
 					
 					Marker = new MapOverlay(marker);
 					
+					ArrayAdapter<String> autoText = new ArrayAdapter<String>
+													(Map2Activity.this, android.R.layout.simple_spinner_item, spotList);
+					typingText.setAdapter(autoText);
+					
 					TableRow titleRow = new TableRow(Map2Activity.this);
 					titleRow.setLayoutParams(row_layout);
-					titleRow.setGravity(Gravity.CENTER_HORIZONTAL);
+					titleRow.setGravity(Gravity.CENTER);
 					titleRow.setBackgroundResource(R.drawable.SteelBlue);
-					titleRow.setPadding(3, 3, 0, 5);
+					titleRow.setPadding(5, 3, 0, 3); //(left, top, right, bottom)
 					
 					TextView dayTitle = new TextView(Map2Activity.this);
-					dayTitle.setText("Priority:");
+					dayTitle.setText("Spots:");
 					dayTitle.setLayoutParams(view_layout);
 					dayTitle.setTextColor(getResources().getColor(R.drawable.White));
+					dayTitle.setGravity(Gravity.CENTER);
 					
 					TextView spotTitle = new TextView(Map2Activity.this);
-					spotTitle.setText("Spots:");
+					spotTitle.setText("(Long press for information)");
 					spotTitle.setLayoutParams(view_layout);
 					spotTitle.setTextColor(getResources().getColor(R.drawable.White));
+					spotTitle.setGravity(Gravity.CENTER);
 					
 					titleRow.addView(dayTitle);
 					titleRow.addView(spotTitle);
 					addInfo.addView(titleRow);
+					
+					ArrayList<HashMap<String, String>> itemList = new ArrayList<HashMap<String, String>>();
+					
 					
 					for (int i = 0; i < latList.length; i++)
 					{
@@ -297,12 +336,21 @@ public class Map2Activity extends MapActivity
 						
 						Marker.setPoint(points, spotList[i], spotInfoList[i]);
 						
+						HashMap<String, String> planItems = new HashMap<String, String>();
+						
+						planItems.put("spot", spotList[i]);
+						planItems.put("day", queList[i]+ "-" + "Day:" + dayList[i]);
+						itemList.add(planItems);
+						
+						/*
 						TableRow contentRow = new TableRow(Map2Activity.this);
 						contentRow.setLayoutParams(row_layout);
 						contentRow.setGravity(Gravity.CENTER_HORIZONTAL);
 						contentRow.setBackgroundResource(drawable.menuitem_background);
 						contentRow.setClickable(true);
 						contentRow.setPadding(3, 5, 0, 5);
+						
+						contentRow.setTag("Row" + i);
 						
 						TextView dayCount = new TextView(Map2Activity.this);
 						dayCount.setText(queList[i] + "-Day" + dayList[i]);
@@ -315,12 +363,65 @@ public class Map2Activity extends MapActivity
 						contentRow.addView(dayCount);
 						contentRow.addView(spot);
 						addInfo.addView(contentRow);
+						*/
 					}
 					Marker.finish();
 					mapView.getOverlays().add(0, Marker);
 					mapView.invalidate();
 					
-					//displayText.setText(Lat2 + "\n" + Lng2); 
+					final SimpleAdapter planAdapter = new SimpleAdapter
+											(Map2Activity.this, itemList, android.R.layout.simple_list_item_2,
+											new String[] {"spot","day"},new int[] {android.R.id.text1, android.R.id.text2});
+					PlanList.setAdapter(planAdapter);
+					PlanList.setTextFilterEnabled(true);
+					
+					//typingText.setAdapter(planAdapter);
+					
+					PlanList.setOnItemClickListener(new AdapterView.OnItemClickListener(){
+						public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+							
+							String coordinates[] = {latList[arg2], lngList[arg2]};
+							double latitude = Double.parseDouble(coordinates[0]);
+							double longitude = Double.parseDouble(coordinates[1]);
+							
+							GeoPoint position = new GeoPoint(
+												(int)(latitude * 1E6),
+												(int)(longitude * 1E6));
+							
+							mapControl.animateTo(position);
+							mapControl.setZoom(16);
+							
+							Toast.makeText(Map2Activity.this,spotList[arg2], Toast.LENGTH_SHORT).show();
+						}
+					});
+					PlanList.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener(){
+						public boolean onItemLongClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+							
+							AlertDialog.Builder infoDialog = new AlertDialog.Builder(Map2Activity.this);
+				   			infoDialog.setIcon(R.drawable.info_icon);
+				   			infoDialog.setTitle(spotList[arg2]);
+				   			infoDialog.setMessage(spotInfoList[arg2]);
+				   			infoDialog.setPositiveButton("OK!", 
+				   					new DialogInterface.OnClickListener()
+				   					{
+				   						public void onClick(DialogInterface dialog, int which)
+				   						{
+				   						//Actions after you press OK!	
+				   						}
+				   					});
+				   			infoDialog.show();
+							return true;
+						}
+					});
+					typingText.addTextChangedListener(new TextWatcher() {
+						public void onTextChanged(CharSequence s, int start, int before, int count) {
+							planAdapter.getFilter().filter(s);
+						}
+                        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                        }
+                        public void afterTextChanged(Editable s) {
+                        }
+					});
    			}
    		}
    	};
@@ -375,7 +476,117 @@ public class Map2Activity extends MapActivity
    	}
    	
    	
+   	public void searchClick(View searchClick) {
+   		typingText = (AutoCompleteTextView)findViewById(R.id.typingText);
+   		String input = typingText.getText().toString().trim();
+   		
+   		Drawable marker1 = getResources().getDrawable(R.drawable.search_icon);
+   		Bitmap markerScale = ((BitmapDrawable) marker1).getBitmap();
+   		Drawable marker = new BitmapDrawable(getResources(), Bitmap.createScaledBitmap(markerScale, 35, 40, true));
+   		
+   		mapView.getOverlays().remove(locMarker);
+   		locMarker = new SearchOverlay(marker);
+   		
+   		if (input.length() > 0) {
+   			Geocoder geocoder = new Geocoder(Map2Activity.this);
+   			List<Address> addrs = null;
+   			Address addr = null;
+   			
+   			try {
+   				addrs = geocoder.getFromLocationName(input, 1);
+   			} catch (IOException e) {
+   				Log.e("findLocation:", e.toString());
+   			}
+   			
+   			if (addrs == null || addrs.isEmpty()) {
+   				Toast.makeText(Map2Activity.this, "Location not find!", Toast.LENGTH_SHORT).show();
+   			} else {
+   				addr = addrs.get(0);
+   				double geoLat = addr.getLatitude() * 1E6;
+   				double geoLng = addr.getLongitude() * 1E6;
+   				
+   				gp = new GeoPoint((int) geoLat, (int) geoLng);
+   				
+   				locMarker.setPoint(gp, "Your searching result", input);
+   				locMarker.finish();
+   				mapView.getOverlays().add(locMarker);
+   				mapView.invalidate();
+   				
+   				mapControl.animateTo(gp);
+   				mapControl.setZoom(10);
+   			}
+   		} else {
+   			Toast.makeText(Map2Activity.this, "Your Input is Empty!!", Toast.LENGTH_SHORT).show();
+   		}
+   	}
    	
+   	public class SearchOverlay extends ItemizedOverlay<OverlayItem> {
+   		
+   		private List<OverlayItem> Items = new ArrayList<OverlayItem>();
+   		
+   		public SearchOverlay (Drawable defaultMarker) {
+   			super (boundCenterBottom(defaultMarker));
+   		}
+   		
+   		public void setPoint (GeoPoint points, String title, String snippet)
+   		{
+   			Items.add (new OverlayItem(points, title, snippet));
+   		}
+   		
+   		public void finish()
+   		{
+   			populate();
+   		}
+   		
+   		@Override
+   		protected OverlayItem createItem(int i) {
+   			return Items.get(i);
+   		}
+   		
+   		@Override
+   		public int size() {
+   			return Items.size();
+   		}
+   		
+   		@Override
+   		protected boolean onTap(int index) {
+   			AlertDialog.Builder infoDialog = new AlertDialog.Builder(Map2Activity.this);
+   			infoDialog.setIcon(R.drawable.info_icon);
+   			infoDialog.setTitle(Items.get(index).getTitle());
+   			infoDialog.setMessage(Items.get(index).getSnippet());
+   			infoDialog.setPositiveButton("OK!", 
+   					new DialogInterface.OnClickListener()
+   					{
+   						public void onClick(DialogInterface dialog, int which)
+   						{
+   						//Actions after you press OK!	
+   						}
+   					});
+   			infoDialog.show();
+   			//Toast.makeText(Map2Activity.this, Items.get(index).getSnippet(), Toast.LENGTH_SHORT).show();
+   			return true;
+   		}
+   	}
+
+		OnKeyListener searchKey = new OnKeyListener() {
+			@Override
+			public boolean onKey(View v, int keyCode, KeyEvent event) {
+			// TODO Auto-generated method stub
+				if (keyCode == KeyEvent.KEYCODE_ENTER) 
+				{
+					InputMethodManager imm = (InputMethodManager)v.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+					
+					if (imm.isActive()) 
+						{
+							searchClick(v);
+							imm.hideSoftInputFromWindow(v.getApplicationWindowToken(), 0);
+						}
+					return true;
+				}
+				return false;
+			}
+		};
+
  
 /*
     public void testBtnClick(View testClick) {
@@ -503,8 +714,10 @@ public class Map2Activity extends MapActivity
     
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-    	menu.add(0,1,0,"Read Me");
-    	menu.add(0,0,1,"Logout");
+    	//(groupId, itemId, order, title)
+    	menu.add(0,0,0,"Logout").setIcon(android.R.drawable.ic_menu_close_clear_cancel);
+    	menu.add(0,1,1,"Read Me").setIcon(android.R.drawable.ic_menu_info_details);
+    	menu.add(0,2,2,"Find My Position").setIcon(android.R.drawable.ic_menu_mylocation);
     	return super.onCreateOptionsMenu(menu);
     }
     
@@ -512,12 +725,22 @@ public class Map2Activity extends MapActivity
     public boolean onOptionsItemSelected(MenuItem item) {
     	switch(item.getItemId()){
     		case 0:
+    			Intent goBack = new Intent();
+    			Bundle clear = new Bundle();
+    			goBack.setClass(Map2Activity.this, Login.class);
+    			clear.putString("Clear", "");
+    			goBack.putExtras(clear);
+    			Map2Activity.this.startActivity(goBack);
     			finish();
     			break;
     		default:
     		
     		case 1:
     			Toast.makeText(Map2Activity.this, "Still working on it...", Toast.LENGTH_LONG).show();
+    			break;
+    			
+    		case 2:
+    			findMyLocation();
     			break;
     	}
     	return super.onOptionsItemSelected(item);

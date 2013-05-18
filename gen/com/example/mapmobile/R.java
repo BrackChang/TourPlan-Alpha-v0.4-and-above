@@ -139,61 +139,86 @@ containing a value of this type.
         public static final int activity_vertical_margin=0x7f060001;
     }
     public static final class drawable {
-        public static final int AliceBlue=0x7f020008;
-        public static final int Beige=0x7f020006;
-        public static final int Black=0x7f020007;
-        public static final int Brown=0x7f02000c;
-        public static final int DarkOrange=0x7f02000f;
-        public static final int Ivory=0x7f020005;
-        public static final int LightBrown=0x7f02000e;
-        public static final int Orange=0x7f020009;
-        public static final int Purple=0x7f02000b;
-        public static final int SteelBlue=0x7f02000a;
-        public static final int White=0x7f02000d;
-        public static final int cloud_bg=0x7f020000;
-        public static final int here_icon=0x7f020001;
-        public static final int ic_launcher=0x7f020002;
-        public static final int info_icon=0x7f020003;
-        public static final int tour_icon=0x7f020004;
+        public static final int AliceBlue=0x7f02000b;
+        public static final int Beige=0x7f020009;
+        public static final int Black=0x7f02000a;
+        public static final int Brown=0x7f02000f;
+        public static final int DarkOrange=0x7f020012;
+        public static final int Gold=0x7f02001a;
+        public static final int Ivory=0x7f020008;
+        public static final int LightBrown=0x7f020011;
+        public static final int Marron=0x7f02001b;
+        public static final int Orange=0x7f02000c;
+        public static final int PaleGreen=0x7f020015;
+        public static final int Purple=0x7f02000e;
+        public static final int Red=0x7f020018;
+        public static final int SeeGreen=0x7f020014;
+        public static final int SkyBlue=0x7f020016;
+        public static final int SteelBlue=0x7f02000d;
+        public static final int Tan=0x7f020017;
+        public static final int Turquoise=0x7f020019;
+        public static final int White=0x7f020010;
+        public static final int anotherBlue=0x7f020013;
+        public static final int button_style01=0x7f020000;
+        public static final int cloud_bg=0x7f020001;
+        public static final int here_icon=0x7f020002;
+        public static final int ic_launcher=0x7f020003;
+        public static final int info_icon=0x7f020004;
+        public static final int new_button_normal=0x7f020005;
+        public static final int search_icon=0x7f020006;
+        public static final int tour_icon=0x7f020007;
     }
     public static final class id {
-        public static final int AddInfo=0x7f04001d;
-        public static final int EmailInput=0x7f04000b;
-        public static final int EmailLabel=0x7f04000a;
-        public static final int Functions=0x7f04001a;
-        public static final int Header=0x7f040006;
-        public static final int HelloLabel=0x7f040013;
-        public static final int Line1=0x7f040015;
-        public static final int Line2=0x7f040018;
-        public static final int LoginForm=0x7f040009;
-        public static final int MapArea=0x7f040016;
-        public static final int MapView=0x7f040017;
-        public static final int PassInput=0x7f04000d;
-        public static final int PassLabel=0x7f04000c;
-        public static final int PlanSelector=0x7f04001b;
-        public static final int Register=0x7f04000f;
-        public static final int SayHi=0x7f040012;
-        public static final int ScrollArea=0x7f040019;
-        public static final int ScrollView1=0x7f040005;
-        public static final int SignInBtn=0x7f04000e;
-        public static final int TitleText=0x7f040007;
-        public static final int UserName=0x7f040014;
-        public static final int displayText=0x7f04001c;
-        public static final int footer=0x7f040008;
-        public static final int goWeb=0x7f040010;
+        public static final int AddInfo=0x7f040025;
+        public static final int EmailInput=0x7f04000f;
+        public static final int EmailLabel=0x7f04000e;
+        public static final int Functions=0x7f040022;
+        public static final int Header=0x7f04000a;
+        public static final int HelloLabel=0x7f04001b;
+        public static final int InsideLayout1=0x7f040015;
+        public static final int InsideLayout2=0x7f040017;
+        public static final int Line1=0x7f04001d;
+        public static final int Line2=0x7f040020;
+        public static final int LoginForm=0x7f04000d;
+        public static final int MapArea=0x7f04001e;
+        public static final int MapView=0x7f04001f;
+        public static final int PassInput=0x7f040011;
+        public static final int PassLabel=0x7f040010;
+        public static final int PlanList=0x7f040029;
+        public static final int PlanSelector=0x7f040023;
+        public static final int Register=0x7f040013;
+        public static final int SayHi=0x7f04001a;
+        public static final int ScrollArea=0x7f040021;
+        public static final int ScrollView1=0x7f040009;
+        public static final int SignInBtn=0x7f040012;
+        public static final int TitleText=0x7f04000b;
+        public static final int UserName=0x7f04001c;
+        public static final int displayText=0x7f040024;
+        public static final int footer=0x7f04000c;
+        public static final int goOffLine=0x7f040018;
+        public static final int goWeb=0x7f040014;
         public static final int hybrid=0x7f040004;
-        public static final int mapLayout=0x7f040011;
+        public static final int linearLayout1=0x7f040006;
+        public static final int mapLayout=0x7f040019;
         public static final int none=0x7f040000;
         public static final int normal=0x7f040001;
+        public static final int remember=0x7f040016;
         public static final int satellite=0x7f040002;
+        public static final int searchBtn=0x7f040028;
+        public static final int searchLayout=0x7f040026;
         public static final int terrain=0x7f040003;
+        public static final int textView1=0x7f040005;
+        public static final int textView2=0x7f040007;
+        public static final int textView3=0x7f040008;
+        public static final int typingText=0x7f040027;
     }
     public static final class layout {
         public static final int big_spinner_dropdown_item=0x7f030000;
         public static final int footer_repeat=0x7f030001;
         public static final int header_gradient=0x7f030002;
-        public static final int main=0x7f030003;
-        public static final int map=0x7f030004;
+        public static final int list_layout=0x7f030003;
+        public static final int main=0x7f030004;
+        public static final int map=0x7f030005;
     }
     public static final class string {
         public static final int EmailInput_hint=0x7f050018;
@@ -203,6 +228,7 @@ containing a value of this type.
         public static final int PassInput_hint=0x7f050019;
         public static final int Pass_Brack=0x7f050023;
         public static final int Pass_dogman=0x7f050021;
+        public static final int SearchSomething=0x7f050027;
         public static final int SignIn=0x7f050015;
         public static final int SignUp=0x7f050017;
         public static final int TestButton=0x7f05001d;
@@ -274,9 +300,12 @@ containing a value of this type.
          */
         public static final int common_signin_button_text_long=0x7f05000d;
         public static final int emailLabel=0x7f050013;
+        public static final int goOffLine=0x7f050025;
         public static final int goWeb=0x7f05001c;
         public static final int or=0x7f050016;
         public static final int passLabel=0x7f050014;
+        public static final int rememberMe=0x7f050026;
+        public static final int searchBotton=0x7f050024;
     }
     public static final class style {
         /** 

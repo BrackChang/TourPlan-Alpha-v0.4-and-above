@@ -81,8 +81,8 @@
                 android1:focusable="false"
                 android1:focusableInTouchMode="false"
                 android1:hint="@string/EmailInput_hint"
-                android1:inputType="textEmailAddress"
-                android1:text="@string/User_Brack" />
+                android1:imeOptions="actionNext"
+                android1:inputType="textEmailAddress" />
 
             <TextView
                 android1:id="@+id/PassLabel"
@@ -102,9 +102,9 @@
                 android1:focusable="false"
                 android1:focusableInTouchMode="false"
                 android1:hint="@string/PassInput_hint"
+                android1:imeOptions="actionGo"
                 android1:inputType="textPassword"
-                android1:singleLine="true"
-                android1:text="@string/Pass_Brack" >
+                android1:singleLine="true" >
 
                 <requestFocus />
             </EditText>
@@ -113,33 +113,71 @@
                 android1:id="@+id/SignInBtn"
                 android1:layout_width="fill_parent"
                 android1:layout_height="wrap_content"
-                android:layout_marginTop="15dp"
+                android1:layout_marginTop="15dp"
                 android1:onClick="btn1Click"
                 android1:text="@string/SignIn" />
-            
-            <TextView
-                android:id="@+id/Register"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="20dp"
-                android1:layout_marginTop="20dp"
-                android:gravity="center"
-                android:text="@string/NewGuy"
-                android:textColor="#0b84aa"
-                android:textSize="20sp"
-                android1:textStyle="italic" />
 
-            <TextView
-                android1:id="@+id/goWeb"
-                android1:layout_width="wrap_content"
+            <LinearLayout
+                android1:id="@+id/InsideLayout1"
+                android1:layout_width="match_parent"
                 android1:layout_height="wrap_content"
-                android1:layout_gravity="right"
-                android1:clickable="true"
-                android1:onClick="textClick"
-                android1:text="@string/goWeb"
-                android1:textAppearance="?android:attr/textAppearanceMedium"
-                android1:textColor="@drawable/DarkOrange"
-                android1:textStyle="bold" />
+                android1:layout_marginBottom="20dp"
+                android1:layout_marginTop="20dp" >
+
+                <CheckBox
+                    android1:id="@+id/remember"
+                    android1:layout_width="wrap_content"
+                    android1:layout_height="wrap_content"
+                    android1:layout_marginRight="10dp"
+                    android1:checked="false"
+                    android1:gravity="center"
+                    android1:text="@string/rememberMe"
+                    android1:textColor="@drawable/Marron"
+                    android1:textSize="14sp"
+                    android1:textStyle="italic|bold" />
+
+                <TextView
+                    android1:id="@+id/Register"
+                    android1:layout_width="match_parent"
+                    android1:layout_height="wrap_content"
+                    android1:layout_gravity="right"
+                    android1:gravity="center"
+                    android1:text="@string/NewGuy"
+                    android1:textColor="#0b84aa"
+                    android1:textSize="16sp"
+                    android1:textStyle="italic" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android1:id="@+id/InsideLayout2"
+                android1:layout_width="match_parent"
+                android1:layout_height="wrap_content" >
+
+                <Button
+                    android1:id="@+id/goOffLine"
+                    android1:layout_width="wrap_content"
+                    android1:layout_height="wrap_content"
+                    android1:minHeight="24dp"
+                    android1:onClick="offLineClick"
+                    android1:text="@string/goOffLine"
+                    android1:textColor="@drawable/SeeGreen"
+                    android1:textSize="15sp"
+                    android1:textStyle="italic" />
+
+                <TextView
+                    android1:id="@+id/goWeb"
+                    android1:layout_width="match_parent"
+                    android1:layout_height="wrap_content"
+                    android1:clickable="true"
+                    android1:gravity="right"
+                    android1:onClick="textClick"
+                    android1:text="@string/goWeb"
+                    android1:textAppearance="?android:attr/textAppearanceMedium"
+                    android1:textColor="@drawable/DarkOrange"
+                    android1:textStyle="bold" />
+
+            </LinearLayout>
 
         </LinearLayout>
 

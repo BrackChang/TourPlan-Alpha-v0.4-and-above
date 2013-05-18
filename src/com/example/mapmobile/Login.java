@@ -14,18 +14,28 @@ import org.apache.http.util.EntityUtils;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.View.OnKeyListener;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 import android.widget.Toast;
 
 @SuppressLint("HandlerLeak")
 public class Login extends Activity {
-
+	
+	private SharedPreferences infoSave;
+	private SharedPreferences.Editor editor;
 	protected static final int REFRESH_DATA = 0x00000001;
 	
 	 /** Called when the activity is first created. */ 
@@ -35,18 +45,82 @@ public class Login extends Activity {
     	setContentView(R.layout.main);
     	this.setTitle(R.string.VersionName);
     	
-    	EditText emailInput = (EditText)findViewById(R.id.EmailInput);
-    	EditText passInput = (EditText)findViewById(R.id.PassInput);
+    	final CheckBox rememberMe = (CheckBox)findViewById(R.id.remember);
+    	final EditText emailInput = (EditText)findViewById(R.id.EmailInput);
+    	final EditText passInput = (EditText)findViewById(R.id.PassInput);
     	emailInput.setFocusable(true);
     	emailInput.setFocusableInTouchMode(true);
     	passInput.setFocusable(true);
     	passInput.setFocusableInTouchMode(true);
+    	
+    	passInput.setOnKeyListener(goKey);
+    	
+    	//Button SignInBtn = (Button)findViewById(R.id.SignInBtn);
+    	//SignInBtn.setBackgroundResource(android.R.drawable.);
+    	
+    	infoSave = getPreferences(Activity.MODE_PRIVATE);
+    	String email_save = infoSave.getString("email", "");
+    	String pass_save = infoSave.getString("pass", "");
+    	
+    	emailInput.setText(email_save);
+    	passInput.setText(pass_save);
+    	
+    	Bundle clear = this.getIntent().getExtras();
+    	
+    	if (clear != null)
+    	{
+    		String makeClear = clear.getString("Clear").toString();
+    		if (makeClear != null) 
+    		{
+        		emailInput.setText(makeClear);
+    			passInput.setText(makeClear);
+        	}
+    	}
+    	
+    	if (emailInput.getText().toString().contains("@")){
+    		rememberMe.setChecked(true);
+    	}
+    	
+    	rememberMe.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+    		public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+    			if (isChecked)
+    			{
+    				editor = infoSave.edit();
+    				
+    				editor.putString("email", emailInput.getText().toString());
+    				editor.putString("pass", passInput.getText().toString());
+    				editor.commit();
+    			}
+    			if (! isChecked)
+    			{
+    				editor = infoSave.edit();
+    				
+    				editor.putString("email", "");
+    				editor.putString("pass", "");
+    				editor.commit();
+    			}
+    		}
+    	});
     }
     
-    
-    public void btn1Click(View SignInClick) {  	
+    public void btn1Click(View SignInClick) {
     	EditText email_input = (EditText) findViewById(R.id.EmailInput);
     	EditText pass_input = (EditText) findViewById(R.id.PassInput);
+    	CheckBox rememberMe = (CheckBox)findViewById(R.id.remember);
+    	infoSave = getPreferences(Activity.MODE_PRIVATE);
+    	
+    	if (rememberMe.isChecked())
+    	{
+    		editor = infoSave.edit();
+    		editor.putString("email", email_input.getText().toString());
+    		editor.putString("pass", pass_input.getText().toString());
+    		editor.commit();
+    	} else {
+    		editor = infoSave.edit();
+    		editor.putString("email", "");
+    		editor.putString("pass", "");
+    		editor.commit();
+    	}
     	 		
     			final String[] msg = new String[2];
     			
@@ -73,6 +147,24 @@ public class Login extends Activity {
     			}
 	    	}
     
+    OnKeyListener goKey = new OnKeyListener() {
+		@Override
+		public boolean onKey(View v, int keyCode, KeyEvent event) {
+			// TODO Auto-generated method stub
+			if (keyCode == KeyEvent.KEYCODE_ENTER) {
+				
+    			InputMethodManager input = (InputMethodManager)v.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+    			
+    			if (input.isActive()) {
+    				btn1Click(v);
+    				input.hideSoftInputFromWindow(v.getApplicationWindowToken(), 0);
+    			}
+    			return true;
+    		}
+			return false;
+		}
+    }; 
+    
     Handler mHandler = new Handler()
 	{
 		@Override
@@ -93,12 +185,12 @@ public class Login extends Activity {
     				Toast.makeText(Login.this,echoResult,Toast.LENGTH_LONG).show();
 		    	    		
     			} else {
-    				EditText pass_input = (EditText) findViewById(R.id.PassInput);
+    				//EditText pass_input = (EditText) findViewById(R.id.PassInput);
     				Toast.makeText(Login.this,"You have logged!",Toast.LENGTH_LONG).show();
-    				pass_input.setText("");
+    				//pass_input.setText("");
     			
 					Intent goMap = new Intent();
-	    	    	goMap.setClass(Login.this,Map2Activity.class);
+	    	    	goMap.setClass(Login.this, Map2Activity.class);
 	    	    				    	    	
 	    	    	//Set the parameter to send
 	    	    	Bundle userName = new Bundle();
@@ -106,13 +198,13 @@ public class Login extends Activity {
 	    	    	goMap.putExtras(userName);				//Put parameter into bundle
 	    	    	
 	    	    	Login.this.startActivity(goMap);
+	    	    	
+	    	    	finish();
 					}
 				break;
 			}
 		}
 	};
-    
-    
     
     public void textClick(View goWebClick) {
     		Uri uri = Uri.parse(getString(R.string.Labm406));
