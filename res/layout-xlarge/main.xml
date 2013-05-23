@@ -9,14 +9,14 @@
         android1:layout_width="match_parent"
         android1:layout_height="wrap_content" >
 
-        <LinearLayout
-            android:id="@+id/Header"
-            android:layout_width="fill_parent"
-            android:layout_height="200dp"
-            android:background="@layout/header_gradient"
-            android:paddingBottom="5dip"
-            android:paddingTop="5dip"
-            android1:orientation="horizontal" >
+         <LinearLayout
+             android:id="@+id/Header"
+             android:layout_width="fill_parent"
+             android:layout_height="180dp"
+             android:background="@layout/header_gradient"
+             android:paddingBottom="5dip"
+             android:paddingTop="5dip"
+             android1:orientation="horizontal" >
 
             <!-- Logo Start -->
 
@@ -25,10 +25,10 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="30dp"
                 android1:layout_gravity="center"
-                android1:layout_marginRight="30dp"
+                android1:layout_marginRight="40dp"
                 android:src="@drawable/tour_icon"
-                android1:minHeight="100dp"
-                android1:minWidth="100dp" />
+                android1:minHeight="120dp"
+                android1:minWidth="120dp" />
 
             <!-- Logo Ends -->
 
@@ -40,7 +40,7 @@
                 android1:gravity="center"
                 android1:text="@string/TitleText"
                 android1:textColor="@drawable/Beige"
-                android1:textSize="80sp"
+                android1:textSize="75sp"
                 android1:textStyle="italic|bold" />
 
         </LinearLayout>
@@ -48,10 +48,12 @@
         <LinearLayout
             android:id="@+id/footer"
             android:layout_width="fill_parent"
-            android:layout_height="96dp"
+            android:layout_height="193dp"
             android:layout_alignParentBottom="true"
             android:layout_below="@+id/LoginForm"
-            android:background="@layout/footer_repeat" >
+            android1:layout_marginTop="-30dp"
+            android:background="@layout/footer_repeat"
+            android1:orientation="horizontal" >
 
 		</LinearLayout>
 
@@ -60,10 +62,11 @@
             android1:layout_width="match_parent"
             android1:layout_height="wrap_content"
             android:layout_below="@+id/Header"
+            android1:layout_marginTop="-20dp"
             android:focusable="true"
             android:focusableInTouchMode="true"
             android1:orientation="vertical"
-            android1:padding="50dp" >
+            android1:padding="60dp" >
 
             <TextView
                 android1:id="@+id/EmailLabel"
@@ -71,7 +74,7 @@
                 android1:layout_height="wrap_content"
                 android1:text="@string/emailLabel"
                 android1:textColor="@drawable/LightBrown"
-                android1:textSize="70sp"
+                android1:textSize="60sp"
                 android1:textStyle="bold" />
 
             <EditText
@@ -85,16 +88,16 @@
                 android1:focusableInTouchMode="false"
                 android1:hint="@string/EmailInput_hint"
                 android1:inputType="textEmailAddress"
-                android1:text="g10049013@thu.edu.tw"
-                android1:textSize="60sp" />
+                android1:textSize="50sp" />
 
             <TextView
                 android1:id="@+id/PassLabel"
                 android1:layout_width="fill_parent"
                 android1:layout_height="wrap_content"
+                android1:layout_marginTop="20dp"
                 android1:text="@string/passLabel"
                 android1:textColor="@drawable/LightBrown"
-                android1:textSize="70sp"
+                android1:textSize="60sp"
                 android1:textStyle="bold" />
 
             <EditText
@@ -108,8 +111,7 @@
                 android1:hint="@string/PassInput_hint"
                 android1:inputType="textPassword"
                 android1:singleLine="true"
-                android1:text="vansttt"
-                android1:textSize="60sp" >
+                android1:textSize="50sp" >
 
             </EditText>
 
@@ -117,36 +119,78 @@
                 android1:id="@+id/SignInBtn"
                 android1:layout_width="fill_parent"
                 android1:layout_height="wrap_content"
-                android:layout_marginTop="15dp"
-                android1:minHeight="128dp"
+                android:layout_marginTop="40dp"
+                android1:minHeight="110dp"
                 android1:onClick="btn1Click"
                 android1:text="@string/SignIn"
-                android1:textSize="55sp" />
-            
-            <TextView
-                android:id="@+id/Register"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="20dp"
-                android1:layout_marginTop="20dp"
-                android:gravity="center"
-                android:text="@string/NewGuy"
-                android:textColor="#0b84aa"
-                android:textSize="50sp"
-                android1:textStyle="italic" />
+                android1:textSize="50sp" />
 
-            <TextView
-                android1:id="@+id/goWeb"
-                android1:layout_width="wrap_content"
+            <LinearLayout
+                android1:id="@+id/InsideLayout1"
+                android1:layout_width="match_parent"
                 android1:layout_height="wrap_content"
-                android1:layout_gravity="right"
-                android1:clickable="true"
-                android1:onClick="textClick"
-                android1:text="@string/goWeb"
-                android1:textAppearance="?android:attr/textAppearanceMedium"
-                android1:textColor="@drawable/DarkOrange"
-                android1:textSize="45sp"
-                android1:textStyle="bold" />
+                android1:layout_marginBottom="30dp"
+                android1:layout_marginTop="50dp" >
+
+                <CheckBox
+                    android1:id="@+id/remember"
+                    style="@style/MyCheckBox"
+                    android1:layout_width="wrap_content"
+                    android1:layout_height="wrap_content"
+                    android1:layout_gravity="center_vertical"
+                    android1:checked="false"
+                    android1:gravity="center_vertical|left"
+                    android1:maxHeight="80dp"
+                    android1:text="@string/rememberMe"
+                    android1:textColor="@drawable/Marron"
+                    android1:textSize="35sp"
+                    android1:textStyle="italic|bold" />
+
+                <TextView
+                    android1:id="@+id/Register"
+                    android1:layout_width="match_parent"
+                    android1:layout_height="wrap_content"
+                    android1:layout_gravity="center_vertical"
+                    android1:clickable="true"
+                    android1:gravity="right"
+                    android1:onClick="signUpClick"
+                    android1:text="@string/NewGuy"
+                    android1:textColor="#0b84aa"
+                    android1:textSize="35sp"
+                    android1:textStyle="italic" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android1:id="@+id/InsideLayout2"
+                android1:layout_width="match_parent"
+                android1:layout_height="wrap_content" >
+
+                <Button
+                    android1:id="@+id/goOffLine"
+                    android1:layout_width="wrap_content"
+                    android1:layout_height="wrap_content"
+                    android1:minHeight="80dp"
+                    android1:minWidth="160dp"
+                    android1:onClick="offLineClick"
+                    android1:text="@string/goOffLine"
+                    android1:textColor="@drawable/SeeGreen"
+                    android1:textSize="35sp" />
+
+                <TextView
+                    android1:id="@+id/goWeb"
+                    android1:layout_width="match_parent"
+                    android1:layout_height="wrap_content"
+                    android1:clickable="true"
+                    android1:gravity="right"
+                    android1:onClick="textClick"
+                    android1:text="@string/goWeb"
+                    android1:textAppearance="?android:attr/textAppearanceMedium"
+                    android1:textColor="@drawable/DarkOrange"
+                    android1:textSize="38sp"
+                    android1:textStyle="bold" />
+
+            </LinearLayout>
 
         </LinearLayout>
 

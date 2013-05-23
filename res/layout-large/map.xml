@@ -21,17 +21,14 @@
             android:layout_height="wrap_content"
             android:text="@string/HelloLabel"
             android:textAppearance="?android:attr/textAppearanceLarge"
-            android:textColor="@drawable/Black"
-            android:textSize="30sp" />
+            android:textColor="@drawable/Black" />
 
         <TextView
             android:id="@+id/UserName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceLarge"
-            android:textColor="@drawable/Brown"
-            android:textSize="30sp" />
-
+            android:textColor="@drawable/Brown" />
     </LinearLayout>
     
     <View
@@ -43,7 +40,7 @@
     <LinearLayout
         android:id="@+id/MapArea"
         android:layout_width="fill_parent"
-        android:layout_height="380dp"
+        android:layout_height="210dp"
         android:isScrollContainer="true"
         android:overScrollMode="always"
         android:scrollbarAlwaysDrawVerticalTrack="true"
@@ -71,11 +68,11 @@
     <ScrollView
         android:id="@+id/ScrollArea"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent" >
+        android:layout_height="wrap_content" >
 
         <RelativeLayout
             android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
+            android:layout_height="wrap_content"
             android:background="#ffffff" >
 
             <LinearLayout
@@ -89,14 +86,45 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
 
-                <TextView
-                    android:id="@+id/displayText"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="TextView" />
+                <LinearLayout
+                    android:id="@+id/searchLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" >
+
+                    <AutoCompleteTextView
+                        android:id="@+id/typingText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:completionThreshold="1"
+                        android:ems="10"
+                        android:focusable="false"
+                        android:focusableInTouchMode="false"
+                        android:hint="@string/SearchSomething"
+                        android:imeOptions="actionGo|actionSearch"
+                        android:singleLine="true"
+                        android:textColor="@drawable/Brown" >
+
+                        <requestFocus />
+                    </AutoCompleteTextView>
+
+                    <Button
+                        android:id="@+id/searchBtn"
+                        android:layout_width="wrap_content"
+                        android:layout_height="38dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/button_style01"
+                        android:gravity="center_vertical|center_horizontal"
+                        android:minHeight="24dp"
+                        android:minWidth="32dp"
+                        android:onClick="searchClick"
+                        android:text="@string/searchBotton"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
+
+                </LinearLayout>
 
             </LinearLayout>
-
 
             <TableLayout
                 android:id="@+id/AddInfo"
@@ -109,5 +137,18 @@
         </RelativeLayout>
 
     </ScrollView>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" >
+
+        <ListView
+            android:id="@+id/PlanList"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+        </ListView>
+
+    </LinearLayout>
 
 </LinearLayout>

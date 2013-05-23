@@ -1,16 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.mapmobile"
-    android:versionCode="2"
-    android:versionName="@string/VersionName" >
 
-    <uses-sdk
-        android:minSdkVersion="10" android:targetSdkVersion="15"/>
+<manifest
+	xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.brack.mapmobile"
+    android:versionCode="2"
+    android:versionName="@string/VersionName"
+    android:installLocation="auto" >
+
+    <uses-sdk android:minSdkVersion="8" android:targetSdkVersion="17"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
     <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES"/>
     
     <permission
@@ -33,7 +36,7 @@
     		android:value="AIzaSyDdPZNjSAXIx7XvWwlTKygF75X4fyiGRZI" />
         
         <activity
-            android:name="com.example.mapmobile.Login"
+            android:name="com.brack.mapmobile.Login"
             android:windowSoftInputMode="adjustPan"
             android:label="@string/app_name" >
             

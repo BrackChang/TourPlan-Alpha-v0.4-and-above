@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout android:id="@+id/mapLayout"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/mapLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/Ivory"
     android:orientation="vertical"
     android:scrollbarAlwaysDrawVerticalTrack="true"
-    android:scrollbars="horizontal|vertical" xmlns:android="http://schemas.android.com/apk/res/android">
+    android:scrollbars="horizontal|vertical" >
 
     <LinearLayout
         android:id="@+id/SayHi"
@@ -78,49 +79,34 @@
                 android:id="@+id/Functions"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical" android:paddingTop="5dp">
+                android:gravity="right"
+                android:orientation="horizontal" >
 
-                <Spinner
-                    android:id="@+id/PlanSelector"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
+                <AutoCompleteTextView
+                    android:id="@+id/typingText"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:completionThreshold="1"
+                    android:ems="10"
+                    android:focusable="false"
+                    android:focusableInTouchMode="false"
+                    android:hint="@string/SearchSomething"
+                    android:imeOptions="actionGo|actionSearch"
+                    android:singleLine="true"
+                    android:textColor="@drawable/Brown" />
 
-                <LinearLayout
-                    android:id="@+id/searchLayout"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" >
-
-                    <AutoCompleteTextView
-                        android:id="@+id/typingText"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:completionThreshold="1"
-                        android:ems="10"
-                        android:focusable="false"
-                        android:focusableInTouchMode="false"
-                        android:hint="@string/SearchSomething"
-                        android:imeOptions="actionGo|actionSearch"
-                        android:singleLine="true"
-                        android:textColor="@drawable/Brown" >
-
-                        <requestFocus />
-                    </AutoCompleteTextView>
-
-                    <Button
-                        android:id="@+id/searchBtn"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:background="@drawable/button_style01"
-                        android:minHeight="24dp"
-                        android:minWidth="32dp"
-                        android:onClick="searchClick"
-                        android:text="@string/searchBotton"
-                        android:textStyle="bold" />
-
-                </LinearLayout>
-
+                <Button
+                    android:id="@+id/searchBtn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="38dp"
+                    android:background="@drawable/button_style01"
+                    android:gravity="center_vertical|center_horizontal"
+                    android:minHeight="24dp"
+                    android:onClick="searchClick"
+                    android:text="@string/searchBotton"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
             </LinearLayout>
 
             <TableLayout
