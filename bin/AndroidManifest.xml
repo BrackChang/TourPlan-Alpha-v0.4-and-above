@@ -4,7 +4,7 @@
 	xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.brack.mapmobile"
     android:versionCode="2"
-    android:versionName="@string/VersionName"
+    android:versionName="@string/Version"
     android:installLocation="auto" >
 
     <uses-sdk android:minSdkVersion="8" android:targetSdkVersion="17"/>

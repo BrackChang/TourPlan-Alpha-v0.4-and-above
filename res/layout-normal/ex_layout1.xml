@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <TextView
+        android:id="@+id/groupName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="15dip"
+        android:layout_marginTop="5dip"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textColor="@drawable/SeeGreen"
+        android:textSize="18sp" />
+
+    <TextView
+        android:id="@+id/groupDescr"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@id/groupName"
+        android:layout_marginLeft="10dip"
+        android:paddingBottom="5dip"
+        android:paddingTop="4dip"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
+
+    <ImageButton
+        android:id="@+id/showMap"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_alignParentRight="true"
+        android:focusable="false"
+        android:src="@drawable/gomap_icon" />
+    
+    <ImageView
+        android:id="@+id/typeImage1"
+        android:layout_width="wrap_content"
+        android:layout_height="30dp"
+        android:layout_alignParentBottom="true"
+        android:layout_toRightOf="@+id/groupDescr" />
+
+    <ImageView
+        android:id="@+id/typeImage2"
+        android:layout_width="wrap_content"
+        android:layout_height="30dp"
+        android:layout_alignParentBottom="true"
+        android:layout_toRightOf="@+id/typeImage1" />
+    
+    <ImageView
+        android:id="@+id/typeImage3"
+        android:layout_width="wrap_content"
+        android:layout_height="30dp"
+        android:layout_alignParentBottom="true"
+        android:layout_toRightOf="@+id/typeImage2" />
+    
+    <ImageView
+        android:id="@+id/typeImage4"
+        android:layout_width="wrap_content"
+        android:layout_height="30dp"
+        android:layout_alignParentBottom="true"
+        android:layout_toRightOf="@+id/typeImage3" />
+    
+    <ImageView
+        android:id="@+id/typeImage5"
+        android:layout_width="wrap_content"
+        android:layout_height="30dp"
+        android:layout_alignParentBottom="true"
+        android:layout_toRightOf="@+id/typeImage4" />
+
+</RelativeLayout>

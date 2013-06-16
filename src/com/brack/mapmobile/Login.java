@@ -19,6 +19,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -29,13 +30,19 @@ import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.Message;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.View.OnKeyListener;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.PopupWindow;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 @SuppressLint("HandlerLeak")
@@ -48,14 +55,21 @@ public class Login extends Activity {
 	private WifiManager wifi;
 	private WifiInfo wifiInfo;
 	protected static final int REFRESH_DATA = 0x00000001;
-	int count = 0;
+	/*
+	protected static final int STOP = 0x10000;  
+    protected static final int NEXT = 0x10001;  
+    private int iCount = 0;
+    */
+    private String loading;
 	
 	 /** Called when the activity is first created. */ 
     @Override
     public void onCreate(Bundle savedInstanceState) {
     	super.onCreate(savedInstanceState);
     	setContentView(R.layout.main);
-    	this.setTitle(R.string.VersionName);
+    	String version = getResources().getString(R.string.Version);
+        String versionName = getResources().getString(R.string.VersionName);
+        this.setTitle(versionName + version);
     	
     	final CheckBox rememberMe = (CheckBox)findViewById(R.id.remember);
     	final EditText emailInput = (EditText)findViewById(R.id.EmailInput);
@@ -66,9 +80,6 @@ public class Login extends Activity {
     	passInput.setFocusableInTouchMode(true);
     	
     	passInput.setOnKeyListener(goKey);
-    	
-    	//Button SignInBtn = (Button)findViewById(R.id.SignInBtn);
-    	//SignInBtn.setBackgroundResource(android.R.drawable.);
     	
     	infoSave = getPreferences(Activity.MODE_PRIVATE);
     	String email_save = infoSave.getString("email", "");
@@ -116,8 +127,10 @@ public class Login extends Activity {
     			}
     		}
     	});
+    	
     }
-    
+
+    /*
     public boolean isWiFiActive() {
 		ConnectivityManager CM = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
 		if (CM != null)
@@ -136,7 +149,7 @@ public class Login extends Activity {
 		}
 		return false;
 	}
-	
+	*/
     
     public void btn1Click(View SignInClick) {
     	EditText email_input = (EditText) findViewById(R.id.EmailInput);
@@ -161,17 +174,17 @@ public class Login extends Activity {
     	NI = CM.getActiveNetworkInfo();
     	
     	
-    	/*
+    	
     	wifi = (WifiManager) getSystemService(Context.WIFI_SERVICE);
     	wifiInfo = wifi.getConnectionInfo();
     	int ip = wifiInfo == null ? 0 : wifiInfo.getIpAddress();
     	
-    	if (wifi.isWifiEnabled() && isWiFiActive() == false)
+    	if (wifi.isWifiEnabled() && ip == 0)
     	{
     		Toast.makeText(Login.this, "Your WiFi is not connected yet!", Toast.LENGTH_LONG).show();
     	}
     	
-    	else */if (NI == null || NI.isAvailable() == false)
+    	else if (NI == null || NI.isAvailable() == false)
     	{
     		Toast.makeText(Login.this, "Your Network is NOT Available!", Toast.LENGTH_LONG).show();
     	} 
@@ -191,12 +204,6 @@ public class Login extends Activity {
     					mHandler.obtainMessage(REFRESH_DATA, result).sendToTarget();
     				}
     			}.start();
-
-    			//Create a Thread!!
-    			//Thread th = new Thread(new sendPostRunnable(msg));
-    			//th.start();
-
-    			//String echoResult = sendPostDataToInternet(msg);
     		}
     	}
     }
@@ -205,36 +212,19 @@ public class Login extends Activity {
 		@Override
 		public boolean onKey(View v, int keyCode, KeyEvent event) {
 			// TODO Auto-generated method stub
-			if (keyCode == KeyEvent.KEYCODE_ENTER) {
+			if (keyCode == KeyEvent.KEYCODE_ENTER && event.getAction() == KeyEvent.ACTION_UP) {
 				
     			InputMethodManager input = (InputMethodManager)v.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
     			
-    			if (input.isActive() && count == 0) {
+    			if (input.isActive()) {
     				btn1Click(v);
     				input.hideSoftInputFromWindow(v.getApplicationWindowToken(), 0);
-    				count++;
-    				countDown();
     			}
     			return true;
     		}
 			return false;
 		}
-    }; 
-    
-    public void countDown()
-   	{
-   		new CountDownTimer(1000,1000){
-   			@Override
-   			public void onFinish() {
-   				// TODO Auto-generated method stub
-   				count--;
-   			}
-   			@Override
-   			public void onTick(long millisUntilFinished) {
-   				// TODO Auto-generated method stub
-   			}
-   		}.start();
-   	}
+    };
     
     Handler mHandler = new Handler()
 	{
@@ -256,11 +246,13 @@ public class Login extends Activity {
     				Toast.makeText(Login.this,echoResult,Toast.LENGTH_LONG).show();
     			} else if (echoResult.contains("You SUCK"))
     				{
-    					Toast.makeText(Login.this, "The Database is DEAD!", Toast.LENGTH_LONG).show();
+    					Toast.makeText(Login.this, "CANNOT Connect to Database!", Toast.LENGTH_LONG).show();
     				} else if (echoResult.contains("The database is SUCKS"))
     				{
     					Toast.makeText(Login.this, "The Database is Not Found!", Toast.LENGTH_LONG).show();
     				} else {
+    					popLoadingBar(echoResult);
+    					/*
     					Toast.makeText(Login.this,"You have logged!",Toast.LENGTH_LONG).show();
 
     					Intent goMap = new Intent();
@@ -274,6 +266,7 @@ public class Login extends Activity {
     					Login.this.startActivity(goMap);
 
     					finish();
+    					*/
     				}
 				break;
 			}
@@ -307,6 +300,20 @@ public class Login extends Activity {
     }
     
     public void offLineClick (View offlineClick) {
+    	wifi = (WifiManager) getSystemService(Context.WIFI_SERVICE);
+    	wifiInfo = wifi.getConnectionInfo();
+    	int ip = wifiInfo == null ? 0 : wifiInfo.getIpAddress();
+    	
+    	if (wifi.isWifiEnabled() && ip == 0)
+    	{
+    		Toast.makeText(Login.this, "Your WIFI is not connected yet!", Toast.LENGTH_LONG).show();
+    	} else if (wifi.isWifiEnabled()){
+    		Toast.makeText(Login.this, "WIFI is good to GO~", Toast.LENGTH_LONG).show();
+    	} else {
+    		Toast.makeText(Login.this, "WIFI didn't open!", Toast.LENGTH_LONG).show();
+    	}
+    	
+    	/*
     	isWiFiActive();
     	if (isWiFiActive() == true)
     	{
@@ -314,27 +321,122 @@ public class Login extends Activity {
     	} else {
     		Toast.makeText(Login.this, "is FALSE!", Toast.LENGTH_SHORT).show();
     	}
+    	*/
     	//Toast.makeText(Login.this, "NOT NOW!!", Toast.LENGTH_SHORT).show();
     	
     }
-
-    /*
-    class sendPostRunnable implements Runnable 
+    
+    
+    @SuppressWarnings("deprecation")
+	public void popLoadingBar(final String echo)
     {
-    	String[] strArr = null;
+    	LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+    	View view = inflater.inflate(R.layout.pop_progress, null);
+    	LinearLayout Header = (LinearLayout) findViewById(R.id.Header);
     	
-    	public sendPostRunnable(String[] strArr)
-    	{
-    		this.strArr = strArr;
-    	}
+    	WindowManager wm = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
     	
-    	@Override
-    	public void run()
-    	{
-    		String result = sendPostDataToInternet(strArr);
-    		mHandler.obtainMessage(REFRESH_DATA, result).sendToTarget();
-    	}
+    	final ProgressBar loadingBar = (ProgressBar) view.findViewById(R.id.loadingBar);
+    	final TextView loadingText = (TextView) view.findViewById(R.id.loadingText);
+    	final TextView loadingDone = (TextView) view.findViewById(R.id.loadingDone);
+    	loading = "Fetching Data";
+    	loadingText.setText(loading);
+    	
+    	double width = wm.getDefaultDisplay().getWidth() / 1.2;
+		double height =wm.getDefaultDisplay().getHeight() / 7;
+		
+		final PopupWindow popUp = new PopupWindow (view, (int)width, (int)height);
+		
+		popUp.setFocusable(true);
+		popUp.setOutsideTouchable(true);
+		popUp.setBackgroundDrawable(new BitmapDrawable());
+		
+		int xpos = wm.getDefaultDisplay().getWidth() / 2 - popUp.getWidth() / 2;
+		double ypos = (wm.getDefaultDisplay().getHeight() / 4) - (popUp.getHeight());
+		
+		popUp.showAsDropDown(Header, xpos, (int)ypos);
+		
+    	loadingBar.setVisibility(View.VISIBLE);
+    	loadingText.setVisibility(View.VISIBLE);
+    	loadingBar.setProgress(0);
+    	
+    	new CountDownTimer(2000,500){
+   			public void onFinish() {
+   				loadingDone.setText("Login Succeed!!");
+   				
+   				Intent goMap = new Intent();
+				goMap.setClass(Login.this, Map2Activity.class);
+
+				//Set the parameter to send
+				Bundle userName = new Bundle();
+				userName.putString("name",echo);
+				goMap.putExtras(userName);				//Put parameter into bundle
+
+				Login.this.startActivity(goMap);
+				
+				finish();
+   			}
+   			public void onTick(long millisUntilFinished) {
+   				String loads = loading + ".";
+   				loadingText.setText(loads);
+   				loading = loads;
+   			}
+   		}.start();
+    	
+    	/*
+    	Thread loadingThread = new Thread(new Runnable() {
+			public void run() {
+				for (int i = 0; i < 20; i++)
+				{
+					try 
+					{
+						iCount = (i+1) * 5;
+						Thread.sleep(1000);
+						if (i == 19)
+						{
+							Message msg = new Message();
+							msg.what = STOP;
+							loadingHandler.sendMessage(msg);
+							break;
+						} else {
+							Message msg = new Message();
+							msg.what = NEXT;
+							loadingHandler.sendMessage(msg);
+						}
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+			}
+    	});
+    	loadingThread.start();
+    	*/
     }
+    /*
+    private Handler loadingHandler = new Handler()
+    {
+    	public void handleMessage(Message msg)
+    	{
+    		LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+	    	View view = inflater.inflate(R.layout.pop_progress, null);
+	    	ProgressBar loadingBar = (ProgressBar) view.findViewById(R.id.loadingBar);
+	    	
+    		switch (msg.what)
+    		{
+    		case STOP:
+    	    	loadingBar.setVisibility(View.GONE);
+    	    	Thread.currentThread().interrupt();
+    	    	break;
+    		
+    		case NEXT:
+    			if (!Thread.currentThread().isInterrupted())
+    			{
+    				loadingBar.setProgress(iCount);
+    			}
+    			break;
+    		}
+    	}
+    };
     */
     
     //Create HTTP Connection!!
@@ -359,7 +461,6 @@ public class Login extends Activity {
     			return strResult;
     		}
     	}
-    	
     	catch (Exception e)
         {
             e.printStackTrace();

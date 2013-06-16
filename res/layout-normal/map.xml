@@ -1,36 +1,86 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/mapLayout"
-    android:layout_width="match_parent"
+    android:layout_width="fill_parent"
     android:layout_height="match_parent"
+    android:animateLayoutChanges="true"
     android:background="@drawable/Ivory"
     android:orientation="vertical"
     android:scrollbarAlwaysDrawVerticalTrack="true"
     android:scrollbars="horizontal|vertical" >
 
-    <LinearLayout
+    <RelativeLayout
         android:id="@+id/SayHi"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="40dp"
+        android:layout_gravity="center"
+        android:background="@drawable/title_bg"
+        android:gravity="center_vertical"
         android:orientation="horizontal"
         android:paddingBottom="2dp" >
-
-        <TextView
-            android:id="@+id/HelloLabel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/HelloLabel"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:textColor="@drawable/Black" />
 
         <TextView
             android:id="@+id/UserName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:clickable="true"
+            android:onClick="userNameClick"
             android:textAppearance="?android:attr/textAppearanceLarge"
-            android:textColor="@drawable/Brown" />
-    </LinearLayout>
-    
+            android:textColor="@drawable/Brown"
+            android:textStyle="bold" />
+
+        <ProgressBar
+            android:id="@+id/loadingPlan"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:layout_marginLeft="10dp"
+            android:layout_toRightOf="@+id/UserName"
+            android:indeterminate="false"
+            android:visibility="gone" />
+
+        <Button
+            android:id="@+id/mapNoneBtn"
+            android:layout_width="35dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="2dp"
+            android:background="@drawable/map_none"
+            android:onClick="mapNoneClick" />
+
+        <Button
+            android:id="@+id/mapHalfBtn"
+            android:layout_width="35dp"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/mapNoneBtn"
+            android:background="@drawable/map_half"
+            android:onClick="mapHalfClick" />
+
+        <Button
+            android:id="@+id/mapFullBtn"
+            android:layout_width="35dp"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/mapHalfBtn"
+            android:background="@drawable/map_full"
+            android:onClick="mapFullClick" />
+
+        <ImageButton
+            android:id="@+id/popWindow"
+            android:layout_width="40dp"
+            android:layout_height="35dp"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="1dp"
+            android:layout_marginTop="2dp"
+            android:onClick="popUpClick"
+            android:src="@drawable/new_window_icon" />
+
+    </RelativeLayout>
+
     <View
         android:id="@+id/Line1"
         android:layout_width="fill_parent"
@@ -39,11 +89,11 @@
 
     <LinearLayout
         android:id="@+id/MapArea"
-        android:layout_width="fill_parent"
-        android:layout_height="210dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:animateLayoutChanges="true"
         android:isScrollContainer="true"
         android:overScrollMode="always"
-        android:scrollbarAlwaysDrawVerticalTrack="true"
         android:scrollbars="horizontal|vertical" >
 
         <com.google.android.maps.MapView
@@ -53,12 +103,11 @@
             android:apiKey="0nBP-9OdMeXA2iC6Qdpy6NjXh6wKMZN9DhaakFQ"
             android:clickable="true"
             android:isScrollContainer="true"
-            android:keepScreenOn="true"
             android:overScrollMode="always"
             android:scrollbars="horizontal|vertical" >
         </com.google.android.maps.MapView>
     </LinearLayout>
-    
+
     <View
         android:id="@+id/Line2"
         android:layout_width="fill_parent"
@@ -82,6 +131,16 @@
                 android:gravity="right"
                 android:orientation="horizontal" >
 
+                <Button
+                    android:id="@+id/clearBtn"
+                    style="?android:attr/buttonStyleSmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="38dp"
+                    android:background="@drawable/button_style01"
+                    android:onClick="clearClick"
+                    android:text="@string/Clear"
+                    android:textColor="@drawable/AliceBlue" />
+
                 <AutoCompleteTextView
                     android:id="@+id/typingText"
                     android:layout_width="0dp"
@@ -96,29 +155,61 @@
                     android:singleLine="true"
                     android:textColor="@drawable/Brown" />
 
-                <Button
-                    android:id="@+id/searchBtn"
+                <ImageButton
+                    android:id="@+id/search"
                     android:layout_width="wrap_content"
                     android:layout_height="38dp"
                     android:background="@drawable/button_style01"
-                    android:gravity="center_vertical|center_horizontal"
-                    android:minHeight="24dp"
+                    android:contentDescription="@string/searchBotton"
                     android:onClick="searchClick"
-                    android:text="@string/searchBotton"
-                    android:textSize="15sp"
-                    android:textStyle="bold" />
+                    android:src="@drawable/ic_action_search" />
             </LinearLayout>
 
-            <TableLayout
-                android:id="@+id/AddInfo"
-                android:layout_width="wrap_content"
+            <TableRow
+                android:id="@+id/titleRow"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/Functions">
+                android:layout_below="@+id/Functions"
+                android:layout_gravity="center"
+                android:background="@drawable/SteelBlue"
+                android:gravity="center"
+                android:paddingBottom="2dp"
+                android:paddingTop="2dp" >
 
-            </TableLayout>
+                <TextView
+                    android:id="@+id/planName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:textColor="@drawable/White" />
+            </TableRow>
 
+            <HorizontalScrollView
+                android:id="@+id/DayScrollArea"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/titleRow"
+                android:fillViewport="true" >
+
+                <LinearLayout
+                    android:id="@+id/LinearLayout1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" >
+
+                    <TableRow
+                        android:id="@+id/dayRow"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="-3dp"
+                        android:layout_marginTop="-3dp"
+                        android:background="@drawable/Transparent1"
+                        android:gravity="center"
+                        android:scrollbars="horizontal" >
+                    </TableRow>
+                </LinearLayout>
+            </HorizontalScrollView>
         </RelativeLayout>
-
     </ScrollView>
 
     <LinearLayout
@@ -126,12 +217,12 @@
         android:layout_height="wrap_content"
         android:orientation="vertical" >
 
-        <ListView
-            android:id="@+id/PlanList"
+        <ExpandableListView
+            android:id="@+id/exPlanList"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" >
-        </ListView>
-
+            android:layout_height="wrap_content"
+            android:textFilterEnabled="true" >
+        </ExpandableListView>
     </LinearLayout>
 
 </LinearLayout>

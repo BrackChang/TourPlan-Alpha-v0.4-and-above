@@ -21,6 +21,6 @@
     <drawable name="Gold">#FFD700</drawable>
     <drawable name="Marron">#800000</drawable>
     <drawable name="Transparent1">#Cf000000</drawable>
-    <drawable name="Transparent2">#Df000000</drawable>
+    <drawable name="Transparent2">#Df000000</drawable><drawable name="Transparent3">#Ab000000</drawable>
     
 </resources>

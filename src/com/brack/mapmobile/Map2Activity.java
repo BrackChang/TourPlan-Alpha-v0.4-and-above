@@ -2,8 +2,10 @@ package com.brack.mapmobile;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -48,20 +50,22 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnKeyListener;
-import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
+import android.widget.ExpandableListView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.PopupWindow;
+import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.SimpleAdapter;
-import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -75,7 +79,8 @@ public class Map2Activity extends MapActivity
     private GeoPoint gp;
     private MapOverlay Marker;
     private SearchOverlay locMarker;
-    private ListView PlanList;
+    private ExpandableListView exSpotList;
+    private ExAdapter exAdapter;
     private PopupWindow popUp;
     private View view;
     private AutoCompleteTextView typingText;
@@ -84,20 +89,30 @@ public class Map2Activity extends MapActivity
     protected static final int REFRESH_DATA = 0x00000001;
     
     private String MyName;
+    private String planTitle;
     private String[] planArr;
     private String[] planDaysArr;
     private String[] planStartArr;
     private String[] planEndArr;
     private String[] latArr;
     private String[] lngArr;
+    private String[] dayArr;
+    private String[] queArr;
     private String[] spotArr;
     private String[] spotInfoArr;
+    private String[] flagFoodArr;
+    private String[] flagHotelArr;
+    private String[] flagShopArr;
+    private String[] flagSceneArr;
+    private String[] flagTransArr;
     private ArrayList<HashMap<String, String>> planListArr;
     private ArrayList<HashMap<String, Object>> spotListArr;
+    private int dayCount;
+    
     @SuppressWarnings("deprecation")
-	int version = Integer.parseInt(VERSION.SDK);
-    private static boolean startNeed = false;
-    int count = 0;
+	int SDKversion = Integer.parseInt(VERSION.SDK);
+    private boolean startNeed = false;
+    private boolean mapAutoNone = true;
     
     /** Called when the activity is first created. **/
     @Override
@@ -106,17 +121,20 @@ public class Map2Activity extends MapActivity
         super.onCreate(savedInstanceState);
         Debug.startMethodTracing("report");
         setContentView(R.layout.map);
-        this.setTitle(R.string.VersionName);
+        String version = getResources().getString(R.string.Version);
+        String versionName = getResources().getString(R.string.VersionName);
+        this.setTitle(versionName + version);
         Debug.stopMethodTracing();
         
         findMapControl();
+        mapHalf();
         
         typingText = (AutoCompleteTextView)findViewById(R.id.typingText);
         TextView UserName = (TextView)findViewById(R.id.UserName);
         
         Bundle userName = this.getIntent().getExtras();		//Obtain Bundle
         String Name = userName.getString("name").toString();
-        MyName = new String(Name);
+        MyName = Name;
         UserName.setText(MyName);								//Output the contents of Bundle
         
     	String xmlURL = tourURL + Name;
@@ -152,8 +170,9 @@ public class Map2Activity extends MapActivity
     private void findMyLocation()
     {
     	List<Overlay> locOverlays = mapView.getOverlays();
+    	locOverlays.remove(myLayer);
+    	
         myLayer = new MyLocationOverlay(this, mapView);
-        
         myLayer.enableCompass();
         myLayer.enableMyLocation();
         myLayer.runOnFirstFix(new Runnable()
@@ -170,7 +189,8 @@ public class Map2Activity extends MapActivity
 
     Handler planMove = new Handler()
    	{
-   		@Override
+   		@SuppressWarnings("deprecation")
+		@Override
    		public void handleMessage(Message msg)
    		{
    			switch (msg.what)
@@ -195,7 +215,7 @@ public class Map2Activity extends MapActivity
    				stPlan.nextToken();
    				stPid.nextToken();
    					while (stPlan.hasMoreTokens() & stPid.hasMoreTokens()) {
-   							res = res + stPid.nextToken()+ " " + stPlan.nextToken();
+   							res = res + stPid.nextToken()+ " " + stPlan.nextToken() + " ";
    					}
    				StringBuffer planBuf = new StringBuffer(res);
    				planBuf.deleteCharAt(0);
@@ -221,6 +241,11 @@ public class Map2Activity extends MapActivity
    				String planEnd2 = new String(planEndBuf);
    				String[] endList = planEnd2.split(",");
    				
+   				for (int i = 0; i < endList.length; i++)
+   				{
+   					endList[i] = endList[i].replace(Integer.toString(new Date().getYear()+1900)+"-", "");
+   				}
+   				
    				planArr = plans;
    				planDaysArr = daysList;
    				planStartArr = startList;
@@ -228,7 +253,7 @@ public class Map2Activity extends MapActivity
    				
    				startCountDown();
    				
-   				Toast.makeText(Map2Activity.this, "Now, Please choose your plan!", Toast.LENGTH_LONG).show();
+   				longMessage("Now, Please choose your plan!");
    				
    				break;
    			}
@@ -318,48 +343,58 @@ public class Map2Activity extends MapActivity
 					String[] flagSceneList = flagScene2.split(",");
 					String[] flagTransList = flagTrans2.split(",");
 					
-					showSpot(latList, lngList, spotList, spotInfoList, dayList, queList,
-							flagFoodList, flagHotelList, flagShopList, flagSceneList, flagTransList);
-					
 					latArr = latList;
 					lngArr = lngList;
+					dayArr = dayList;
+					queArr = queList;
 					spotArr = spotList;
 					spotInfoArr = spotInfoList;
+					flagFoodArr = flagFoodList;
+					flagHotelArr = flagHotelList;
+					flagShopArr = flagShopList;
+					flagSceneArr = flagSceneList;
+					flagTransArr = flagTransList;
 					
-					putSpotArr(latList, lngList, spotList, spotInfoList, dayList, queList,
-							flagFoodList, flagHotelList, flagShopList, flagSceneList, flagTransList);
+					dayCount = 1;
+					
+					showSpotList();
+					putSpotArr();
+					
 					startNeed = true;
+					if (mapAutoNone == true) {
+						mapNoneCountDown();
+					}
+					findMyLocation();
+					mapControl.setZoom(8);
    			}
    		}
    	};
    	
-   	
-   	public void showSpot (String[] latArr, String[] lngArr, String[] spotArr, 
-   						String[] spotinfoArr,String[] dayArr, String[] queArr,
-   						String[] flag1Arr, String[] flag2Arr, String[] flag3Arr, String[] flag4Arr, String[] flag5Arr)
+   	@SuppressWarnings("deprecation")
+	public void showSpotList()
    	{
-   		final String[] latList = latArr;
-		final String[] lngList = lngArr;
-		final String[] spotList = spotArr;
-		final String[] spotInfoList = spotinfoArr;
-		final String[] dayList = dayArr;
-		final String[] queList = queArr;
-		final String[] flagFoodList = flag1Arr;
-		final String[] flagHotelList = flag2Arr;
-		final String[] flagShopList = flag3Arr;
-		final String[] flagSceneList = flag4Arr;
-		final String[] flagTransList = flag5Arr;
-
-		typingText = (AutoCompleteTextView)findViewById(R.id.typingText);
-	        
-	    TableLayout addInfo = (TableLayout)findViewById(R.id.AddInfo);
-	    addInfo.removeAllViews();
-		addInfo.setStretchAllColumns(true);
+   		exSpotList = (ExpandableListView) findViewById(R.id.exPlanList);
+   		typingText = (AutoCompleteTextView)findViewById(R.id.typingText);
+	    
+	    TextView planName = (TextView) findViewById(R.id.planName);
+	    TableRow titleRow = (TableRow) findViewById(R.id.titleRow);
+	    TableRow dayRow = (TableRow) findViewById(R.id.dayRow);
+	    
+	    titleRow.removeAllViews();
+		dayRow.removeAllViews();
 		
+		WindowManager wm = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
+		double height = wm.getDefaultDisplay().getHeight() / 15.5;
+		int textSize = wm.getDefaultDisplay().getHeight() / 55;
+		/*
 		TableLayout.LayoutParams row_layout = new TableLayout.LayoutParams
 												(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 		TableRow.LayoutParams view_layout = new TableRow.LayoutParams
 												(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+		*/
+		planName.setText(planTitle);
+		planName.setTextSize(textSize);
+		titleRow.addView(planName);
 		
 		mapView.getOverlays().remove(Marker);
 		Drawable marker1 = getResources().getDrawable(R.drawable.map_marker_icon);
@@ -367,38 +402,13 @@ public class Map2Activity extends MapActivity
 		Drawable marker = new BitmapDrawable(getResources(), Bitmap.createScaledBitmap(markerScale, 40, 45, true));
 		
 		Marker = new MapOverlay(marker, this);
+   		
+   		final List<Map<String, Object>> spotGroup = new ArrayList<Map<String, Object>>();
+		final List<List<Map<String, String>>> spotChild = new ArrayList<List<Map<String, String>>>();
 		
-		ArrayAdapter<String> autoText = new ArrayAdapter<String>
-										(Map2Activity.this, android.R.layout.simple_spinner_item, spotList);
-		typingText.setAdapter(autoText);
-		
-		TableRow titleRow = new TableRow(Map2Activity.this);
-		titleRow.setLayoutParams(row_layout);
-		titleRow.setGravity(Gravity.CENTER);
-		titleRow.setBackgroundResource(R.drawable.SteelBlue);
-		titleRow.setPadding(5, 3, 0, 3); //(left, top, right, bottom)
-		
-		TextView dayTitle = new TextView(Map2Activity.this);
-		dayTitle.setText("Spots:");
-		dayTitle.setLayoutParams(view_layout);
-		dayTitle.setTextColor(getResources().getColor(R.drawable.White));
-		dayTitle.setGravity(Gravity.CENTER);
-		
-		TextView spotTitle = new TextView(Map2Activity.this);
-		spotTitle.setText("(Long press for information)");
-		spotTitle.setLayoutParams(view_layout);
-		spotTitle.setTextColor(getResources().getColor(R.drawable.White));
-		spotTitle.setGravity(Gravity.CENTER);
-		
-		titleRow.addView(dayTitle);
-		titleRow.addView(spotTitle);
-		addInfo.addView(titleRow);
-		
-		ArrayList<HashMap<String, Object>> itemList = new ArrayList<HashMap<String, Object>>();
-		
-		for (int i = 0; i < latList.length; i++)
+		for (int i = 0; i < spotArr.length; i++)
 		{
-			String coordinates[] = {latList[i], lngList[i]};
+			String coordinates[] = {latArr[i], lngArr[i]};
 			double latitude = Double.parseDouble(coordinates[0]);
 			double longitude = Double.parseDouble(coordinates[1]);
 			
@@ -406,36 +416,90 @@ public class Map2Activity extends MapActivity
 								(int)(latitude * 1E6),
 								(int)(longitude * 1E6));
 			
-			Marker.setPoint(points, spotList[i], spotInfoList[i]);
+			Marker.setPoint(points, "Day:"+dayArr[i]+" "+spotArr[i], spotInfoArr[i]);
 			
-			HashMap<String, Object> planItems = new HashMap<String, Object>();
+			Map<String, Object> spotItem = new HashMap<String, Object>();
 			
-			planItems.put("spot", spotList[i]);
-			planItems.put("day", queList[i]+ "-" + "Day:" + dayList[i]);
-			/*
-			if (flagFoodList[i].equals("1"))
+			spotItem.put("title", spotArr[i]);
+			spotItem.put("titleDescribe", queArr[i]+ "-" + "DAY " + dayArr[i]);
+			spotItem.put("lat", latArr[i]);
+			spotItem.put("lng", lngArr[i]);
+			
+			if (flagFoodArr[i].equals("1"))
 			{
-				planItems.put("pic1", R.drawable.food_icon);
+				spotItem.put("pic1", "1");
 			} 
-			if (flagHotelList[i].equals("1"))
+			if (flagHotelArr[i].equals("1"))
 			{
-				planItems.put("pic2", R.drawable.hotel_icon);
+				spotItem.put("pic2", "1");
 			}
-			if (flagShopList[i].equals("1"))
+			if (flagShopArr[i].equals("1"))
 			{
-				planItems.put("pic3", R.drawable.shopping_icon);
+				spotItem.put("pic3", "1");
 			}
-			if (flagSceneList[i].equals("1"))
+			if (flagSceneArr[i].equals("1"))
 			{
-				planItems.put("pic4", R.drawable.scene_icon);
+				spotItem.put("pic4", "1");
 			}
-			if (flagTransList[i].equals("1"))
+			if (flagTransArr[i].equals("1"))
 			{
-				planItems.put("pic5", R.drawable.transport_icon);
+				spotItem.put("pic5", "1");
 			}
-			*/
-			itemList.add(planItems);
 			
+			spotGroup.add(spotItem);
+			
+			List<Map<String, String>> spotInfos = new ArrayList<Map<String, String>>();
+			Map<String, String> spotInfo = new HashMap<String, String>();
+			
+			spotInfo.put("info", spotInfoArr[i]);
+			spotInfos.add(spotInfo);
+			spotChild.add(spotInfos);
+			
+			String d = Integer.toString(dayCount);
+			if (dayArr[i].equals(d))
+			{
+				final Button dayBtn = new Button(Map2Activity.this);
+				dayBtn.setText("Day " + dayArr[i]);
+				dayBtn.setTextColor(getResources().getColor(R.drawable.Ivory));
+				dayBtn.setGravity(Gravity.CENTER);
+				dayBtn.setTextSize(textSize);
+				
+				dayRow.addView(dayBtn);
+				dayCount++;
+				
+				LayoutParams params = dayBtn.getLayoutParams();
+				params.width = LayoutParams.WRAP_CONTENT;
+				params.height = (int) height;
+				dayBtn.setLayoutParams(params);
+				
+				dayBtn.setOnClickListener(new OnClickListener() {
+					public void onClick(View v) {
+						String dayString = dayBtn.getText().toString();
+						typingText.setText(dayString);
+					}
+				});
+			} else if (dayArr[i].equals("0"))
+			{
+				final Button dayBtn = new Button(Map2Activity.this);
+				dayBtn.setText("Day " + dayArr[i]);
+				dayBtn.setTextColor(getResources().getColor(R.drawable.Ivory));
+				dayBtn.setGravity(Gravity.CENTER);
+				dayBtn.setTextSize(textSize);
+				
+				dayRow.addView(dayBtn);
+				
+				LayoutParams params = dayBtn.getLayoutParams();
+				params.width = LayoutParams.WRAP_CONTENT;
+				params.height = (int) height;
+				dayBtn.setLayoutParams(params);
+				
+				dayBtn.setOnClickListener(new OnClickListener() {
+					public void onClick(View v) {
+						String dayString = dayBtn.getText().toString();
+						typingText.setText(dayString);
+					}
+				});
+			}
 			/*
 			TableRow contentRow = new TableRow(Map2Activity.this);
 			contentRow.setLayoutParams(row_layout);
@@ -462,22 +526,14 @@ public class Map2Activity extends MapActivity
 		Marker.finish();
 		mapView.getOverlays().add(Marker);
 		mapView.invalidate();
-		
-		final SimpleAdapter spotAdapter = new SimpleAdapter
-								(Map2Activity.this, itemList, R.layout.my_list_layout02,
-								new String[] {"spot","day"},
-								new int[] {R.id.textView_2_1, R.id.textView_2_2});
-		
-		PlanList = (ListView)findViewById(R.id.PlanList);
-		PlanList.setAdapter(spotAdapter);
-		PlanList.setTextFilterEnabled(true);
-		
-		//typingText.setAdapter(spotAdapter);
-		
-		PlanList.setOnItemClickListener(new AdapterView.OnItemClickListener(){
-			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-				
-				String coordinates[] = {latList[arg2], lngList[arg2]};
+		  		
+   		exAdapter = new ExAdapter(this, spotGroup, spotChild);
+   		exSpotList.setIndicatorBounds(0, 20);
+   		exSpotList.setAdapter(exAdapter);
+   		/*
+   		exSpotList.setOnGroupExpandListener(new OnGroupExpandListener() {
+			public void onGroupExpand(int groupPosition) {
+				String coordinates[] = {latArr[groupPosition], lngArr[groupPosition]};
 				double latitude = Double.parseDouble(coordinates[0]);
 				double longitude = Double.parseDouble(coordinates[1]);
 				
@@ -488,38 +544,101 @@ public class Map2Activity extends MapActivity
 				mapControl.animateTo(position);
 				mapControl.setZoom(16);
 				
-				Toast.makeText(Map2Activity.this,spotList[arg2], Toast.LENGTH_SHORT).show();
+				//shortMessage(spotArr[groupPosition]);
 			}
 		});
-		PlanList.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener(){
-			public boolean onItemLongClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-				
-				AlertDialog.Builder infoDialog = new AlertDialog.Builder(Map2Activity.this);
-	   			infoDialog.setIcon(R.drawable.info_icon);
-	   			infoDialog.setTitle(spotList[arg2]);
-	   			infoDialog.setMessage(spotInfoList[arg2]);
-	   			infoDialog.setPositiveButton("OK!", 
-	   					new DialogInterface.OnClickListener()
-	   					{
-	   						public void onClick(DialogInterface dialog, int which)
-	   						{
-	   						//Actions after you press OK!	
-	   						}
-	   					});
-	   			infoDialog.show();
-				return true;
+   		*/
+   		/*
+   		exSpotList.setOnGroupClickListener(new OnGroupClickListener() {
+			public boolean onGroupClick(ExpandableListView parent, View v, int groupPosition, long id)
+			{
+				String selected = parent.getItemAtPosition(groupPosition).toString();
+				longMessage(selected);
+				return false;
 			}
-		});
+   		});
+   		*/
+   		/*
+   		SimpleAdapter spotAdapter = new SimpleAdapter
+				(Map2Activity.this, spotGroup, R.layout.autotext_list_layout02,
+						new String[] {"title","titleDescribe"}, 
+						new int[] {R.id.autoText1, R.id.autoText2});
+   		typingText.setAdapter(spotAdapter);
+   		*/
+   		
+		ArrayAdapter<String> autoText = new ArrayAdapter<String>
+										(Map2Activity.this, R.layout.autotext_list_layout01, spotArr);
+		typingText.setAdapter(autoText);
 		
-		typingText.addTextChangedListener(new TextWatcher() {
+		ProgressBar loadingPlan = (ProgressBar) findViewById(R.id.loadingPlan);
+		loadingPlan.setVisibility(View.GONE);
+		
+   		typingText.setOnItemClickListener(new OnItemClickListener() {
+			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3)
+			{
+				String selected = arg0.getItemAtPosition(arg2).toString();
+				if (selected.contains("=") && selected.contains(","))
+				{
+					String selected2 = selected.substring(0, selected.lastIndexOf(","));
+					StringBuffer buffer = new StringBuffer(selected2);
+					buffer.delete(0, selected2.lastIndexOf("=")+1);
+					typingText.setText(buffer.toString());
+				}
+			}
+   		});
+   		
+   		typingText.addTextChangedListener(new TextWatcher() {
+			@SuppressLint("DefaultLocale")
 			public void onTextChanged(CharSequence s, int start, int before, int count) {
-				spotAdapter.getFilter().filter(s);
+				if (!s.toString().equals(""))
+				{
+					List<Map<String, Object>> spot = new ArrayList<Map<String, Object>>();
+					List<List<Map<String, String>>> spotContent = new ArrayList<List<Map<String, String>>>();
+					
+					for (int i = 0; i < spotGroup.size(); i++)
+					{
+						if (spotGroup.get(i).get("title").toString().contains(s) || 
+								spotGroup.get(i).get("titleDescribe").toString().contains(s.toString().toUpperCase()))
+						{
+							spot.add(spotGroup.get(i));
+							spotContent.add(spotChild.get(i));
+							//Log.i("Value",spot.toString());
+						}
+					}
+					exAdapter = new ExAdapter(Map2Activity.this, spot, spotContent);
+					exSpotList.setAdapter(exAdapter);
+				} else {
+					exAdapter = new ExAdapter(Map2Activity.this, spotGroup, spotChild);
+					exSpotList.setAdapter(exAdapter);
+				}
 			}
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
             }
             public void afterTextChanged(Editable s) {
             }
 		});
+   	}
+   	
+   	public void exListMapMove (String lat, String lng)
+   	{
+   		String coordinates[] = {lat, lng};
+		double latitude = Double.parseDouble(coordinates[0]);
+		double longitude = Double.parseDouble(coordinates[1]);
+		
+		GeoPoint position = new GeoPoint(
+							(int)(latitude * 1E6),
+							(int)(longitude * 1E6));
+		
+		mapControl.animateTo(position);
+		mapControl.setZoom(16);
+		
+		mapHalf();
+   	}
+   	
+   	public void clearClick(View clearClick)
+   	{
+   		typingText = (AutoCompleteTextView) findViewById(R.id.typingText);
+   		typingText.setText("");
    	}
    	
    	public void searchClick(View searchClick) {
@@ -536,10 +655,14 @@ public class Map2Activity extends MapActivity
    		if (input.equals("planlist"))
    		{
    			showPlanWindow();
+   			typingText.setText("");
    		} else if (input.equals("spotlist")){
    			showSpotWindow();
+   			typingText.setText("");
    		} else if (input.length() > 0) 
    		{
+   			mapHalf();
+   			
    			Geocoder geocoder = new Geocoder(Map2Activity.this);
    			List<Address> addrs = null;
    			Address addr = null;
@@ -551,7 +674,7 @@ public class Map2Activity extends MapActivity
    			}
 
    			if (addrs == null || addrs.isEmpty()) {
-   				Toast.makeText(Map2Activity.this, "Location not find!", Toast.LENGTH_SHORT).show();
+   				shortMessage("Location not find!");
    			} else {
    				addr = addrs.get(0);
    				double geoLat = addr.getLatitude() * 1E6;
@@ -562,13 +685,15 @@ public class Map2Activity extends MapActivity
    				locMarker.setPoint(gp, "Your searching result", input);
    				locMarker.finish();
    				mapView.getOverlays().add(locMarker);
-   				mapView.invalidate();
 
    				mapControl.animateTo(gp);
    				mapControl.setZoom(10);
+   				mapView.invalidate();
+   				
+   				typingText.setText("");
    			}
    		} else {
-   			Toast.makeText(Map2Activity.this, "Your Input is Empty!!", Toast.LENGTH_SHORT).show();
+   			shortMessage("Your Input is Empty!!");
    		}
    	}
 
@@ -576,39 +701,22 @@ public class Map2Activity extends MapActivity
    		
    		public boolean onKey(View v, int keyCode, KeyEvent event) {
    			// TODO Auto-generated method stub
-   			if (keyCode == KeyEvent.KEYCODE_ENTER) 
+   			if (keyCode == KeyEvent.KEYCODE_ENTER && event.getAction() == KeyEvent.ACTION_UP) 
    			{	
    				InputMethodManager imm = (InputMethodManager)v.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-   				if (imm.isActive() && count == 0)
+   				if (imm.isActive())
    				{
    					searchClick(v);
    	   				imm.hideSoftInputFromWindow(v.getApplicationWindowToken(), 0);
-   	   				count++;
-   	   				countDown();
    				}
    			}
    			return false;
    		}
    	};
-   	
-   	public void countDown()
-   	{
-   		new CountDownTimer(1000,1000){
-   			@Override
-   			public void onFinish() {
-   				// TODO Auto-generated method stub
-   				count--;
-   			}
-   			@Override
-   			public void onTick(long millisUntilFinished) {
-   				// TODO Auto-generated method stub
-   			}
-   		}.start();
-   	}
 	
    	public void startCountDown()
    	{
-   		new CountDownTimer(1500,1000){
+   		new CountDownTimer(1000,1000){
    			@Override
    			public void onFinish() {
    				// TODO Auto-generated method stub
@@ -621,7 +729,22 @@ public class Map2Activity extends MapActivity
    		}.start();
    	}
    	
-	public void putArr()
+   	public void mapNoneCountDown()
+   	{
+   		new CountDownTimer(1000,1000) {
+   			@Override
+   			public void onFinish() {
+   				mapNone();
+   				mapAutoNone = false;
+   			}
+   			@Override
+   			public void onTick(long millisUntilFinished) {
+   				
+   			}
+   		}.start();
+   	}
+   	
+	public void putPlanArr()
 	{
 		ArrayList<HashMap<String, String>> planList = new ArrayList<HashMap<String, String>>();
 		for (int i = 0; i < planArr.length; i++)
@@ -629,7 +752,7 @@ public class Map2Activity extends MapActivity
 			HashMap<String, String> planItems = new HashMap<String, String>();
 			
 			planItems.put("planName", planArr[i]);
-			planItems.put("planInfos","Total " + planDaysArr[i] +" Days, "+"\n" + "From " + planStartArr[i]
+			planItems.put("planInfos","Total " + planDaysArr[i] +" Days,"+ "\n" + "From " + planStartArr[i]
 							+ " To " + planEndArr[i]);
 			planList.add(planItems);
 		}
@@ -637,52 +760,38 @@ public class Map2Activity extends MapActivity
 	}
 	
 	
-	public void putSpotArr (String[] latArr, String[] lngArr, String[] spotArr, 
-				String[] spotinfoArr,String[] dayArr, String[] queArr,
-				String[] flag1Arr, String[] flag2Arr, String[] flag3Arr, String[] flag4Arr, String[] flag5Arr)
+	public void putSpotArr ()
 	{
-		String[] latList = latArr;
-		String[] lngList = lngArr;
-		String[] spotList = spotArr;
-		String[] spotInfoList = spotinfoArr;
-		String[] dayList = dayArr;
-		String[] queList = queArr;
-		String[] flagFoodList = flag1Arr;
-		String[] flagHotelList = flag2Arr;
-		String[] flagShopList = flag3Arr;
-		String[] flagSceneList = flag4Arr;
-		String[] flagTransList = flag5Arr;
-		
 		ArrayList<HashMap<String, Object>> itemList = new ArrayList<HashMap<String, Object>>();
 		
-		for (int i = 0; i < spotList.length; i++)
+		for (int i = 0; i < spotArr.length; i++)
 		{
 			HashMap<String, Object> planItems = new HashMap<String, Object>();
 			
-			planItems.put("spot", spotList[i]);
-			planItems.put("day", queList[i]+ "-" + "Day:" + dayList[i]);
-			/*
-			if (flagFoodList[i].equals("1"))
+			planItems.put("spot", spotArr[i]);
+			planItems.put("day", queArr[i]+ "-" + "Day:" + dayArr[i]);
+			
+			if (flagFoodArr[i].equals("1"))
 			{
 				planItems.put("pic1", R.drawable.food_icon);
 			} 
-			if (flagHotelList[i].equals("1"))
+			if (flagHotelArr[i].equals("1"))
 			{
 				planItems.put("pic2", R.drawable.hotel_icon);
 			}
-			if (flagShopList[i].equals("1"))
+			if (flagShopArr[i].equals("1"))
 			{
 				planItems.put("pic3", R.drawable.shopping_icon);
 			}
-			if (flagSceneList[i].equals("1"))
+			if (flagSceneArr[i].equals("1"))
 			{
 				planItems.put("pic4", R.drawable.scene_icon);
 			}
-			if (flagTransList[i].equals("1"))
+			if (flagTransArr[i].equals("1"))
 			{
 				planItems.put("pic5", R.drawable.transport_icon);
 			}
-			*/
+			
 			itemList.add(planItems);
 		}
 		spotListArr = itemList;
@@ -691,72 +800,77 @@ public class Map2Activity extends MapActivity
 	@SuppressWarnings("deprecation")
 	public void showPlanWindow()
 	{
-		putArr();
+		putPlanArr();
 		
 		LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		view = inflater.inflate(R.layout.expanded_list, null);
 		ListView extanded_list = (ListView) view.findViewById(R.id.exList1); 
-		LinearLayout SayHiLayout = (LinearLayout) findViewById(R.id.SayHi);
+		RelativeLayout SayHiLayout = (RelativeLayout) findViewById(R.id.SayHi);
 
 		SimpleAdapter planAdapter = new SimpleAdapter
 				(Map2Activity.this, planListArr, R.layout.my_list_layout01,
 						new String[] {"planName", "planInfos"}, new int[] {R.id.textView_1_1, R.id.textView_1_2});
-
+		
+		WindowManager wm = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
+		
 		extanded_list.setAdapter(planAdapter);
+		
+		double width = wm.getDefaultDisplay().getWidth() / 1.35;
+		double height =wm.getDefaultDisplay().getHeight() / 1.5;
 
-		popUp = new PopupWindow (view, 400, 450);	//(view, width, height)
-			
+		popUp = new PopupWindow (view, (int)width, (int)height);	//(view, width, height)
+		
+		//popUp.setAnimationStyle(R.style.PopupAnimation);
 		popUp.setFocusable(true);
 		popUp.setOutsideTouchable(true);
 		popUp.setBackgroundDrawable(new BitmapDrawable());
 		
-		WindowManager wm = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
-		
 		int xpos = wm.getDefaultDisplay().getWidth() / 2 - popUp.getWidth() / 2;
-		int ypos = (wm.getDefaultDisplay().getHeight() / 2) - (popUp.getHeight() - 100);
+		double ypos = (wm.getDefaultDisplay().getHeight() / 2) - (popUp.getHeight() / 1.55);
 		
 		Log.i("Coder", "xPos:" + xpos);
 		Log.i("Coder", "yPos:" + ypos);
 		
-		popUp.showAsDropDown(SayHiLayout, xpos, ypos);
+		popUp.showAsDropDown(SayHiLayout, xpos, (int)ypos);
 		
 		extanded_list.setOnItemClickListener(new AdapterView.OnItemClickListener() { 
             public void onItemClick(AdapterView<?> ar0, View arg1, int arg2, long arg3)
             {  
             	String selected = planArr[arg2];
+            	String onlyPlanString = planArr[arg2]
+            							.substring(planArr[arg2].indexOf(" "), planArr[arg2].lastIndexOf(" ")).trim();
+            	planTitle = onlyPlanString;
 
-            	if (selected.contains("---")) 
+            	shortMessage("Plan: " + planArr[arg2]);
+
+            	String pid = selected.substring(0,selected.indexOf(" "));
+            	final String xmlPidUrl = tourURL + MyName +"/" + pid;
+
+            	new Thread()
             	{
-            		Toast.makeText(Map2Activity.this, "Now, Please choose your plan!", Toast.LENGTH_SHORT).show();
-            	} else {
-            		Toast.makeText(Map2Activity.this, "Plan: " + planArr[arg2].toString(), Toast.LENGTH_SHORT).show();
-            		//String pidBuffer = pid.trim();
-            		String pid = selected.substring(0,selected.indexOf(" "));
-            		final String xmlPidUrl = tourURL + MyName +"/" +pid;
-
-            		new Thread()
+            		public void run()
             		{
-            			public void run()
-            			{
-            				String xmlPidString = getStringByUrl(xmlPidUrl);
-            				planChosen.obtainMessage(REFRESH_DATA, xmlPidString).sendToTarget();
-            			}
-            		}.start();
-            	}
+            			String xmlPidString = getStringByUrl(xmlPidUrl);
+            			planChosen.obtainMessage(REFRESH_DATA, xmlPidString).sendToTarget();
+            		}
+            	}.start();
+
             	if (popUp != null)
             	{
             		popUp.dismiss();
             	}
+            	ProgressBar loadingPlan = (ProgressBar) findViewById(R.id.loadingPlan);
+        		loadingPlan.setVisibility(View.VISIBLE);
             }
 		});
 	}
-	
+
 	@SuppressWarnings("deprecation")
 	public void showSpotWindow()
 	{
 		if (startNeed == false)
 		{
-			Toast.makeText(Map2Activity.this, "You haven't select a plan yet~", Toast.LENGTH_SHORT).show();
+			shortMessage("You haven't select a plan yet~");
 		} else {
 			final String[] latList = latArr;
 			final String[] lngList = lngArr;
@@ -766,54 +880,39 @@ public class Map2Activity extends MapActivity
 			LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 			view = inflater.inflate(R.layout.expanded_list, null);
 			ListView extanded_list = (ListView) view.findViewById(R.id.exList2); 
-			LinearLayout SayHiLayout = (LinearLayout) findViewById(R.id.SayHi);
+			RelativeLayout SayHiLayout = (RelativeLayout) findViewById(R.id.SayHi);
 
 			SimpleAdapter spotAdapter = new SimpleAdapter
-					(Map2Activity.this, spotListArr, R.layout.my_list_layout03,
-							new String[] {"spot", "day"}, new int[] {R.id.textView_1_3, R.id.textView_1_4});
+					(Map2Activity.this, spotListArr, R.layout.my_list_layout02,
+							new String[] {"spot","day","pic1","pic2","pic3","pic4","pic5"}, 
+							new int[] {R.id.textView_2_1, R.id.textView_2_2, 
+									R.id.imageView1, R.id.imageView2, R.id.imageView3, R.id.imageView4, R.id.imageView5});
 
 			extanded_list.setAdapter(spotAdapter);
+			
+			WindowManager wm = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
+			
+			double width = wm.getDefaultDisplay().getWidth() / 1.15;
+			double height =wm.getDefaultDisplay().getHeight() / 1.3;
 
-			popUp = new PopupWindow (view, 450, 600);	//(view, width, height)
-
+			popUp = new PopupWindow (view, (int)width, (int)height);	//(view, width, height)
+			
+			//popUp.setAnimationStyle(R.style.PopupAnimation);
 			popUp.setFocusable(true);
 			popUp.setOutsideTouchable(true);
 			popUp.setBackgroundDrawable(new BitmapDrawable());
 
-			WindowManager wm = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
-
 			int xpos = wm.getDefaultDisplay().getWidth() / 2 - popUp.getWidth() / 2;
-			int ypos = (wm.getDefaultDisplay().getHeight() / 2) - (popUp.getHeight() - 200);
+			double ypos = (wm.getDefaultDisplay().getHeight() / 2) - (popUp.getHeight() / 1.55);
 
 			Log.i("Coder", "xPos:" + xpos);
 			Log.i("Coder", "yPos:" + ypos);
 
-			popUp.showAsDropDown(SayHiLayout, xpos, ypos);
+			popUp.showAsDropDown(SayHiLayout, xpos, (int)ypos);
 
 			extanded_list.setOnItemClickListener(new AdapterView.OnItemClickListener(){
 				public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) 
 				{
-					String coordinates[] = {latList[arg2], lngList[arg2]};
-					double latitude = Double.parseDouble(coordinates[0]);
-					double longitude = Double.parseDouble(coordinates[1]);
-
-					GeoPoint position = new GeoPoint(
-							(int)(latitude * 1E6),
-							(int)(longitude * 1E6));
-
-					mapControl.animateTo(position);
-					mapControl.setZoom(16);
-
-					Toast.makeText(Map2Activity.this,spotList[arg2], Toast.LENGTH_SHORT).show();
-					if (popUp != null)
-					{
-						popUp.dismiss();
-					}
-				}
-			});
-			extanded_list.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener(){
-				public boolean onItemLongClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-
 					AlertDialog.Builder infoDialog = new AlertDialog.Builder(Map2Activity.this);
 					infoDialog.setIcon(R.drawable.info_icon);
 					infoDialog.setTitle(spotList[arg2]);
@@ -827,6 +926,28 @@ public class Map2Activity extends MapActivity
 						}
 					});
 					infoDialog.show();
+				}
+			});
+			extanded_list.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener(){
+				public boolean onItemLongClick(AdapterView<?> arg0, View arg1, int arg2, long arg3)
+				{
+					String coordinates[] = {latList[arg2], lngList[arg2]};
+					double latitude = Double.parseDouble(coordinates[0]);
+					double longitude = Double.parseDouble(coordinates[1]);
+
+					GeoPoint position = new GeoPoint(
+							(int)(latitude * 1E6),
+							(int)(longitude * 1E6));
+
+					mapControl.animateTo(position);
+					mapControl.setZoom(16);
+
+					shortMessage(spotList[arg2]);
+					if (popUp != null)
+					{
+						popUp.dismiss();
+					}
+					mapFull();
 					return true;
 				}
 			});
@@ -839,7 +960,7 @@ public class Map2Activity extends MapActivity
 		{
 			if (System.currentTimeMillis() - exitTime > 3500)
 			{
-				Toast.makeText(Map2Activity.this, "Press Back again to quit this program", Toast.LENGTH_LONG).show();
+				longMessage("Press BACK again to exit.");
 				exitTime = System.currentTimeMillis();
 			} else {
 				finish();
@@ -848,6 +969,77 @@ public class Map2Activity extends MapActivity
 		} 
 		return super.onKeyDown(keyCode, event);
 	}
+	
+	@SuppressWarnings("deprecation")
+	public void mapNone()
+	{
+		WindowManager wm = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
+		
+		int width = wm.getDefaultDisplay().getWidth() - wm.getDefaultDisplay().getWidth();
+		int height = wm.getDefaultDisplay().getHeight() - wm.getDefaultDisplay().getHeight();
+		
+		LinearLayout mapArea = (LinearLayout) findViewById(R.id.MapArea);
+		LinearLayout.LayoutParams none = new LinearLayout.LayoutParams(width, height);
+		
+		mapArea.setLayoutParams(none);
+	}
+	
+	@SuppressWarnings("deprecation")
+	public void mapHalf()
+	{
+		WindowManager wm = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
+		
+		int width = wm.getDefaultDisplay().getWidth();
+		double height = wm.getDefaultDisplay().getHeight() / 2.8;
+		
+		LinearLayout mapArea = (LinearLayout) findViewById(R.id.MapArea);
+		LinearLayout.LayoutParams half = new LinearLayout.LayoutParams(width, (int)height);
+		
+		mapArea.setLayoutParams(half);
+	}
+	
+	@SuppressWarnings("deprecation")
+	public void mapFull()
+	{
+		LinearLayout mapArea = (LinearLayout) findViewById(R.id.MapArea);
+		LinearLayout.LayoutParams full = new LinearLayout.LayoutParams
+											(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT);
+		mapArea.setLayoutParams(full);
+	}
+	
+	public void mapNoneClick(View mapNoneClick)
+	{
+		mapNone();
+	}
+	
+	public void mapHalfClick(View mapHalfClick)
+	{
+		mapHalf();
+	}
+	
+	public void mapFullClick(View mapFullClick)
+	{
+		mapFull();
+	}
+	
+	public void popUpClick(View popWindow)
+	{
+		showSpotWindow();
+	}
+	
+	public void userNameClick(View userName)
+	{
+		longMessage("Welcome " + MyName + " (£½_>£¿)");
+	}
+	
+	private void shortMessage (String message)
+    {
+    	Toast.makeText(Map2Activity.this, message, Toast.LENGTH_SHORT).show();
+    }
+    private void longMessage (String message)
+    {
+    	Toast.makeText(Map2Activity.this, message, Toast.LENGTH_LONG).show();
+    }
     
     class sendItToRun implements Runnable 
     {
@@ -865,7 +1057,6 @@ public class Map2Activity extends MapActivity
     		planMove.obtainMessage(REFRESH_DATA, result).sendToTarget();
     	}
     }
-    
     
   //Create HTTP Connection!!
     
@@ -890,19 +1081,16 @@ public class Map2Activity extends MapActivity
     		Toast.makeText(this,e.getMessage().toString(),Toast.LENGTH_SHORT).show();
     		e.printStackTrace();
     	}
-    	
     	catch (IOException e)
     	{
     		Toast.makeText(this,e.getMessage().toString(),Toast.LENGTH_SHORT).show();
     		e.printStackTrace();
     	}
-    	
     	catch (Exception e)
     	{
     		Toast.makeText(this,e.getMessage().toString(),Toast.LENGTH_SHORT).show();
     		e.printStackTrace();
     	}
-    	
     	return null;
     }
     
@@ -937,9 +1125,9 @@ public class Map2Activity extends MapActivity
     	menu.add(0,1,3,"Read Me").setIcon(android.R.drawable.ic_menu_info_details);
     	menu.add(0,2,2,"Find My Position").setIcon(android.R.drawable.ic_menu_mylocation);
     	menu.add(0,3,1,"Select Plan").setIcon(android.R.drawable.ic_menu_view);
-    	menu.add(0,4,0,"Show Spot List");
+    	menu.add(0,4,0,"Show Spot List").setIcon(android.R.drawable.ic_menu_view);
     	
-    	if (version > 10)
+    	if (SDKversion > 10)
     	{
     		getMenuInflater().inflate(R.menu.options, menu);
     		Button menuBtn1 = (Button) menu.findItem(R.id.selectPlan).getActionView();
@@ -947,7 +1135,6 @@ public class Map2Activity extends MapActivity
 
     		menuBtn1.setOnClickListener(new OnClickListener() {
     			public void onClick(View v) {
-
     				showPlanWindow();
     			}
     		});
@@ -961,12 +1148,12 @@ public class Map2Activity extends MapActivity
     	switch(item.getItemId()){
     		case 0:
     			new AlertDialog.Builder(this).setTitle("Are you sure?!")
-    			.setPositiveButton("NO~", new DialogInterface.OnClickListener()
+    			.setPositiveButton("No~", new DialogInterface.OnClickListener()
                 {  
     				public void onClick(DialogInterface arg0, int arg1)
     				{  
     				} 
-               }).setNegativeButton("YES!", new DialogInterface.OnClickListener()
+               }).setNegativeButton("Yes!", new DialogInterface.OnClickListener()
                	{  
             	   public void onClick(DialogInterface arg0, int arg1)
             	   {
@@ -982,7 +1169,7 @@ public class Map2Activity extends MapActivity
     		break;
     		
     		case 1:
-    			Toast.makeText(Map2Activity.this, "Still working on it...", Toast.LENGTH_LONG).show();
+    			shortMessage("Still working on it...");
     			break;
     			
     		case 2:
