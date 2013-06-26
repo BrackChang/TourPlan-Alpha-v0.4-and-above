@@ -13,8 +13,8 @@
             android:id="@+id/exList1"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
-            android:background="@drawable/Transparent1"
             android:divider="@drawable/SteelBlue"
+            android:background="@drawable/Transparent1"
             android:dividerHeight="2dp" >
         </ListView>
     </LinearLayout>
@@ -28,8 +28,8 @@
             android:id="@+id/exList2"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
-            android:background="@drawable/Transparent2"
             android:divider="@drawable/SteelBlue"
+            android:background="@drawable/Transparent2"
             android:dividerHeight="2dp" >
         </ListView>
     </LinearLayout>

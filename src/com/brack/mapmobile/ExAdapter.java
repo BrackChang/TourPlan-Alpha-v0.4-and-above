@@ -4,13 +4,20 @@ import java.util.List;
 import java.util.Map;
 
 import android.content.Context;
+import android.graphics.drawable.BitmapDrawable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup.LayoutParams;
+import android.view.WindowManager;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -98,6 +105,104 @@ List<List<Map<String, String>>> spotChild;
 		final String lat = (String) spotGroup.get(groupPosition).get("lat");
 		final String lng = (String) spotGroup.get(groupPosition).get("lng");
 		
+		Button directRoute = (Button) layout.findViewById(R.id.routeDirection);
+		directRoute.setFocusable(false);
+		directRoute.setFocusableInTouchMode(false);
+		directRoute.setClickable(true);
+		
+		int next = spotGroup.size();
+		
+		if(groupPosition == next - 1) {
+			directRoute.setOnClickListener(new OnClickListener() {
+				@SuppressWarnings("deprecation")
+				public void onClick(View v) {
+					LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+					View view = inflater.inflate(R.layout.route_selection, null);
+
+					ImageButton route1 = (ImageButton) view.findViewById(R.id.route1);
+
+					WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+					double width =wm.getDefaultDisplay().getWidth() / 4;
+					double height =wm.getDefaultDisplay().getHeight() / 10.5;
+					double btnWidth =wm.getDefaultDisplay().getWidth() / 4;
+					Log.i("BtnWidth", ""+btnWidth);
+
+					LinearLayout.LayoutParams params = new LinearLayout.LayoutParams
+														((int)btnWidth, LayoutParams.WRAP_CONTENT);
+					route1.setLayoutParams(params);
+
+					final PopupWindow popUp = new PopupWindow (view, (int)width, (int)height);
+					popUp.setFocusable(true);
+					popUp.setOutsideTouchable(true);
+					popUp.setBackgroundDrawable(new BitmapDrawable());
+
+					double xpos = wm.getDefaultDisplay().getWidth() / 8 - popUp.getWidth();
+					double ypos = wm.getDefaultDisplay().getHeight() / 50 - (popUp.getHeight() / 0.54);
+
+					popUp.showAsDropDown(v, (int)xpos, (int)ypos);
+
+					route1.setOnClickListener(new OnClickListener() {
+						public void onClick(View v) {
+							((Map2Activity) context).routeFromMyPosition(lat, lng);
+							((Map2Activity) context).mapHalf();
+							popUp.dismiss();
+						}
+					});		
+				}
+			});
+		}
+		else {
+			final String nextLat = (String) spotGroup.get(groupPosition+1).get("lat");
+			final String nextLng = (String) spotGroup.get(groupPosition+1).get("lng");
+			
+			directRoute.setOnClickListener(new OnClickListener() {
+				@SuppressWarnings("deprecation")
+				public void onClick(View v) {
+					LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+					View view = inflater.inflate(R.layout.route_selection, null);
+					
+					ImageButton route1 = (ImageButton) view.findViewById(R.id.route1);
+					ImageButton route2 = (ImageButton) view.findViewById(R.id.route2);
+					
+					WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+					double width =wm.getDefaultDisplay().getWidth() / 1.9;
+					double height =wm.getDefaultDisplay().getHeight() / 10.5;
+					double btnWidth =wm.getDefaultDisplay().getWidth() / 4;
+					Log.i("BtnWidth", ""+btnWidth);
+					
+					LinearLayout.LayoutParams params = new LinearLayout.LayoutParams
+														((int)btnWidth, LayoutParams.WRAP_CONTENT);
+					route1.setLayoutParams(params);
+					route2.setLayoutParams(params);
+					
+					final PopupWindow popUp = new PopupWindow (view, (int)width, (int)height);
+					popUp.setFocusable(true);
+					popUp.setOutsideTouchable(true);
+					popUp.setBackgroundDrawable(new BitmapDrawable());
+					
+					double xpos = wm.getDefaultDisplay().getWidth() / 5 - popUp.getWidth();
+					double ypos = wm.getDefaultDisplay().getHeight() / 50 - (popUp.getHeight() / 0.54);
+					
+					popUp.showAsDropDown(v, (int)xpos, (int)ypos);
+					
+					route1.setOnClickListener(new OnClickListener() {
+						public void onClick(View v) {
+							((Map2Activity) context).routeFromMyPosition(lat, lng);
+							((Map2Activity) context).mapHalf();
+							popUp.dismiss();
+						}
+					});
+					route2.setOnClickListener(new OnClickListener() {
+						public void onClick(View v) {
+							((Map2Activity) context).routeToNextSpot(lat, lng, nextLat, nextLng);
+							((Map2Activity) context).mapHalf();
+							popUp.dismiss();
+						}
+					});
+				}
+			});
+		}
+		
 		TextView titleName = (TextView) layout.findViewById(R.id.groupName);
 		TextView titleDescrName = (TextView) layout.findViewById(R.id.groupDescr);
 		ImageButton showMap = (ImageButton) layout.findViewById(R.id.showMap);
@@ -125,7 +230,7 @@ List<List<Map<String, String>>> spotChild;
 				((Map2Activity) context).exListMapMove(lat, lng);
 			}
 		});
-		
+
 		return layout;
 	}
 

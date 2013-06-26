@@ -1,6 +1,7 @@
 package com.brack.mapmobile;
 
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -12,17 +13,16 @@ import java.util.regex.Pattern;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpParams;
 import org.apache.http.util.EntityUtils;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
-import com.brack.mapmobile.R;
-import com.google.android.maps.GeoPoint;
-import com.google.android.maps.MapActivity;
-import com.google.android.maps.MapController;
-import com.google.android.maps.MapView;
-import com.google.android.maps.MyLocationOverlay;
-import com.google.android.maps.Overlay;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -32,15 +32,22 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.location.Address;
+import android.location.Criteria;
 import android.location.Geocoder;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.os.AsyncTask;
 import android.os.Build.VERSION;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Debug;
 import android.os.Handler;
 import android.os.Message;
+import android.provider.Settings;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -53,7 +60,6 @@ import android.view.View.OnKeyListener;
 import android.view.ViewGroup.LayoutParams;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
-
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
@@ -70,13 +76,22 @@ import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.maps.GeoPoint;
+import com.google.android.maps.MapActivity;
+import com.google.android.maps.MapController;
+import com.google.android.maps.MapView;
+import com.google.android.maps.MyLocationOverlay;
+import com.google.android.maps.Overlay;
+
 @SuppressLint("HandlerLeak")
-public class Map2Activity extends MapActivity 
+public class Map2Activity extends MapActivity implements LocationListener
 {    
     private MapView mapView; 
     private MapController mapControl;
     private MyLocationOverlay myLayer;
-    private GeoPoint gp;
+    private LocationManager locManager;
+    private DrawOverlay drawOverlay;
+    private GeoPoint GP;
     private MapOverlay Marker;
     private SearchOverlay locMarker;
     private ExpandableListView exSpotList;
@@ -87,6 +102,8 @@ public class Map2Activity extends MapActivity
     private long exitTime = 0;
     private String tourURL = "http://140.128.198.44:406/plandata/";
     protected static final int REFRESH_DATA = 0x00000001;
+    private String strLocation = "";
+    private Location myLocation;
     
     private String MyName;
     private String planTitle;
@@ -111,8 +128,11 @@ public class Map2Activity extends MapActivity
     
     @SuppressWarnings("deprecation")
 	int SDKversion = Integer.parseInt(VERSION.SDK);
-    private boolean startNeed = false;
+    private boolean startNeed;
     private boolean mapAutoNone = true;
+    private boolean requestGPS;
+    private boolean stopAsk;
+    private boolean enableTool;
     
     /** Called when the activity is first created. **/
     @Override
@@ -121,6 +141,8 @@ public class Map2Activity extends MapActivity
         super.onCreate(savedInstanceState);
         Debug.startMethodTracing("report");
         setContentView(R.layout.map);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        
         String version = getResources().getString(R.string.Version);
         String versionName = getResources().getString(R.string.VersionName);
         this.setTitle(versionName + version);
@@ -156,15 +178,80 @@ public class Map2Activity extends MapActivity
         double lat = Double.parseDouble(coordinates[0]);
         double lng = Double.parseDouble(coordinates[1]);
         
-        gp = new GeoPoint(
+        GP = new GeoPoint(
         		(int)(lat * 1E6),(int)(lng * 1E6));
         
-        mapControl.animateTo(gp);
+        mapControl.animateTo(GP);
         mapControl.setZoom(8);
         
-        /* Find My Location */
-        findMyLocation();
-        /* Find My Location */
+        locManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        locManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 0, Map2Activity.this);
+        //locManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000, 0, Map2Activity.this);
+        
+        getLocationProvider();
+        
+        //findMyLocation();
+    }
+    
+    private void GPSinit()
+    {	
+    	if (requestGPS == true)
+    	{
+    		if (!locManager.isProviderEnabled(LocationManager.GPS_PROVIDER))
+    		{
+    			new AlertDialog.Builder(Map2Activity.this).setTitle("GPS Setting")
+    			.setMessage("GPS is not enabled, do you want to switch to the setting page?")
+    			.setCancelable(false).setPositiveButton("OKAY~", new DialogInterface.OnClickListener() {
+    				public void onClick(DialogInterface dialog, int which) {
+    					startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+    				}
+    			}).setNegativeButton("NO!", new DialogInterface.OnClickListener() {
+    				public void onClick(DialogInterface dialog, int which) {
+    					requestGPS = false;
+    					stopAsk = true;
+    					findMyLocation();
+    				}
+    			}).show();
+    		}
+    		else
+        	{
+        		findMyLocation();
+        		enableTool = true;
+        	}
+    	} 
+    	else 
+    	{
+    		findMyLocation();
+    		enableTool = true;
+    	}
+    }
+    
+    @Override
+    protected void onResume()
+    {
+    	super.onResume();
+    	if (enableTool)
+    	{
+    		locManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 0, Map2Activity.this);
+    		//locManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000, 0, Map2Activity.this);
+    		myLayer.enableMyLocation();
+    		myLayer.enableCompass();
+    	}
+    	else
+    	{
+    		GPSinit();
+    	}
+    }
+    @Override
+    protected void onPause()
+    {
+    	super.onPause();
+    	if (enableTool)
+    	{
+    		locManager.removeUpdates(Map2Activity.this);
+    		myLayer.disableMyLocation();
+    		myLayer.disableCompass();
+    	}
     }
     
     private void findMyLocation()
@@ -186,7 +273,193 @@ public class Map2Activity extends MapActivity
         
         mapView.invalidate();
     }
+    
+    public void getLocationProvider()
+    {
+    	try
+    	{
+    		Criteria criteria = new Criteria();
+    		criteria.setAccuracy(Criteria.ACCURACY_FINE);
+    		criteria.setAltitudeRequired(false);
+    		criteria.setBearingRequired(false);
+    		criteria.setCostAllowed(true);
+    		criteria.setPowerRequirement(Criteria.POWER_LOW);
+    		
+    		strLocation = locManager.getBestProvider(criteria, true);
+    		myLocation = locManager.getLastKnownLocation(strLocation);
+    	}
+    	catch (Exception e)
+    	{
+    		longMessage(e.toString());
+    		e.printStackTrace();
+    	}
+    }
+    
+    public void routeFromMyPosition(String toLat, String toLng)
+    { 	
+    	double lat = myLocation.getLatitude();
+    	double lng = myLocation.getLongitude();
+    	Log.i("MyPosition", ""+lat +" "+ lng);
+    	
+    	double toGPLat = Double.parseDouble(toLat);
+    	double toGPLng = Double.parseDouble(toLng);
+    	Log.i("Destination", ""+ toGPLat +" & " + toGPLng );
+    	
+    	exListMapMove(""+lat, ""+lng);
+    	
+    	new GoogleDirection().execute(lat + "," + lng, toGPLat + "," + toGPLng);
+    	/*
+    	Geocoder geocoder = new Geocoder(Map2Activity.this);
+		List<Address> addrs;
+		
+		try
+		{
+			addrs = geocoder.getFromLocation(lat, lng, 1);
+			if (addrs != null && addrs.size() > 0)
+			{
+				String address = new String();
+				Log.i("Address", addrs.get(0).toString());
+				address = addrs.get(0).getAddressLine(0) + "," + System.getProperty("line.separator")
+						+ addrs.get(0).getAddressLine(1) + "," + addrs.get(0).getAddressLine(2);
+				
+				longMessage(""+address);
+				
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		*/
+    }
+    
+    public void routeToSearch(String searchLat, String searchLng)
+    {
+    	double lat = myLocation.getLatitude();
+    	double lng = myLocation.getLongitude();
+    	Log.i("MyPosition", ""+lat +" "+ lng);
 
+    	exListMapMove(""+lat, ""+lng);
+    	
+    	new GoogleDirection().execute(lat + "," + lng, searchLat + "," + searchLng);
+    }
+    
+    public void routeToNextSpot(String fromLat, String fromLng, String toLat, String toLng)
+    { 	
+    	double fromGPLat = Double.parseDouble(fromLat);
+    	double fromGPLng = Double.parseDouble(fromLng);
+    	
+    	double toGPLat = Double.parseDouble(toLat);
+    	double toGPLng = Double.parseDouble(toLng);
+    	
+    	exListMapMove(""+fromGPLat, ""+fromGPLng);
+    	
+    	new GoogleDirection().execute(fromGPLat + "," + fromGPLng, toGPLat + "," + toGPLng);
+    }
+
+    private class GoogleDirection extends AsyncTask<String, Integer, List<GeoPoint>>
+    {
+    	private final String mapAPI = 
+    	"http://maps.google.com/maps/api/directions/json?" + "origin={0}&destination={1}&language=zh-TW&sensor=true";
+    	private String from;
+    	private String to;
+    	private List<GeoPoint> geoPoints = new ArrayList<GeoPoint>();
+    	private String POLY;
+    	
+    	@Override
+    	protected List<GeoPoint> doInBackground(String...params)
+    	{
+    		if (params.length < 0)
+    			return null;
+    		
+    		from = params[0];
+    		to = params[1];
+    		
+    		String Url = MessageFormat.format(mapAPI, from, to);
+    		Log.i("mapUrl", Url);
+    		
+    		HttpGet get = new HttpGet(Url);
+    		String strResult = "";
+    		
+    		try
+    		{
+    			HttpParams httpParams = new BasicHttpParams();
+    			HttpConnectionParams.setConnectionTimeout(httpParams, 3000);
+    			
+    			HttpClient HC = new DefaultHttpClient(httpParams);
+    			HttpResponse HR = null;
+    			HR = HC.execute(get);
+    			
+    			if (HR.getStatusLine().getStatusCode() == 200)
+    			{
+    				strResult = EntityUtils.toString(HR.getEntity());
+    				
+    				JSONObject jb = new JSONObject(strResult);
+    				JSONArray ja = jb.getJSONArray("routes");
+    				String status = jb.getString("status");
+    				
+    				Log.i("status", status);
+    				
+    				if (status.contains("OK"))
+    				{
+    					String polyLine = ja.getJSONObject(0).getJSONObject("overview_polyline").getString("points");
+    					if (polyLine.length() > 0)
+        				{
+    						POLY = polyLine;
+        				}
+    				} else {
+    					POLY = "";
+    				}
+    			}
+    		} 
+    		catch(Exception e)
+    		{
+				Log.e("map", e.toString());
+    		}
+    		return geoPoints;
+    	}
+    	/*
+    	private void decodePolylines(String poly)
+    	{
+    		int len = poly.length();
+    		int index = 0;
+    		int lat = 0;
+    		int lng = 0;
+    		
+    		while (index < len)
+    		{
+    			int b, shift = 0, result = 0;
+    			do
+    			{
+    				b = poly.charAt(index++) -63;
+    				result |= (b & 0x1f) << shift;
+    				shift += 5;
+    			}
+    			while (b >= 0x20);
+    			
+    			int dlng = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
+				lng += dlng;
+
+				GeoPoint p = new GeoPoint((int) (((double) lat / 1E5) * 1E6), (int) (((double) lng / 1E5) * 1E6));
+				geoPoints.add(p);
+    		}
+    	}
+    	*/
+    	@SuppressWarnings({ "rawtypes", "unchecked" })
+		protected void onPostExecute(List<GeoPoint> geoPoints)
+    	{
+    		if (POLY.length() > 0)
+    		{
+    			ArrayList myPoints = (ArrayList) PolyHelper.decodePolyline(POLY);
+    			mapView.getOverlays().remove(drawOverlay);
+    			drawOverlay = new DrawOverlay(myPoints);
+    			mapView.getOverlays().add(drawOverlay);
+    			mapView.invalidate();
+    		} else {
+    			longMessage("Oops~Routed failed!!\nThe path is NOT drawable, it may cause by the path of cross sea.");
+    		}
+    	}
+    }
+    
+    
     Handler planMove = new Handler()
    	{
    		@SuppressWarnings("deprecation")
@@ -383,9 +656,29 @@ public class Map2Activity extends MapActivity
 	    titleRow.removeAllViews();
 		dayRow.removeAllViews();
 		
+		DisplayMetrics DM = new DisplayMetrics();
+		getWindowManager().getDefaultDisplay().getMetrics(DM);
+		
 		WindowManager wm = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
-		double height = wm.getDefaultDisplay().getHeight() / 15.5;
+		double height = wm.getDefaultDisplay().getHeight() / 16;
 		int textSize = wm.getDefaultDisplay().getHeight() / 55;
+		int screenWidth = wm.getDefaultDisplay().getWidth();
+		int screenHeight = wm.getDefaultDisplay().getHeight();
+		
+		Log.i("Metrics", DM.widthPixels + " x " + DM.heightPixels);
+		Log.i("ScreenDisplay", ""+screenWidth +" x "+ screenHeight);
+		Log.i("ButtonHeight", ""+height);
+		Log.i("TextSize1", ""+textSize);
+		
+		if (screenWidth >= 480 && screenWidth < 720)
+		{
+			textSize = 13;
+		} 
+		else if (screenWidth >= 720 && screenWidth < 800)
+		{
+			textSize = 16;
+		}
+		Log.i("TextSize2", ""+textSize);
 		/*
 		TableLayout.LayoutParams row_layout = new TableLayout.LayoutParams
 												(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
@@ -530,34 +823,7 @@ public class Map2Activity extends MapActivity
    		exAdapter = new ExAdapter(this, spotGroup, spotChild);
    		exSpotList.setIndicatorBounds(0, 20);
    		exSpotList.setAdapter(exAdapter);
-   		/*
-   		exSpotList.setOnGroupExpandListener(new OnGroupExpandListener() {
-			public void onGroupExpand(int groupPosition) {
-				String coordinates[] = {latArr[groupPosition], lngArr[groupPosition]};
-				double latitude = Double.parseDouble(coordinates[0]);
-				double longitude = Double.parseDouble(coordinates[1]);
-				
-				GeoPoint position = new GeoPoint(
-									(int)(latitude * 1E6),
-									(int)(longitude * 1E6));
-				
-				mapControl.animateTo(position);
-				mapControl.setZoom(16);
-				
-				//shortMessage(spotArr[groupPosition]);
-			}
-		});
-   		*/
-   		/*
-   		exSpotList.setOnGroupClickListener(new OnGroupClickListener() {
-			public boolean onGroupClick(ExpandableListView parent, View v, int groupPosition, long id)
-			{
-				String selected = parent.getItemAtPosition(groupPosition).toString();
-				longMessage(selected);
-				return false;
-			}
-   		});
-   		*/
+
    		/*
    		SimpleAdapter spotAdapter = new SimpleAdapter
 				(Map2Activity.this, spotGroup, R.layout.autotext_list_layout02,
@@ -625,12 +891,12 @@ public class Map2Activity extends MapActivity
 		double latitude = Double.parseDouble(coordinates[0]);
 		double longitude = Double.parseDouble(coordinates[1]);
 		
-		GeoPoint position = new GeoPoint(
-							(int)(latitude * 1E6),
-							(int)(longitude * 1E6));
+		GP = new GeoPoint(
+					(int)(latitude * 1E6),
+					(int)(longitude * 1E6));
 		
-		mapControl.animateTo(position);
-		mapControl.setZoom(16);
+		mapControl.animateTo(GP);
+		mapControl.setZoom(15);
 		
 		mapHalf();
    	}
@@ -680,14 +946,14 @@ public class Map2Activity extends MapActivity
    				double geoLat = addr.getLatitude() * 1E6;
    				double geoLng = addr.getLongitude() * 1E6;
 
-   				gp = new GeoPoint((int) geoLat, (int) geoLng);
+   				GP = new GeoPoint((int) geoLat, (int) geoLng);
 
-   				locMarker.setPoint(gp, "Your searching result", input);
+   				locMarker.setPoint(GP, "Your searching result", input);
    				locMarker.finish();
    				mapView.getOverlays().add(locMarker);
 
-   				mapControl.animateTo(gp);
-   				mapControl.setZoom(10);
+   				mapControl.animateTo(GP);
+   				mapControl.setZoom(13);
    				mapView.invalidate();
    				
    				typingText.setText("");
@@ -732,14 +998,11 @@ public class Map2Activity extends MapActivity
    	public void mapNoneCountDown()
    	{
    		new CountDownTimer(1000,1000) {
-   			@Override
    			public void onFinish() {
    				mapNone();
    				mapAutoNone = false;
    			}
-   			@Override
    			public void onTick(long millisUntilFinished) {
-   				
    			}
    		}.start();
    	}
@@ -845,7 +1108,7 @@ public class Map2Activity extends MapActivity
 
             	String pid = selected.substring(0,selected.indexOf(" "));
             	final String xmlPidUrl = tourURL + MyName +"/" + pid;
-
+            	
             	new Thread()
             	{
             		public void run()
@@ -935,11 +1198,11 @@ public class Map2Activity extends MapActivity
 					double latitude = Double.parseDouble(coordinates[0]);
 					double longitude = Double.parseDouble(coordinates[1]);
 
-					GeoPoint position = new GeoPoint(
+					GP = new GeoPoint(
 							(int)(latitude * 1E6),
 							(int)(longitude * 1E6));
 
-					mapControl.animateTo(position);
+					mapControl.animateTo(GP);
 					mapControl.setZoom(16);
 
 					shortMessage(spotList[arg2]);
@@ -1108,12 +1371,33 @@ public class Map2Activity extends MapActivity
     		return strTarget;  
     	}
     }
-      
- 
+    
     @Override
     protected boolean isRouteDisplayed() {
         // TODO Auto-generated method stub
         return false;
+    }
+    
+    @Override
+    public void onLocationChanged(Location location) {
+    	// TODO Auto-generated method stub
+    	Log.v("mapLocation", location.toString());
+    	myLocation = location;
+    }
+
+    @Override
+    public void onProviderDisabled(String provider) {
+    	// TODO Auto-generated method stub
+    }
+
+    @Override
+    public void onProviderEnabled(String provider) {
+    	// TODO Auto-generated method stub
+    }
+
+    @Override
+    public void onStatusChanged(String provider, int status, Bundle extras) {
+    	// TODO Auto-generated method stub
     }
     
     
@@ -1173,7 +1457,11 @@ public class Map2Activity extends MapActivity
     			break;
     			
     		case 2:
-    			findMyLocation();
+    			if (stopAsk == false)
+    			{
+    				requestGPS = true;
+    			}
+    			GPSinit();
     			break;
     		
     		case 3:
@@ -1186,5 +1474,4 @@ public class Map2Activity extends MapActivity
     	}
     	return super.onOptionsItemSelected(item);
     }
-    
 }

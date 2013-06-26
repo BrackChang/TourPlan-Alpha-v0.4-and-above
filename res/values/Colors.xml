@@ -22,5 +22,7 @@
     <drawable name="Marron">#800000</drawable>
     <drawable name="Transparent1">#Cf000000</drawable>
     <drawable name="Transparent2">#Df000000</drawable><drawable name="Transparent3">#Ab000000</drawable>
+    <drawable name="Gray">#808080</drawable>
+    <drawable name="Silver">#C0C0C0</drawable>
     
 </resources>

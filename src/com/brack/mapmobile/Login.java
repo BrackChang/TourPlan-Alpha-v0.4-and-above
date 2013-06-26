@@ -55,6 +55,7 @@ public class Login extends Activity {
 	private WifiManager wifi;
 	private WifiInfo wifiInfo;
 	protected static final int REFRESH_DATA = 0x00000001;
+	private PopupWindow popUp;
 	/*
 	protected static final int STOP = 0x10000;  
     protected static final int NEXT = 0x10001;  
@@ -345,7 +346,7 @@ public class Login extends Activity {
     	double width = wm.getDefaultDisplay().getWidth() / 1.2;
 		double height =wm.getDefaultDisplay().getHeight() / 7;
 		
-		final PopupWindow popUp = new PopupWindow (view, (int)width, (int)height);
+		popUp = new PopupWindow (view, (int)width, (int)height);
 		
 		popUp.setFocusable(true);
 		popUp.setOutsideTouchable(true);
@@ -360,7 +361,7 @@ public class Login extends Activity {
     	loadingText.setVisibility(View.VISIBLE);
     	loadingBar.setProgress(0);
     	
-    	new CountDownTimer(2000,500){
+    	new CountDownTimer(2000,400){
    			public void onFinish() {
    				loadingDone.setText("Login Succeed!!");
    				
@@ -374,7 +375,7 @@ public class Login extends Activity {
 
 				Login.this.startActivity(goMap);
 				
-				finish();
+				finishCountDown();
    			}
    			public void onTick(long millisUntilFinished) {
    				String loads = loading + ".";
@@ -382,7 +383,6 @@ public class Login extends Activity {
    				loading = loads;
    			}
    		}.start();
-    	
     	/*
     	Thread loadingThread = new Thread(new Runnable() {
 			public void run() {
@@ -412,6 +412,21 @@ public class Login extends Activity {
     	loadingThread.start();
     	*/
     }
+    
+    public void finishCountDown()
+   	{
+   		new CountDownTimer(4000, 1000)
+   		{
+   			public void onFinish()
+   			{
+   				popUp.dismiss();
+   				finish();
+   			}
+   			public void onTick(long millisUntilFinished) 
+   			{ }
+   		}.start();
+   	}
+    
     /*
     private Handler loadingHandler = new Handler()
     {

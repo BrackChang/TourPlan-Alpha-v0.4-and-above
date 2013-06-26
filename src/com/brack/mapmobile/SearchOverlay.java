@@ -7,7 +7,6 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.drawable.Drawable;
-
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.ItemizedOverlay;
 import com.google.android.maps.OverlayItem;
@@ -43,7 +42,7 @@ public class SearchOverlay extends ItemizedOverlay<OverlayItem> {
 		}
 		
 		@Override
-		protected boolean onTap(int index) {
+		protected boolean onTap(final int index) {
 			AlertDialog.Builder infoDialog = new AlertDialog.Builder(context);
 			infoDialog.setIcon(R.drawable.info_icon);
 			infoDialog.setTitle(Items.get(index).getTitle());
@@ -56,8 +55,20 @@ public class SearchOverlay extends ItemizedOverlay<OverlayItem> {
 						//Actions after you press OK!	
 						}
 					});
+			infoDialog.setNegativeButton("Navigate", new DialogInterface.OnClickListener()
+			{
+				public void onClick(DialogInterface dialog, int which)
+				{
+					String geoPoint = Items.get(index).getPoint().toString();
+					String[] point = geoPoint.split(",");
+					double lat = Double.parseDouble(point[0]) / 1E6;
+					double lng =Double.parseDouble(point[1]) / 1E6;
+					
+					((Map2Activity) context).routeToSearch(""+lat, ""+lng);
+				}
+			});
 			infoDialog.show();
-			//Toast.makeText(Map2Activity.this, Items.get(index).getSnippet(), Toast.LENGTH_SHORT).show();
+			
 			return true;
 		}
 	}
