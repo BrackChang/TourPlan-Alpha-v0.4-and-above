@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:android1="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@drawable/Transparent2"
+    android:orientation="horizontal" >
+    
+    <ImageButton
+        android:id="@+id/route1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android1:layout_gravity="center"
+        android1:scaleType="centerCrop"
+        android1:src="@drawable/route_mypos_xh" />
+
+    <View
+        android:id="@+id/headerLine1"
+        android:layout_width="2dp"
+        android:layout_height="fill_parent"
+        android:layout_toLeftOf="@+id/popWindow"
+        android1:layout_marginBottom="10dp"
+        android1:layout_marginLeft="3dp"
+        android1:layout_marginRight="3dp"
+        android1:layout_marginTop="10dp"
+        android:background="@drawable/Silver" />
+
+    <ImageButton
+        android:id="@+id/route2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android1:layout_gravity="center"
+        android1:scaleType="centerCrop"
+        android1:src="@drawable/route_tonext_xh" />
+
+</LinearLayout>

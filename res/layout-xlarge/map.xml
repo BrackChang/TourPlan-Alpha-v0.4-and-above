@@ -1,51 +1,141 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/mapLayout"
-    android:layout_width="match_parent"
+    android:layout_width="fill_parent"
     android:layout_height="match_parent"
+    android:animateLayoutChanges="true"
     android:background="@drawable/Ivory"
     android:orientation="vertical"
     android:scrollbarAlwaysDrawVerticalTrack="true"
     android:scrollbars="horizontal|vertical" >
 
-    <LinearLayout
+    <RelativeLayout
         android:id="@+id/SayHi"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="40dp"
+        android:layout_gravity="center"
+        android:animateLayoutChanges="true"
+        android:background="@drawable/title_bg1"
+        android:gravity="center_vertical"
         android:orientation="horizontal"
         android:paddingBottom="2dp" >
-
-        <TextView
-            android:id="@+id/HelloLabel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/HelloLabel"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:textColor="@drawable/Black"
-            android:textSize="45sp" />
 
         <TextView
             android:id="@+id/UserName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:clickable="true"
+            android:onClick="userNameClick"
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:textColor="@drawable/Brown"
-            android:textSize="45sp" />
-    </LinearLayout>
-    
+            android:textStyle="bold" />
+
+        <ProgressBar
+            android:id="@+id/loadingPlan"
+            style="?android:attr/progressBarStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:layout_marginLeft="10dp"
+            android:layout_toRightOf="@+id/UserName"
+            android:indeterminate="false"
+            android:visibility="gone" />
+
+        <Button
+            android:id="@+id/mapNoneBtn"
+            android:layout_width="35dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="2dp"
+            android:background="@drawable/map_none"
+            android:onClick="mapNoneClick" />
+
+        <View
+            android:id="@+id/headerLine2"
+            android:layout_width="2dp"
+            android:layout_height="fill_parent"
+            android:layout_marginBottom="-1dp"
+            android:layout_marginTop="1dp"
+            android:layout_toRightOf="@+id/mapNoneBtn"
+            android:background="@drawable/LightBrown" />
+
+        <Button
+            android:id="@+id/mapHalfBtn"
+            android:layout_width="35dp"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="1dp"
+            android:layout_toRightOf="@+id/mapNoneBtn"
+            android:background="@drawable/map_half"
+            android:onClick="mapHalfClick" />
+
+        <View
+            android:id="@+id/headerLine3"
+            android:layout_width="2dp"
+            android:layout_height="fill_parent"
+            android:layout_marginBottom="-1dp"
+            android:layout_marginTop="1dp"
+            android:layout_toRightOf="@+id/mapHalfBtn"
+            android:background="@drawable/LightBrown" />
+
+        <Button
+            android:id="@+id/mapFullBtn"
+            android:layout_width="35dp"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="1dp"
+            android:layout_toRightOf="@+id/mapHalfBtn"
+            android:background="@drawable/map_full"
+            android:onClick="mapFullClick" />
+
+        <View
+            android:id="@+id/headerLine4"
+            android:layout_width="1dp"
+            android:layout_height="fill_parent"
+            android:layout_marginBottom="2dp"
+            android:layout_marginLeft="3dp"
+            android:layout_marginTop="5dp"
+            android:layout_toRightOf="@+id/mapFullBtn"
+            android:background="@drawable/Gray" />
+
+        <View
+            android:id="@+id/headerLine1"
+            android:layout_width="1dp"
+            android:layout_height="fill_parent"
+            android:layout_marginBottom="2dp"
+            android:layout_marginRight="4dp"
+            android:layout_marginTop="5dp"
+            android:layout_toLeftOf="@+id/popWindow"
+            android:background="@drawable/Gray" />
+
+        <ImageButton
+            android:id="@+id/popWindow"
+            android:layout_width="40dp"
+            android:layout_height="35dp"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="1dp"
+            android:layout_marginTop="2dp"
+            android:contentDescription="Popup the spots window"
+            android:onClick="popUpClick"
+            android:src="@drawable/new_window_icon" />
+    </RelativeLayout>
+
     <View
         android:id="@+id/Line1"
         android:layout_width="fill_parent"
-        android:layout_height="2dp"
+        android:layout_height="1dp"
         android:background="#000000" />
 
     <LinearLayout
         android:id="@+id/MapArea"
-        android:layout_width="fill_parent"
-        android:layout_height="480dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:animateLayoutChanges="true"
         android:isScrollContainer="true"
         android:overScrollMode="always"
-        android:scrollbarAlwaysDrawVerticalTrack="true"
         android:scrollbars="horizontal|vertical" >
 
         <com.google.android.maps.MapView
@@ -55,104 +145,133 @@
             android:apiKey="0nBP-9OdMeXA2iC6Qdpy6NjXh6wKMZN9DhaakFQ"
             android:clickable="true"
             android:isScrollContainer="true"
-            android:keepScreenOn="true"
             android:overScrollMode="always"
             android:scrollbars="horizontal|vertical" >
         </com.google.android.maps.MapView>
     </LinearLayout>
-    
+
     <View
         android:id="@+id/Line2"
         android:layout_width="fill_parent"
-        android:layout_height="2dp"
+        android:layout_height="1dp"
         android:background="#000000" />
 
-    <ScrollView
-        android:id="@+id/ScrollArea"
+    <RelativeLayout
+        android:id="@+id/InfoArea"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content" >
+        android:layout_height="wrap_content"
+        android:animateLayoutChanges="true"
+        android:background="#ffffff" >
 
-        <RelativeLayout
-            android:layout_width="fill_parent"
+        <TableRow
+            android:id="@+id/titleRow"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="#ffffff" >
+            android:layout_gravity="center"
+            android:background="@drawable/SteelBlue"
+            android:gravity="center"
+            android:paddingBottom="2dp"
+            android:paddingTop="2dp" >
 
-            <LinearLayout
-                android:id="@+id/Functions"
-                android:layout_width="fill_parent"
-                android:layout_height="250dp"
-                android:orientation="vertical"
-                android:paddingTop="5dp" >
-
-                <Spinner
-                    android:id="@+id/PlanSelector"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
-
-                <LinearLayout
-                    android:id="@+id/searchLayout"
-                    android:layout_width="match_parent"
-                    android:layout_height="100dp" >
-
-                    <AutoCompleteTextView
-                        android:id="@+id/typingText"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:completionThreshold="1"
-                        android:ems="10"
-                        android:focusable="false"
-                        android:focusableInTouchMode="false"
-                        android:hint="@string/SearchSomething"
-                        android:imeOptions="actionGo|actionSearch"
-                        android:singleLine="true"
-                        android:textColor="@drawable/Brown"
-                        android:textSize="30sp" >
-
-                        <requestFocus />
-                    </AutoCompleteTextView>
-
-                    <Button
-                        android:id="@+id/searchBtn"
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:background="@drawable/button_style01"
-                        android:gravity="center_vertical|center_horizontal"
-                        android:minHeight="100dp"
-                        android:minWidth="32dp"
-                        android:onClick="searchClick"
-                        android:text="@string/searchBotton"
-                        android:textSize="35sp"
-                        android:textStyle="bold" />
-
-                </LinearLayout>
-
-            </LinearLayout>
-
-            <TableLayout
-                android:id="@+id/AddInfo"
+            <TextView
+                android:id="@+id/planName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/Functions">
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:textColor="@drawable/White" />
+        </TableRow>
 
-            </TableLayout>
+        <HorizontalScrollView
+            android:id="@+id/DayScrollArea"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/titleRow"
+            android:fillViewport="true" >
 
-        </RelativeLayout>
+            <LinearLayout
+                android:id="@+id/LinearLayout1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" >
 
-    </ScrollView>
+                <TableRow
+                    android:id="@+id/dayRow"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="-3dp"
+                    android:layout_marginTop="-2dp"
+                    android:background="@drawable/Transparent1"
+                    android:gravity="center"
+                    android:scrollbars="horizontal" >
+                </TableRow>
+            </LinearLayout>
+        </HorizontalScrollView>
+    </RelativeLayout>
 
     <LinearLayout
+        android:id="@+id/exLayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dip"
+        android:layout_weight="1"
+        android:animateLayoutChanges="true"
+        android:gravity="center"
         android:orientation="vertical" >
 
-        <ListView
-            android:id="@+id/PlanList"
+        <ExpandableListView
+            android:id="@+id/exPlanList"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" >
-        </ListView>
+            android:layout_height="wrap_content"
+            android:textFilterEnabled="true" >
 
+        </ExpandableListView>
     </LinearLayout>
+    
+     <View
+        android:id="@+id/Line3"
+        android:layout_width="fill_parent"
+        android:layout_height="1dp"
+        android:background="#000000" />
+    
+     <LinearLayout
+         android:id="@+id/Functions"
+         android:layout_width="fill_parent"
+         android:layout_height="wrap_content"
+         android:animateLayoutChanges="true"
+         android:gravity="right"
+         android:orientation="horizontal" >
+
+         <Button
+             android:id="@+id/clearBtn"
+             style="?android:attr/buttonStyleSmall"
+             android:layout_width="wrap_content"
+             android:layout_height="38dp"
+             android:background="@drawable/button_style01"
+             android:onClick="clearClick"
+             android:text="@string/Clear"
+             android:textColor="@drawable/AliceBlue" />
+
+         <AutoCompleteTextView
+             android:id="@+id/typingText"
+             android:layout_width="0dp"
+             android:layout_height="wrap_content"
+             android:layout_weight="1"
+             android:completionThreshold="1"
+             android:ems="10"
+             android:focusable="false"
+             android:focusableInTouchMode="false"
+             android:hint="@string/SearchSomething"
+             android:imeOptions="actionGo|actionSearch"
+             android:singleLine="true"
+             android:textColor="@drawable/Brown" />
+
+         <ImageButton
+             android:id="@+id/search"
+             android:layout_width="wrap_content"
+             android:layout_height="38dp"
+             android:background="@drawable/button_style01"
+             android:contentDescription="@string/searchBotton"
+             android:onClick="searchClick"
+             android:src="@drawable/ic_action_search" />
+     </LinearLayout>
 
 </LinearLayout>

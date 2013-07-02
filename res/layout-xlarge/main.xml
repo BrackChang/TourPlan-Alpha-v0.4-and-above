@@ -115,15 +115,36 @@
 
             </EditText>
 
-            <Button
-                android1:id="@+id/SignInBtn"
-                android1:layout_width="fill_parent"
+            <LinearLayout
+                android1:id="@+id/ButtonLayout"
+                android1:layout_width="match_parent"
                 android1:layout_height="wrap_content"
-                android:layout_marginTop="40dp"
-                android1:minHeight="110dp"
-                android1:onClick="btn1Click"
-                android1:text="@string/SignIn"
-                android1:textSize="50sp" />
+                android1:orientation="horizontal" >
+
+                <Button
+                    android1:id="@+id/SignInBtn"
+                    android1:layout_width="0dip"
+                    android1:layout_height="wrap_content"
+                    android:layout_marginTop="40dp"
+                    android1:layout_weight="1"
+                    android1:minHeight="110dp"
+                    android1:onClick="btn1Click"
+                    android1:text="@string/SignIn"
+                    android1:textSize="50sp" />
+
+                <Button
+                    android1:id="@+id/RetypeBtn"
+                    style="?android:attr/buttonStyleSmall"
+                    android1:layout_width="wrap_content"
+                    android1:layout_height="80dp"
+                    android1:layout_gravity="bottom"
+                    android1:layout_marginBottom="5dp"
+                    android1:onClick="reTypeClick"
+                    android1:text="@string/Retype"
+                    android1:textColor="@drawable/Marron"
+                    android1:textSize="28sp" />
+
+            </LinearLayout>
 
             <LinearLayout
                 android1:id="@+id/InsideLayout1"

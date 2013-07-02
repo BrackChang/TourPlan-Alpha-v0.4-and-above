@@ -36,7 +36,7 @@
                 android1:layout_width="match_parent"
                 android1:layout_height="match_parent"
                 android1:layout_gravity="center"
-                android1:layout_marginRight="10dp"
+                android1:layout_marginRight="25dp"
                 android1:gravity="center"
                 android1:text="@string/TitleText"
                 android1:textColor="@drawable/Beige"
@@ -61,10 +61,10 @@
             android1:id="@+id/LoginForm"
             android1:layout_width="match_parent"
             android1:layout_height="wrap_content"
-            android:layout_below="@+id/Header"
-            android1:layout_marginTop="-10dp"
-            android:focusable="true"
-            android:focusableInTouchMode="true"
+            android1:layout_alignParentLeft="true"
+            android1:layout_below="@+id/Header"
+            android1:focusable="true"
+            android1:focusableInTouchMode="true"
             android1:orientation="vertical"
             android1:padding="30dp" >
 
@@ -74,30 +74,31 @@
                 android1:layout_height="wrap_content"
                 android1:text="@string/emailLabel"
                 android1:textColor="@drawable/LightBrown"
-                android1:textSize="35sp"
+                android1:textSize="32sp"
                 android1:textStyle="bold" />
 
             <EditText
                 android1:id="@+id/EmailInput"
                 android1:layout_width="match_parent"
                 android1:layout_height="wrap_content"
-                android:layout_marginTop="5dip"
-                android:singleLine="true"
+                android1:layout_marginTop="5dip"
                 android1:ems="10"
                 android1:focusable="false"
                 android1:focusableInTouchMode="false"
                 android1:hint="@string/EmailInput_hint"
                 android1:imeOptions="actionNext"
                 android1:inputType="textEmailAddress"
-                android1:textSize="30sp" />
+                android1:singleLine="true"
+                android1:textSize="28sp" />
 
             <TextView
                 android1:id="@+id/PassLabel"
                 android1:layout_width="fill_parent"
                 android1:layout_height="wrap_content"
+                android1:layout_marginTop="10dp"
                 android1:text="@string/passLabel"
                 android1:textColor="@drawable/LightBrown"
-                android1:textSize="35sp"
+                android1:textSize="32sp"
                 android1:textStyle="bold" />
 
             <EditText
@@ -112,20 +113,37 @@
                 android1:imeOptions="actionGo"
                 android1:inputType="textPassword"
                 android1:singleLine="true"
-                android1:textSize="30sp" >
+                android1:textSize="28sp" />
 
-                <requestFocus />
-            </EditText>
-
-            <Button
-                android1:id="@+id/SignInBtn"
-                android1:layout_width="fill_parent"
+            <LinearLayout
+                android1:id="@+id/ButtonLayout"
+                android1:layout_width="match_parent"
                 android1:layout_height="wrap_content"
-                android1:layout_marginTop="30dp"
-                android1:minHeight="65dp"
-                android1:onClick="btn1Click"
-                android1:text="@string/SignIn"
-                android1:textSize="30sp" />
+                android1:orientation="horizontal" >
+
+                <Button
+                    android1:id="@+id/SignInBtn"
+                    android1:layout_width="0dip"
+                    android1:layout_height="wrap_content"
+                    android1:layout_marginTop="30dp"
+                    android1:layout_weight="1"
+                    android1:minHeight="65dp"
+                    android1:onClick="btn1Click"
+                    android1:text="@string/SignIn"
+                    android1:textSize="28sp" />
+
+                <Button
+                    android1:id="@+id/RetypeBtn"
+                    style="?android:attr/buttonStyleSmall"
+                    android1:layout_width="wrap_content"
+                    android1:layout_height="wrap_content"
+                    android1:layout_gravity="bottom"
+                    android1:layout_marginBottom="3dp"
+                    android1:onClick="reTypeClick"
+                    android1:text="@string/Retype"
+                    android1:textColor="@drawable/Marron"
+                    android1:textSize="18sp" />
+            </LinearLayout>
 
             <LinearLayout
                 android1:id="@+id/InsideLayout1"
@@ -138,7 +156,6 @@
                     android1:id="@+id/remember"
                     android1:layout_width="wrap_content"
                     android1:layout_height="wrap_content"
-                    android1:layout_gravity="center_vertical"
                     android1:checked="false"
                     android1:gravity="center"
                     android1:text="@string/rememberMe"
@@ -158,7 +175,6 @@
                     android1:textColor="#0b84aa"
                     android1:textSize="22sp"
                     android1:textStyle="italic" />
-
             </LinearLayout>
 
             <LinearLayout
@@ -195,9 +211,7 @@
                     android1:textColor="@drawable/DarkOrange"
                     android1:textSize="23sp"
                     android1:textStyle="bold" />
-
             </LinearLayout>
-
         </LinearLayout>
 
     </RelativeLayout>

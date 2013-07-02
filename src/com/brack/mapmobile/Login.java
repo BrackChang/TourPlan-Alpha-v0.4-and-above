@@ -29,6 +29,7 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.Message;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -182,12 +183,12 @@ public class Login extends Activity {
     	
     	if (wifi.isWifiEnabled() && ip == 0)
     	{
-    		Toast.makeText(Login.this, "Your WiFi is not connected yet!", Toast.LENGTH_LONG).show();
+    		longMessage("Your WiFi is NOT connected yet!");
     	}
     	
     	else if (NI == null || NI.isAvailable() == false)
     	{
-    		Toast.makeText(Login.this, "Your Network is NOT Available!", Toast.LENGTH_LONG).show();
+    		longMessage("Your Network is NOT Available!");
     	} 
     	else {
     		final String[] msg = new String[2];
@@ -244,17 +245,17 @@ public class Login extends Activity {
 				
 				if (echoResult.contains("Dude! Who the hell are you?!"))
     			{
-    				Toast.makeText(Login.this,echoResult,Toast.LENGTH_LONG).show();
+    				longMessage(echoResult);
     			} else if (echoResult.contains("You SUCK"))
     				{
-    					Toast.makeText(Login.this, "CANNOT Connect to Database!", Toast.LENGTH_LONG).show();
+    					longMessage("CANNOT Connect to Database!");
     				} else if (echoResult.contains("The database is SUCKS"))
     				{
-    					Toast.makeText(Login.this, "The Database is Not Found!", Toast.LENGTH_LONG).show();
+    					longMessage("The Database is Not Found!");
     				} else {
     					popLoadingBar(echoResult);
     					/*
-    					Toast.makeText(Login.this,"You have logged!",Toast.LENGTH_LONG).show();
+    					longMessage("You are logged!");
 
     					Intent goMap = new Intent();
     					goMap.setClass(Login.this, Map2Activity.class);
@@ -273,6 +274,14 @@ public class Login extends Activity {
 			}
 		}
 	};
+	
+	public void reTypeClick(View reType)
+	{
+		EditText emailInput = (EditText)findViewById(R.id.EmailInput);
+    	EditText passInput = (EditText)findViewById(R.id.PassInput);
+    	emailInput.setText("");
+    	passInput.setText("");
+	}
     
     public void textClick(View goWebClick) {
     	CM = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
@@ -280,7 +289,7 @@ public class Login extends Activity {
     	
     	if (NI == null || NI.isAvailable() == false)
     	{
-    		Toast.makeText(Login.this, "Your Network is NOT Available!", Toast.LENGTH_LONG).show();
+    		longMessage("Your Network is NOT Available!");
     	} else {
     		Uri uri = Uri.parse(getString(R.string.Labm406));
     		Intent intent = new Intent(Intent.ACTION_VIEW,uri);
@@ -294,9 +303,9 @@ public class Login extends Activity {
     	
     	if (NI == null || NI.isAvailable() == false)
     	{
-    		Toast.makeText(Login.this, "Your Network is NOT Available!", Toast.LENGTH_LONG).show();
+    		longMessage("Your Network is NOT Available!");
     	} else {
-    		Toast.makeText(Login.this, "Not open for register yet~", Toast.LENGTH_SHORT).show();
+    		longMessage("Not open for register yet~");
     	}
     }
     
@@ -307,11 +316,11 @@ public class Login extends Activity {
     	
     	if (wifi.isWifiEnabled() && ip == 0)
     	{
-    		Toast.makeText(Login.this, "Your WIFI is not connected yet!", Toast.LENGTH_LONG).show();
+    		longMessage("Your WIFI is NOT connected yet!");
     	} else if (wifi.isWifiEnabled()){
-    		Toast.makeText(Login.this, "WIFI is good to GO~", Toast.LENGTH_LONG).show();
+    		longMessage("WIFI is good to GO~");
     	} else {
-    		Toast.makeText(Login.this, "WIFI didn't open!", Toast.LENGTH_LONG).show();
+    		longMessage("WIFI didn't open!");
     	}
     	
     	/*
@@ -411,6 +420,19 @@ public class Login extends Activity {
     	});
     	loadingThread.start();
     	*/
+    }
+    
+    private void longMessage(String message)
+    {
+    	View toastRoot = getLayoutInflater().inflate(R.layout.toast, null);
+    	TextView toastText = (TextView) toastRoot.findViewById(R.id.myToast);
+    	toastText.setText(message);
+    	
+    	Toast toastStart = new Toast(Login.this);
+    	toastStart.setGravity(Gravity.BOTTOM, 0, 50);
+    	toastStart.setDuration(Toast.LENGTH_LONG);
+    	toastStart.setView(toastRoot);
+    	toastStart.show();
     }
     
     public void finishCountDown()

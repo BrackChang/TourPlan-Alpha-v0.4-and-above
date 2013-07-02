@@ -7,15 +7,14 @@
  	android:orientation="vertical">
  
  <TextView
-     android:id="@+id/my_text10"
+     android:id="@+id/textView_1_1"
      android:layout_width="wrap_content"
      android:layout_height="wrap_content"
-     android:layout_marginBottom="-3dip"
      android:layout_marginLeft="6dip"
-     android:layout_marginTop="5dip"
+     android:layout_marginTop="6dip"
      android:textAppearance="?android:attr/textAppearanceLarge"
-     android:textColor="@drawable/SteelBlue"
-     android:textSize="16sp" >
+     android:textColor="@drawable/Orange"
+     android:textSize="28sp" >
 
  </TextView>
  
@@ -23,14 +22,18 @@
  	android:layout_height="wrap_content" 
  	android:layout_width="wrap_content" 
  	android:id="@+id/linearLayout1" 
- 	android:orientation="horizontal">
+ 	android:orientation="horizontal" >
  
  <TextView 
-    android:id="@+id/my_text11"  
+    android:id="@+id/textView_1_2"  
 	android:layout_height="wrap_content" 
  	android:layout_width="wrap_content"
- 	android:layout_marginLeft="6dip" 
- 	android:textAppearance="?android:attr/textAppearanceSmall" >
+ 	android:layout_marginLeft="10dip" 
+ 	android:textAppearance="?android:attr/textAppearanceSmall"
+ 	android:layout_marginTop="2dip"
+ 	android:layout_marginBottom="6dip"
+ 	android:textColor="@drawable/Ivory"
+ 	android:textSize="20sp" >
  </TextView>
  
  </LinearLayout>

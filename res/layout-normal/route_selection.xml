@@ -3,7 +3,7 @@
     xmlns:android1="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:background="@drawable/Transparent1"
+    android:background="@drawable/Transparent2"
     android:orientation="horizontal" >
     
     <ImageButton
@@ -11,6 +11,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android1:layout_gravity="center"
+        android1:scaleType="centerCrop"
         android1:src="@drawable/route_mypos" />
 
     <View
@@ -29,6 +30,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android1:layout_gravity="center"
+        android1:scaleType="centerCrop"
         android1:src="@drawable/route_tonext" />
 
 </LinearLayout>

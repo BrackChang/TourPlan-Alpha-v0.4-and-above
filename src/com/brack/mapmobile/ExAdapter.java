@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.view.WindowManager;
 import android.view.View.OnClickListener;
+import android.view.inputmethod.InputMethodManager;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.Button;
@@ -26,7 +27,7 @@ public class ExAdapter extends BaseExpandableListAdapter {
 private Context context;
 List<Map<String, Object>> spotGroup;
 List<List<Map<String, String>>> spotChild;
-	
+
 	public ExAdapter (Context context, List<Map<String, Object>> groups, List<List<Map<String, String>>> childs)
 	{
 		this.spotGroup = groups;
@@ -112,7 +113,7 @@ List<List<Map<String, String>>> spotChild;
 		
 		int next = spotGroup.size();
 		
-		if(groupPosition == next - 1) {
+		if(groupPosition == next-1) {
 			directRoute.setOnClickListener(new OnClickListener() {
 				@SuppressWarnings("deprecation")
 				public void onClick(View v) {
@@ -126,6 +127,13 @@ List<List<Map<String, String>>> spotChild;
 					double height =wm.getDefaultDisplay().getHeight() / 10.5;
 					double btnWidth =wm.getDefaultDisplay().getWidth() / 4;
 					Log.i("BtnWidth", ""+btnWidth);
+					
+					if (wm.getDefaultDisplay().getWidth() >= 800)
+					{
+						btnWidth = wm.getDefaultDisplay().getWidth() / 4.9;
+						width =wm.getDefaultDisplay().getWidth() / 4.9;
+						height =wm.getDefaultDisplay().getHeight() / 14;
+					}
 
 					LinearLayout.LayoutParams params = new LinearLayout.LayoutParams
 														((int)btnWidth, LayoutParams.WRAP_CONTENT);
@@ -138,6 +146,11 @@ List<List<Map<String, String>>> spotChild;
 
 					double xpos = wm.getDefaultDisplay().getWidth() / 8 - popUp.getWidth();
 					double ypos = wm.getDefaultDisplay().getHeight() / 50 - (popUp.getHeight() / 0.54);
+					
+					if (wm.getDefaultDisplay().getWidth() >= 800)
+					{
+						ypos = wm.getDefaultDisplay().getHeight() / 50 - (popUp.getHeight() / 0.46);
+					}
 
 					popUp.showAsDropDown(v, (int)xpos, (int)ypos);
 
@@ -145,6 +158,9 @@ List<List<Map<String, String>>> spotChild;
 						public void onClick(View v) {
 							((Map2Activity) context).routeFromMyPosition(lat, lng);
 							((Map2Activity) context).mapHalf();
+							InputMethodManager imm = (InputMethodManager)v.getContext().
+													getSystemService(Context.INPUT_METHOD_SERVICE);
+							imm.hideSoftInputFromWindow(v.getApplicationWindowToken(), 0);
 							popUp.dismiss();
 						}
 					});		
@@ -170,6 +186,13 @@ List<List<Map<String, String>>> spotChild;
 					double btnWidth =wm.getDefaultDisplay().getWidth() / 4;
 					Log.i("BtnWidth", ""+btnWidth);
 					
+					if (wm.getDefaultDisplay().getWidth() >= 800)
+					{
+						btnWidth = wm.getDefaultDisplay().getWidth() / 4.9;
+						width =wm.getDefaultDisplay().getWidth() / 2.355;
+						height =wm.getDefaultDisplay().getHeight() / 14;
+					}
+					
 					LinearLayout.LayoutParams params = new LinearLayout.LayoutParams
 														((int)btnWidth, LayoutParams.WRAP_CONTENT);
 					route1.setLayoutParams(params);
@@ -183,12 +206,21 @@ List<List<Map<String, String>>> spotChild;
 					double xpos = wm.getDefaultDisplay().getWidth() / 5 - popUp.getWidth();
 					double ypos = wm.getDefaultDisplay().getHeight() / 50 - (popUp.getHeight() / 0.54);
 					
+					if (wm.getDefaultDisplay().getWidth() >= 800)
+					{
+						ypos = wm.getDefaultDisplay().getHeight() / 50 - (popUp.getHeight() / 0.46);
+					}
+					
 					popUp.showAsDropDown(v, (int)xpos, (int)ypos);
+					
+					final InputMethodManager imm = (InputMethodManager)v.getContext().
+													getSystemService(Context.INPUT_METHOD_SERVICE);
 					
 					route1.setOnClickListener(new OnClickListener() {
 						public void onClick(View v) {
 							((Map2Activity) context).routeFromMyPosition(lat, lng);
 							((Map2Activity) context).mapHalf();
+							imm.hideSoftInputFromWindow(v.getApplicationWindowToken(), 0);
 							popUp.dismiss();
 						}
 					});
@@ -196,6 +228,7 @@ List<List<Map<String, String>>> spotChild;
 						public void onClick(View v) {
 							((Map2Activity) context).routeToNextSpot(lat, lng, nextLat, nextLng);
 							((Map2Activity) context).mapHalf();
+							imm.hideSoftInputFromWindow(v.getApplicationWindowToken(), 0);
 							popUp.dismiss();
 						}
 					});
@@ -228,6 +261,8 @@ List<List<Map<String, String>>> spotChild;
 		showMap.setOnClickListener(new OnClickListener() {
 			public void onClick(View arg0) {
 				((Map2Activity) context).exListMapMove(lat, lng);
+				InputMethodManager imm = (InputMethodManager)arg0.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+				imm.hideSoftInputFromWindow(arg0.getApplicationWindowToken(), 0);
 			}
 		});
 

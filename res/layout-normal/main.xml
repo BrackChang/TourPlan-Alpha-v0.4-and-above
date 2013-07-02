@@ -114,13 +114,32 @@
                 <requestFocus />
             </EditText>
 
-            <Button
-                android1:id="@+id/SignInBtn"
-                android1:layout_width="fill_parent"
+            <LinearLayout
+                android1:id="@+id/ButtonLayout"
+                android1:layout_width="match_parent"
                 android1:layout_height="wrap_content"
-                android1:layout_marginTop="15dp"
-                android1:onClick="btn1Click"
-                android1:text="@string/SignIn" />
+                android1:orientation="horizontal" >
+
+                <Button
+                    android1:id="@+id/SignInBtn"
+                    android1:layout_width="0dp"
+                    android1:layout_height="wrap_content"
+                    android1:layout_marginTop="15dp"
+                    android1:layout_weight="1"
+                    android1:onClick="btn1Click"
+                    android1:text="@string/SignIn" />
+
+                <Button
+                    android1:id="@+id/RetypeBtn"
+                    style="?android:attr/buttonStyleSmall"
+                    android1:layout_width="wrap_content"
+                    android1:layout_height="wrap_content"
+                    android1:layout_gravity="bottom"
+                    android1:onClick="reTypeClick"
+                    android1:text="@string/Retype"
+                    android1:textColor="@drawable/Marron" />
+
+            </LinearLayout>
 
             <LinearLayout
                 android1:id="@+id/InsideLayout1"

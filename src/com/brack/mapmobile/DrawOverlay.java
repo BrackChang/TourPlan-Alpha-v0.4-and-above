@@ -19,7 +19,7 @@ public class DrawOverlay extends Overlay
 {
 	private List<GeoPoint> geoOverlays = new ArrayList<GeoPoint>();
 	private static final int Alpha = 120;
-	private static final float Stroke = 4.5f;
+	private static final float Stroke = 5.5f;
 	private final Path path;
 	private final Point point;
 	private final Paint paint;

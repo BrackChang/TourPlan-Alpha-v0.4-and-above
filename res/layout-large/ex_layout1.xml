@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <TextView
+        android:id="@+id/groupName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="20dip"
+        android:layout_marginTop="5dip"
+        android:layout_marginBottom="5dip"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textColor="@drawable/SeeGreen"
+        android:textSize="26sp" />
+
+    <TextView
+        android:id="@+id/groupDescr"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@id/groupName"
+        android:layout_marginLeft="15dip"
+        android:layout_marginRight="20dip"
+        android:paddingBottom="5dip"
+        android:paddingTop="4dip"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:textSize="20sp" />
+
+    <ImageButton
+        android:id="@+id/showMap"
+        android:layout_width="75dp"
+        android:layout_height="75dp"
+        android:layout_alignParentRight="true"
+        android:focusable="false"
+        android:scaleType="centerCrop"
+        android:src="@drawable/gomap_icon" />
+
+    <Button
+        android:id="@+id/routeDirection"
+        android:layout_width="55dp"
+        android:layout_height="50dp"
+        android:layout_alignParentTop="true"
+        android:layout_marginRight="5dp"
+        android:layout_marginTop="3dp"
+        android:layout_toLeftOf="@+id/showMap"
+        android:background="@drawable/route_blue_icon"
+        android:contentDescription="Direct route"
+        android:focusable="false" />
+    
+    <ImageView
+        android:id="@+id/typeImage1"
+        android:layout_width="wrap_content"
+        android:layout_height="40dp"
+        android:layout_alignParentBottom="true"
+        android:layout_toRightOf="@+id/groupDescr" />
+
+    <ImageView
+        android:id="@+id/typeImage2"
+        android:layout_width="wrap_content"
+        android:layout_height="40dp"
+        android:layout_alignParentBottom="true"
+        android:layout_toRightOf="@+id/typeImage1" />
+    
+    <ImageView
+        android:id="@+id/typeImage3"
+        android:layout_width="wrap_content"
+        android:layout_height="40dp"
+        android:layout_alignParentBottom="true"
+        android:layout_toRightOf="@+id/typeImage2" />
+    
+    <ImageView
+        android:id="@+id/typeImage4"
+        android:layout_width="wrap_content"
+        android:layout_height="40dp"
+        android:layout_alignParentBottom="true"
+        android:layout_toRightOf="@+id/typeImage3" />
+    
+    <ImageView
+        android:id="@+id/typeImage5"
+        android:layout_width="wrap_content"
+        android:layout_height="40dp"
+        android:layout_alignParentBottom="true"
+        android:layout_toRightOf="@+id/typeImage4" />
+
+</RelativeLayout>

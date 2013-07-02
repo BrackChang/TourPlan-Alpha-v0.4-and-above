@@ -2,13 +2,13 @@
 
     <!--
         Base application theme, dependent on API level. This theme is replaced
-        by AppBaseTheme from res/values-vXX/styles.xml on newer devices.
+        by AppBaseTheme from res/values-vXX/styles.xml on newer devices.
     -->
     <style name="AppBaseTheme" parent="android:Theme.Light">
         <!--
             Theme customizations available in newer API levels can go in
             res/values-vXX/styles.xml, while customizations related to
-            backward-compatibility can go here.
+            backward-compatibility can go here.
         -->
     </style>
 
@@ -27,9 +27,40 @@
         <item name="android:windowIsTranslucent">true</item>
     </style>
 
-	 <style name="PopupAnimation" mce_bogus="1" parent="android:Animation">
+    <style name="PopupAnimation" mce_bogus="1" parent="android:Animation">
         <item name="android:windowEnterAnimation">@anim/popup_enter </item>
         <item name="android:windowExitAnimation">@anim/popup_exit </item>
     </style>
 
+    <style name="TextAppearance">
+        <item name="android:textColor">@android:color/primary_text_dark</item>
+        <item name="android:textColorHighlight">#FFFF9200</item>
+        <item name="android:textColorHint">#808080</item>
+        <item name="android:textColorLink">#5C5CFF</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textStyle">normal</item>
+    </style>
+
+    <style name="TextAppearance.Small">
+        <item name="android:textSize">15sp</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:textColor">@drawable/Ivory</item>
+    </style>
+
+    <style name="TextAppearance.Large">
+        <item name="android:textSize">24sp</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:textColor">@drawable/Ivory</item>
+    </style>
+
+    <style name="TextAppearance.XLarge">
+        <item name="android:textSize">30sp</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:textColor">@drawable/Ivory</item>
+    </style>
+
+    <style name="dialog_LargeText" parent="@android:style/Theme.Dialog">
+        <item name="android:textSize">30sp</item>
+    </style>
+    
 </resources>
