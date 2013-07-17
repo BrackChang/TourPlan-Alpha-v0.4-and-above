@@ -3,12 +3,13 @@ package com.brack.mapmobile;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.drawable.Drawable;
+import android.util.DisplayMetrics;
 import android.view.Gravity;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -46,21 +47,22 @@ public class SearchOverlay extends ItemizedOverlay<OverlayItem> {
 			return Items.size();
 		}
 		
-		@SuppressWarnings("deprecation")
 		@Override
 		protected boolean onTap(final int index) {
-			WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
-			int width = wm.getDefaultDisplay().getWidth();
+			DisplayMetrics DM = new DisplayMetrics();
+			((Activity) context).getWindowManager().getDefaultDisplay().getMetrics(DM);
+			double diagonalPixels = Math.sqrt((Math.pow(DM.widthPixels, 2) + Math.pow(DM.heightPixels, 2)));
+	        double size = diagonalPixels / (160 * DM.density);
 			
 			AlertDialog.Builder infoDialog = new AlertDialog.Builder(context);
 			
-			if (width >= 800)
+			if (size >= 6.5)
 			{
 				TextView title = new TextView(context);
 				title.setText(Items.get(index).getTitle());
 				title.setTextColor(context.getResources().getColor(R.color.CadetBlue));
 				title.setGravity(Gravity.CENTER);
-				title.setPadding(0, 10, 0, 10);
+				title.setPadding(0, 15, 0, 15);
 				title.setTextSize(30);
 				//title.setTypeface(null,Typeface.BOLD);
 
@@ -95,7 +97,7 @@ public class SearchOverlay extends ItemizedOverlay<OverlayItem> {
 			AlertDialog dialog = infoDialog.create();
 			dialog.show();
 			
-			if (width >= 800)
+			if (size >= 6.5)
 			{
 				dialog.getWindow().getAttributes();
 				
@@ -104,8 +106,12 @@ public class SearchOverlay extends ItemizedOverlay<OverlayItem> {
 				Button negative = (Button) dialog.getButton(DialogInterface.BUTTON_NEGATIVE);
 
 				msgText.setTextSize(28);
+				msgText.setGravity(Gravity.CENTER);
+				msgText.setPadding(10, 15, 10, 15);
 				positive.setTextSize(28);
+				positive.setTextColor(context.getResources().getColor(R.drawable.DarkOrange));
 				negative.setTextSize(28);
+				negative.setTextColor(context.getResources().getColor(R.drawable.Brown));
 			}
 			
 			return true;

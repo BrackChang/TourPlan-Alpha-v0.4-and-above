@@ -1,6 +1,12 @@
 package com.brack.mapmobile;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -58,6 +64,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnKeyListener;
 import android.view.ViewGroup.LayoutParams;
+import android.view.Window;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
@@ -107,6 +114,9 @@ public class Map2Activity extends MapActivity implements LocationListener
     
     private String MyName;
     private String planTitle;
+    private String planXml;
+    private String Pid;
+    private String spotXml;
     private String[] planArr;
     private String[] planDaysArr;
     private String[] planStartArr;
@@ -127,6 +137,7 @@ public class Map2Activity extends MapActivity implements LocationListener
     private int dayCount;
     private int screenWidth;
     private int screenHeight;
+    private double screenSize;
     
     @SuppressWarnings("deprecation")
 	int SDKversion = Integer.parseInt(VERSION.SDK);
@@ -143,6 +154,7 @@ public class Map2Activity extends MapActivity implements LocationListener
     {
         super.onCreate(savedInstanceState);
         Debug.startMethodTracing("report");
+        this.requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.map);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         
@@ -150,9 +162,6 @@ public class Map2Activity extends MapActivity implements LocationListener
         String versionName = getResources().getString(R.string.VersionName);
         this.setTitle(versionName + version);
         Debug.stopMethodTracing();
-        
-        findMapControl();
-        mapHalf();
         
         typingText = (AutoCompleteTextView)findViewById(R.id.typingText);
         TextView UserName = (TextView)findViewById(R.id.UserName);
@@ -172,6 +181,16 @@ public class Map2Activity extends MapActivity implements LocationListener
     	WindowManager wm = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
     	screenWidth = wm.getDefaultDisplay().getWidth();
 		screenHeight = wm.getDefaultDisplay().getHeight();
+		
+		findMapControl();
+		mapHalf();
+		
+		DisplayMetrics DM = new DisplayMetrics();
+		getWindowManager().getDefaultDisplay().getMetrics(DM);
+		double diagonalPixels = Math.sqrt((Math.pow(DM.widthPixels, 2) + Math.pow(DM.heightPixels, 2)));
+        double screen = diagonalPixels / (160 * DM.density);
+        screenSize = screen;
+        Log.i("ScreenSize", ""+screenSize);
     }
 
     private void findMapControl()
@@ -206,8 +225,21 @@ public class Map2Activity extends MapActivity implements LocationListener
     	{
     		if (!locManager.isProviderEnabled(LocationManager.GPS_PROVIDER))
     		{
-    			new AlertDialog.Builder(Map2Activity.this).setTitle("GPS Setting")
-    			.setMessage("GPS is not enabled, do you want to switch to the setting page?")
+    			AlertDialog.Builder infoDialog = new AlertDialog.Builder(Map2Activity.this);
+    			
+    			if (screenSize >= 6.5)
+    			{
+    				TextView title = new TextView(this);
+        			title.setText("GPS Setting");
+        			title.setTextColor(getResources().getColor(R.color.DeepSkyBlue));
+    				title.setGravity(Gravity.CENTER);
+    				title.setPadding(0, 20, 0, 20);
+    				title.setTextSize(30);
+    				infoDialog.setCustomTitle(title);
+    			} else {
+    				infoDialog.setTitle("GPS Setting");
+    			}
+    			infoDialog.setMessage("GPS is not enabled, do you want to switch to the setting page?")
     			.setCancelable(false).setPositiveButton("OKAY~", new DialogInterface.OnClickListener() {
     				public void onClick(DialogInterface dialog, int which) {
     					startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
@@ -218,7 +250,25 @@ public class Map2Activity extends MapActivity implements LocationListener
     					stopAsk = true;
     					findMyLocation();
     				}
-    			}).show();
+    			});
+    			AlertDialog dialog = infoDialog.create();
+    			dialog.show();
+    			
+    			if (screenSize >= 6.5)
+    			{
+    				dialog.getWindow().getAttributes();
+    				
+    				TextView msgText = (TextView) dialog.findViewById(android.R.id.message);
+    				Button positive = (Button) dialog.getButton(DialogInterface.BUTTON_POSITIVE);
+    				Button negative = (Button) dialog.getButton(DialogInterface.BUTTON_NEGATIVE);
+
+    				msgText.setTextSize(28);
+    				msgText.setPadding(10, 15, 10, 15);
+    				positive.setTextSize(28);
+    				positive.setTextColor(getResources().getColor(R.drawable.DarkOrange));
+    				negative.setTextSize(28);
+    				negative.setTextColor(getResources().getColor(R.drawable.Brown));
+    			}
     		}
     		else
         	{
@@ -278,6 +328,11 @@ public class Map2Activity extends MapActivity implements LocationListener
         });
         locOverlays.add(myLayer);
 
+        LinearLayout mapArea = (LinearLayout) findViewById(R.id.MapArea);
+		int mapSize = mapArea.getLayoutParams().height;
+		if (mapSize > 0) {
+			mapHalf();
+		}
         mapView.invalidate();
     }
     
@@ -487,6 +542,8 @@ public class Map2Activity extends MapActivity implements LocationListener
 				typingText.setFocusable(true);
 		        typingText.setFocusableInTouchMode(true);
    				
+		        planXml = xmlString;
+		        
    				PlanVO planVO = XmlParser.parse(xmlString);
    				
    		        String res = "";
@@ -553,6 +610,7 @@ public class Map2Activity extends MapActivity implements LocationListener
    				if (url.obj instanceof String)
    					xmlPidString = (String) url.obj;
    					
+   					spotXml = xmlPidString;
    					PlanVO pidVO = XmlParser.parse(xmlPidString);
 						
 					String Lat = pidVO.getLat();
@@ -648,7 +706,6 @@ public class Map2Activity extends MapActivity implements LocationListener
    		}
    	};
    	
-   	@SuppressWarnings("deprecation")
 	public void showSpotList()
    	{
    		exSpotList = (ExpandableListView) findViewById(R.id.exPlanList);
@@ -664,34 +721,30 @@ public class Map2Activity extends MapActivity implements LocationListener
 	    titleRow.removeAllViews();
 		dayRow.removeAllViews();
 		
-		DisplayMetrics DM = new DisplayMetrics();
-		getWindowManager().getDefaultDisplay().getMetrics(DM);
-		
-		WindowManager wm = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
-		double btnHeight = wm.getDefaultDisplay().getHeight() / 16;
-		int textSize = wm.getDefaultDisplay().getHeight() / 55;
+		double btnHeight = screenHeight / 16;
+		int textSize = screenHeight / 55;
 		int markerWidth = 40;
 		int markerHeight = 45;
 		
-		Log.i("Metrics", DM.widthPixels + " x " + DM.heightPixels);
 		Log.i("ScreenDisplay", ""+screenWidth +" x "+ screenHeight);
 		Log.i("ButtonHeight", ""+btnHeight);
 		Log.i("TextSize1", ""+textSize);
 		
-		if (screenWidth >= 480 && screenWidth < 720)
+		if (screenSize < 6.5)
 		{
-			textSize = 13;
-			markerWidth = 40;
-			markerHeight = 45;
-		} 
-		else if (screenWidth >= 720 && screenWidth < 800)
-		{
-			textSize = 16;
-			markerWidth = 50;
-			markerHeight = 55;
-		}
-		else if (screenWidth >= 800)
-		{
+			if (screenWidth >= 480 && screenWidth < 720)
+			{
+				textSize = 13;
+				markerWidth = 40;
+				markerHeight = 45;
+			} 
+			else if (screenWidth >= 720 && screenWidth < 800)
+			{
+				textSize = 16;
+				markerWidth = 50;
+				markerHeight = 55;
+			}
+		} else {
 			textSize = 22;
 			markerWidth = 55;
 			markerHeight = 60;
@@ -956,18 +1009,19 @@ public class Map2Activity extends MapActivity implements LocationListener
    		int markerWidth = 40;
 		int markerHeight = 45;
 		
-		if (screenWidth >= 480 && screenWidth < 720)
+		if (screenSize < 6.5)
 		{
-			markerWidth = 40;
-			markerHeight = 45;
-		} 
-		else if (screenWidth >= 720 && screenWidth < 800)
-		{
-			markerWidth = 50;
-			markerHeight = 55;
-		}
-		else if (screenWidth >= 800)
-		{
+			if (screenWidth >= 480 && screenWidth < 720)
+			{
+				markerWidth = 40;
+				markerHeight = 45;
+			} 
+			else if (screenWidth >= 720 && screenWidth < 800)
+			{
+				markerWidth = 50;
+				markerHeight = 55;
+			}
+		} else {
 			markerWidth = 55;
 			markerHeight = 60;
 		}
@@ -1147,12 +1201,10 @@ public class Map2Activity extends MapActivity implements LocationListener
 				(Map2Activity.this, planListArr, R.layout.my_list_layout01,
 						new String[] {"planName", "planInfos"}, new int[] {R.id.textView_1_1, R.id.textView_1_2});
 		
-		WindowManager wm = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
-		
 		extanded_list.setAdapter(planAdapter);
 		
-		double width = wm.getDefaultDisplay().getWidth() / 1.35;
-		double height =wm.getDefaultDisplay().getHeight() / 1.5;
+		double width = screenWidth / 1.35;
+		double height = screenHeight / 1.5;
 
 		popUp = new PopupWindow (view, (int)width, (int)height);	//(view, width, height)
 		
@@ -1161,8 +1213,8 @@ public class Map2Activity extends MapActivity implements LocationListener
 		popUp.setOutsideTouchable(true);
 		popUp.setBackgroundDrawable(new BitmapDrawable());
 		
-		int xpos = wm.getDefaultDisplay().getWidth() / 2 - popUp.getWidth() / 2;
-		double ypos = (wm.getDefaultDisplay().getHeight() / 2) - (popUp.getHeight() / 1.55);
+		int xpos = screenWidth / 2 - popUp.getWidth() / 2;
+		double ypos = (screenHeight / 2) - (popUp.getHeight() / 1.55);
 		
 		Log.i("Coder", "xPos:" + xpos);
 		Log.i("Coder", "yPos:" + ypos);
@@ -1180,6 +1232,7 @@ public class Map2Activity extends MapActivity implements LocationListener
             	shortMessage("Plan: " + planArr[arg2]);
 
             	String pid = selected.substring(0,selected.indexOf(" "));
+            	Pid = pid;
             	final String xmlPidUrl = tourURL + MyName +"/" + pid;
             	
             	new Thread()
@@ -1226,10 +1279,8 @@ public class Map2Activity extends MapActivity implements LocationListener
 
 			extanded_list.setAdapter(spotAdapter);
 			
-			WindowManager wm = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
-			
-			double width = wm.getDefaultDisplay().getWidth() / 1.15;
-			double height =wm.getDefaultDisplay().getHeight() / 1.3;
+			double width = screenWidth / 1.15;
+			double height = screenHeight / 1.3;
 
 			popUp = new PopupWindow (view, (int)width, (int)height);	//(view, width, height)
 			
@@ -1238,8 +1289,8 @@ public class Map2Activity extends MapActivity implements LocationListener
 			popUp.setOutsideTouchable(true);
 			popUp.setBackgroundDrawable(new BitmapDrawable());
 
-			int xpos = wm.getDefaultDisplay().getWidth() / 2 - popUp.getWidth() / 2;
-			double ypos = (wm.getDefaultDisplay().getHeight() / 2) - (popUp.getHeight() / 1.54);
+			int xpos = screenWidth / 2 - popUp.getWidth() / 2;
+			double ypos = (screenHeight / 2) - (popUp.getHeight() / 1.54);
 
 			Log.i("Coder", "xPos:" + xpos);
 			Log.i("Coder", "yPos:" + ypos);
@@ -1251,13 +1302,13 @@ public class Map2Activity extends MapActivity implements LocationListener
 				{
 					AlertDialog.Builder infoDialog = new AlertDialog.Builder(Map2Activity.this);
 					
-					if (screenWidth >= 800)
+					if (screenSize >= 6.5)
 					{
 						TextView title = new TextView(Map2Activity.this);
 						title.setText(spotList[arg2]);
 						title.setTextColor(getResources().getColor(R.color.DeepSkyBlue));
 						title.setGravity(Gravity.CENTER);
-						title.setPadding(0, 10, 0, 10);
+						title.setPadding(0, 15, 0, 15);
 						title.setTextSize(30);
 						//title.setTypeface(null,Typeface.BOLD);
 
@@ -1279,13 +1330,15 @@ public class Map2Activity extends MapActivity implements LocationListener
 					AlertDialog dialog = infoDialog.create();
 					dialog.show();
 					
-					if (screenWidth >= 800)
+					if (screenSize >= 6.5)
 					{
 						dialog.getWindow().getAttributes();
 						TextView msgText = (TextView) dialog.findViewById(android.R.id.message);
 						Button positive = (Button) dialog.getButton(DialogInterface.BUTTON_POSITIVE);
 						msgText.setTextSize(28);
+						msgText.setPadding(10, 15, 10, 15);
 						positive.setTextSize(28);
+						positive.setTextColor(getResources().getColor(R.drawable.DarkOrange));
 					}
 				}
 			});
@@ -1315,6 +1368,178 @@ public class Map2Activity extends MapActivity implements LocationListener
 		}
 	}
 	
+	public void saveData()
+	{
+		File dir = getDir("offLine", Context.MODE_PRIVATE);
+		File userFolder = new File(dir, MyName);
+		if(!userFolder.exists())
+			userFolder.mkdir();
+		File planList = new File (userFolder, "planList.txt");
+		File planWithPid = new File (userFolder, "plan"+Pid+".txt");
+		
+		try
+		{
+			FileOutputStream FOS_planList = new FileOutputStream(planList);
+			FileOutputStream FOS_spots = new FileOutputStream(planWithPid);
+			//FOS = openFileOutput("plans", Context.MODE_PRIVATE);	//Create file in the folder "files".
+			FOS_planList.write(planXml.getBytes());
+			FOS_spots.write(spotXml.getBytes());
+			FOS_planList.close();
+			FOS_spots.close();
+		}
+		catch (FileNotFoundException e)
+		{
+			e.printStackTrace();
+			Log.e("FileNotFound",e.getMessage().toString());
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+			Log.e("IOException", e.getMessage().toString());
+		}
+		shortMessage("Done!");
+		
+		//External storage!!
+		/*
+		File SDCard = null;
+		try
+		{
+			if (Environment.getExternalStorageState().equals(Environment.MEDIA_REMOVED))
+				return;
+			else
+			{
+				SDCard = Environment.getExternalStorageDirectory();
+			}
+			
+			File path = new File(SDCard.getParent() + "/" + SDCard.getName() + "/tourPlanSaved/" + MyName + "/");
+			if (!path.exists())
+				path.mkdirs();
+			
+			FileWriter planFiles = new FileWriter
+					(SDCard.getParent() + "/" + SDCard.getName() + "/tourPlanSaved/" + MyName + "/" + "plans.xml");
+			planFiles.write(planXml);
+			planFiles.close();
+		}
+		catch (Exception e)
+		{
+			longMessage(e.getMessage().toString());
+			Log.e("SaveFailed", e.getMessage().toString());
+		}
+		shortMessage("Done!");
+		*/
+		/*
+		DBHelper dbHelper = new DBHelper(this, MyName);
+		SQLiteDatabase DB = null;
+		
+		DB = dbHelper.getWritableDatabase();
+		ContentValues values = new ContentValues();
+		values.put("planName", planTitle);
+		values.put("spots", "Test~~");
+		values.put("spotInfo", "One more Test~~");
+		
+		DB.insertOrThrow(MyName, null, values);
+		DB.close();
+		*/
+	}
+	
+	public void savedDataTest()
+	{
+		//Get the folder list behind offLine!
+		File dirs = getDir("offLine",Context.MODE_PRIVATE);
+		File folders[] = dirs.listFiles();
+		
+		List<String> folderList = new ArrayList<String>();
+		for (int i = 0; i < folders.length; i++)
+		{
+			folderList.add(folders[i].getName());
+		}
+		Log.i("Folders", ""+folderList);
+		//Get the folder list behind offLine!
+		
+		//Get the files content!
+		StringBuilder fileContent_plans = new StringBuilder();
+		StringBuilder fileContent_spots = new StringBuilder();
+		File dir = new File(dirs, MyName);
+		File planList = new File(dir, "planList.txt");
+		File planWithPid = new File(dir, "plan"+Pid+".txt");
+		try
+		{
+			FileInputStream FIS_plans = new FileInputStream(planList);
+			FileInputStream FIS_spots = new FileInputStream(planWithPid);
+			BufferedReader planReader = new BufferedReader(new InputStreamReader(FIS_plans,"UTF-8"));
+			BufferedReader spotReader = new BufferedReader(new InputStreamReader(FIS_spots,"UTF-8"));
+			
+			String planLine = null;
+			String spotLine = null;
+			
+			while ((planLine = planReader.readLine()) != null )
+			{
+				fileContent_plans.append(planLine).append("\n");
+			}
+			while ((spotLine = spotReader.readLine()) != null)
+			{
+				fileContent_spots.append(spotLine).append("\n");
+			}
+			FIS_plans.close();
+			FIS_spots.close();
+		}
+		catch (OutOfMemoryError e)
+		{
+			e.printStackTrace();
+			Log.e("FileNotFound", e.getMessage().toString());
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+			Log.e("IOException", e.getMessage().toString());
+		}
+		String plans = fileContent_plans.toString();
+		Log.i("Plans", plans);
+		String spots = fileContent_spots.toString();
+		Log.i("Spots", spots);
+		
+
+		//External Storage!!
+		/*
+		String sdPath = Environment.getExternalStorageDirectory().toString();
+		File folderPath = null;
+		
+		try
+		{
+			if (Environment.getExternalStorageState().equals(Environment.MEDIA_REMOVED))
+				return;
+			else
+			{
+				folderPath = new File(sdPath + "/tourPlanSaved/");
+				
+				if (!folderPath.exists())
+					folderPath.mkdirs();
+					
+				File folders[] = folderPath.listFiles();
+				
+				List<String> folderList = new ArrayList<String>();
+				for (int i = 0; i < folders.length; i++)
+				{
+					folderList.add(folders[i].getName());
+				}
+				Log.i("Folders", ""+folderList);
+				longMessage(""+folderList);
+			}
+		}
+		catch (Exception e)
+		{
+			Log.e("Data test failed",e.toString());
+			longMessage(e.toString());
+		}
+
+		File planXml = new File
+				(Environment.getExternalStorageDirectory() + "/tourPlanSaved/" + MyName + "/" + "plans.xml");
+
+		Log.i("planXml", XML.toString());
+		*/
+	}
+	
+	
 	public boolean onKeyDown(int keyCode, KeyEvent event)
 	{
 		if (keyCode == KeyEvent.KEYCODE_BACK || event.getAction() == KeyEvent.KEYCODE_BACK)
@@ -1333,8 +1558,6 @@ public class Map2Activity extends MapActivity implements LocationListener
 	
 	public void mapNone()
 	{
-		mapHalf();
-		
 		exSpotList = (ExpandableListView) findViewById(R.id.exPlanList);
 		RelativeLayout infoArea = (RelativeLayout) findViewById(R.id.InfoArea);
 		View line3 = (View) findViewById(R.id.Line3);
@@ -1343,15 +1566,15 @@ public class Map2Activity extends MapActivity implements LocationListener
 		line3.setVisibility(View.VISIBLE);
 		
 		LinearLayout mapArea = (LinearLayout) findViewById(R.id.MapArea);
+		LinearLayout.LayoutParams aLittle = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, 1);
 		
+		mapArea.setLayoutParams(aLittle);
 		mapArea.setVisibility(View.GONE);
 	}
 	
-	@SuppressWarnings("deprecation")
 	public void mapHalf()
 	{
-		WindowManager wm = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
-		double height = wm.getDefaultDisplay().getHeight() / 2.8;
+		double height = screenHeight / 2.8;
 		
 		exSpotList = (ExpandableListView) findViewById(R.id.exPlanList);
 		RelativeLayout infoArea = (RelativeLayout) findViewById(R.id.InfoArea);
@@ -1401,7 +1624,7 @@ public class Map2Activity extends MapActivity implements LocationListener
 	
 	public void popUpClick(View popWindow)
 	{
-		showSpotWindow();
+		openOptionMenu();
 	}
 	
 	public void userNameClick(View userName)
@@ -1416,7 +1639,7 @@ public class Map2Activity extends MapActivity implements LocationListener
     	toastText.setText(message);
     	
     	Toast toastStart = new Toast(Map2Activity.this);
-    	toastStart.setGravity(Gravity.BOTTOM, 0, 50);
+    	toastStart.setGravity(Gravity.BOTTOM, 0, 60);
     	toastStart.setDuration(Toast.LENGTH_SHORT);
     	toastStart.setView(toastRoot);
     	toastStart.show();
@@ -1428,7 +1651,7 @@ public class Map2Activity extends MapActivity implements LocationListener
     	toastText.setText(message);
     	
     	Toast toastStart = new Toast(Map2Activity.this);
-    	toastStart.setGravity(Gravity.BOTTOM, 0, 50);
+    	toastStart.setGravity(Gravity.BOTTOM, 0, 60);
     	toastStart.setDuration(Toast.LENGTH_LONG);
     	toastStart.setView(toastRoot);
     	toastStart.show();
@@ -1530,6 +1753,10 @@ public class Map2Activity extends MapActivity implements LocationListener
     	// TODO Auto-generated method stub
     }
     
+    public void openOptionMenu()
+    {
+    	super.openOptionsMenu();
+    }
     
     @SuppressLint("NewApi")
 	@Override
@@ -1540,7 +1767,10 @@ public class Map2Activity extends MapActivity implements LocationListener
     	menu.add(0,2,2,"Find My Position").setIcon(android.R.drawable.ic_menu_mylocation);
     	menu.add(0,3,1,"Select Plan").setIcon(android.R.drawable.ic_menu_view);
     	menu.add(0,4,0,"Show Spot List").setIcon(android.R.drawable.ic_menu_view);
-    	
+    	menu.add(0,5,5,"Back to Login Page").setIcon(android.R.drawable.ic_media_previous);
+    	menu.add(0,6,6,"Save my plans for offline").setIcon(android.R.drawable.ic_menu_save);
+    	menu.add(0,7,7,"Test the saved data!").setIcon(android.R.drawable.presence_offline);
+    	/*
     	if (SDKversion > 10)
     	{
     		getMenuInflater().inflate(R.menu.options, menu);
@@ -1553,7 +1783,7 @@ public class Map2Activity extends MapActivity implements LocationListener
     			}
     		});
     	}
-
+    	 */
     	return super.onCreateOptionsMenu(menu);
     }
     
@@ -1561,8 +1791,20 @@ public class Map2Activity extends MapActivity implements LocationListener
     public boolean onOptionsItemSelected(MenuItem item) {
     	switch(item.getItemId()){
     		case 0:
-    			new AlertDialog.Builder(this).setTitle("Are you sure?!")
-    			.setPositiveButton("No~", new DialogInterface.OnClickListener()
+    			AlertDialog.Builder infoDialog = new AlertDialog.Builder(this);
+    			if (screenSize >= 6.5)
+    			{
+    				TextView title = new TextView(this);
+        			title.setText("Are you sure?!");
+        			title.setTextColor(getResources().getColor(R.color.DeepSkyBlue));
+    				title.setGravity(Gravity.CENTER);
+    				title.setPadding(0, 20, 0, 20);
+    				title.setTextSize(30);
+    				infoDialog.setCustomTitle(title);
+    			} else {
+    				infoDialog.setTitle("Are you sure?!");
+    			}
+    			infoDialog.setPositiveButton("No~", new DialogInterface.OnClickListener()
                 {  
     				public void onClick(DialogInterface arg0, int arg1)
     				{  
@@ -1579,7 +1821,23 @@ public class Map2Activity extends MapActivity implements LocationListener
             		   Map2Activity.this.startActivity(goBack);
             		   finish();
             	   } 
-               	}).show();
+               	});
+               	AlertDialog dialog = infoDialog.create();
+    			dialog.show();
+    			
+    			if (screenSize >= 6.5)
+				{
+					dialog.getWindow().getAttributes();
+					Button positive = (Button) dialog.getButton(DialogInterface.BUTTON_POSITIVE);
+					Button negative = (Button) dialog.getButton(DialogInterface.BUTTON_NEGATIVE);
+
+					positive.setTextSize(28);
+					positive.setTextColor(getResources().getColor(R.drawable.DarkOrange));
+					positive.setPadding(0, 15, 0, 15);
+					negative.setTextSize(28);
+					negative.setTextColor(getResources().getColor(R.drawable.Brown));
+					negative.setPadding(0, 15, 0, 15);
+				}
     		break;
     		
     		case 1:
@@ -1600,6 +1858,25 @@ public class Map2Activity extends MapActivity implements LocationListener
     			
     		case 4:
     			showSpotWindow();
+    			break;
+    			
+    		case 5:
+    			Intent goBack = new Intent();
+    			goBack.setClass(Map2Activity.this, Login.class);
+    			Map2Activity.this.startActivity(goBack);
+    			finish();
+    			break;
+    		
+    		case 6:
+    			if (startNeed == false)
+    			{
+    				longMessage("Please select a plan first!");
+    			} else {
+    				saveData();
+    			}
+    			break;
+    		case 7:
+    			savedDataTest();
     			break;
     	}
     	return super.onOptionsItemSelected(item);

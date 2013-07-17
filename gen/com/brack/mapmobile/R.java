@@ -116,6 +116,7 @@ public final class R {
         public static final int LoginForm=0x7f0a0014;
         public static final int MapArea=0x7f0a0030;
         public static final int MapView=0x7f0a0031;
+        public static final int OffLineHeader=0x7f0a0048;
         public static final int PassInput=0x7f0a0018;
         public static final int PassLabel=0x7f0a0017;
         public static final int Register=0x7f0a001e;
@@ -125,6 +126,7 @@ public final class R {
         public static final int SignInBtn=0x7f0a001a;
         public static final int TitleText=0x7f0a0012;
         public static final int UserName=0x7f0a0025;
+        public static final int UserName2=0x7f0a0049;
         public static final int autoText1=0x7f0a0001;
         public static final int autoText2=0x7f0a0003;
         public static final int autoText3=0x7f0a0000;
@@ -143,29 +145,31 @@ public final class R {
         public static final int headerLine2=0x7f0a0028;
         public static final int headerLine3=0x7f0a002a;
         public static final int headerLine4=0x7f0a002c;
+        public static final int headerLineA=0x7f0a004a;
+        public static final int headerLineB=0x7f0a004b;
         public static final int imageView1=0x7f0a0043;
         public static final int imageView2=0x7f0a0044;
         public static final int imageView3=0x7f0a0045;
         public static final int imageView4=0x7f0a0046;
         public static final int imageView5=0x7f0a0047;
         public static final int linearLayout1=0x7f0a0002;
-        public static final int loadingBar=0x7f0a0048;
-        public static final int loadingDone=0x7f0a004a;
+        public static final int loadingBar=0x7f0a004f;
+        public static final int loadingDone=0x7f0a0051;
         public static final int loadingPlan=0x7f0a0026;
-        public static final int loadingText=0x7f0a0049;
+        public static final int loadingText=0x7f0a0050;
         public static final int mapFullBtn=0x7f0a002b;
         public static final int mapHalfBtn=0x7f0a0029;
         public static final int mapLayout=0x7f0a0023;
         public static final int mapNoneBtn=0x7f0a0027;
-        public static final int myToast=0x7f0a004d;
+        public static final int myToast=0x7f0a0054;
         public static final int planName=0x7f0a0021;
         public static final int popWindow=0x7f0a002e;
         public static final int remember=0x7f0a001d;
-        public static final int route1=0x7f0a004b;
-        public static final int route2=0x7f0a004c;
+        public static final int route1=0x7f0a0052;
+        public static final int route2=0x7f0a0053;
         public static final int routeDirection=0x7f0a0007;
         public static final int search=0x7f0a003e;
-        public static final int selectPlan=0x7f0a004e;
+        public static final int selectPlan=0x7f0a0055;
         public static final int showMap=0x7f0a0006;
         public static final int spotInfo=0x7f0a000d;
         public static final int textView_1_1=0x7f0a003f;
@@ -179,6 +183,9 @@ public final class R {
         public static final int typeImage4=0x7f0a000b;
         public static final int typeImage5=0x7f0a000c;
         public static final int typingText=0x7f0a003d;
+        public static final int userNameLayout=0x7f0a004c;
+        public static final int userNameSelector=0x7f0a004e;
+        public static final int userNameText=0x7f0a004d;
     }
     public static final class layout {
         public static final int autotext_list_layout01=0x7f030000;
@@ -195,9 +202,10 @@ public final class R {
         public static final int my_list_layout02=0x7f03000b;
         public static final int my_spinner=0x7f03000c;
         public static final int my_spinner_dropdown=0x7f03000d;
-        public static final int pop_progress=0x7f03000e;
-        public static final int route_selection=0x7f03000f;
-        public static final int toast=0x7f030010;
+        public static final int offline=0x7f03000e;
+        public static final int pop_progress=0x7f03000f;
+        public static final int route_selection=0x7f030010;
+        public static final int toast=0x7f030011;
     }
     public static final class menu {
         public static final int options=0x7f090000;
@@ -219,6 +227,7 @@ public final class R {
         public static final int SignUp=0x7f070006;
         public static final int TestButton=0x7f07000c;
         public static final int TitleText=0x7f070001;
+        public static final int UserName=0x7f07001c;
         public static final int User_Brack=0x7f070010;
         public static final int User_dogman=0x7f07000e;
         public static final int Version=0x7f070016;

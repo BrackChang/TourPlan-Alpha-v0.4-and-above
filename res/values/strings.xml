@@ -22,10 +22,11 @@
     <string name="searchBotton">GO</string>
     <string name="goOffLine">Offline Mode</string>
     <string name="rememberMe">Remember Me</string>
-    <string name="SearchSomething">Do Something~</string><string name="Version">0.9.5</string><string name="VersionName">TourPlan-Alpha_v</string>
+    <string name="SearchSomething">Do Something~</string><string name="Version">0.9.7</string><string name="VersionName">TourPlan-Alpha_v</string>
     <string name="Options">Options</string>
     <string name="Actions">Actions</string>
     <string name="Clear">Clear</string>
     <string name="Retype">Retype</string>
+    <string name="UserName">User Name</string>
     
 </resources>

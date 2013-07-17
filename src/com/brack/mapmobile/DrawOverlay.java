@@ -19,7 +19,7 @@ public class DrawOverlay extends Overlay
 {
 	private List<GeoPoint> geoOverlays = new ArrayList<GeoPoint>();
 	private static final int Alpha = 120;
-	private static final float Stroke = 5.5f;
+	private static final float Stroke = 6f;
 	private final Path path;
 	private final Point point;
 	private final Paint paint;
@@ -37,15 +37,16 @@ public class DrawOverlay extends Overlay
 	{
 		super.draw(canvas, mapView, shadow);
 		
-		paint.setColor(Color.argb(120, 65, 105, 225));
+		paint.setColor(Color.rgb(65, 105, 225));
 		paint.setAlpha(Alpha);
+		paint.setAntiAlias(true);
 		paint.setStrokeWidth(Stroke);
 		paint.setStyle(Paint.Style.STROKE);
 		
-		final Projection proj = mapView.getProjection();
+		Projection proj = mapView.getProjection();
 		path.rewind();
 		
-		final Iterator<GeoPoint> iterGeo = geoOverlays.iterator();
+		Iterator<GeoPoint> iterGeo = geoOverlays.iterator();
 		proj.toPixels(iterGeo.next(), point);
 		path.moveTo(point.x, point.y);
 		

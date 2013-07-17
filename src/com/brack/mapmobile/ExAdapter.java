@@ -3,13 +3,14 @@ package com.brack.mapmobile;
 import java.util.List;
 import java.util.Map;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.drawable.BitmapDrawable;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
-import android.view.WindowManager;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.InputMethodManager;
 import android.view.ViewGroup;
@@ -94,6 +95,11 @@ List<List<Map<String, String>>> spotChild;
 		LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		RelativeLayout layout = (RelativeLayout) inflater.inflate(R.layout.ex_layout1, null);
 		
+		final DisplayMetrics DM = new DisplayMetrics();
+		((Activity) context).getWindowManager().getDefaultDisplay().getMetrics(DM);
+		double diagonalPixels = Math.sqrt((Math.pow(DM.widthPixels, 2) + Math.pow(DM.heightPixels, 2)));
+        final double size = diagonalPixels / (160 * DM.density);
+		
 		String titleText = (String) spotGroup.get(groupPosition).get("title");
 		String titleDescrText = (String) spotGroup.get(groupPosition).get("titleDescribe");
 		
@@ -121,18 +127,17 @@ List<List<Map<String, String>>> spotChild;
 					View view = inflater.inflate(R.layout.route_selection, null);
 
 					ImageButton route1 = (ImageButton) view.findViewById(R.id.route1);
-
-					WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
-					double width =wm.getDefaultDisplay().getWidth() / 4;
-					double height =wm.getDefaultDisplay().getHeight() / 10.5;
-					double btnWidth =wm.getDefaultDisplay().getWidth() / 4;
+					
+					double width = DM.widthPixels / 4;
+					double height = DM.heightPixels / 11;
+					double btnWidth = DM.widthPixels / 4;
 					Log.i("BtnWidth", ""+btnWidth);
 					
-					if (wm.getDefaultDisplay().getWidth() >= 800)
+					if (size >= 6.5)
 					{
-						btnWidth = wm.getDefaultDisplay().getWidth() / 4.9;
-						width =wm.getDefaultDisplay().getWidth() / 4.9;
-						height =wm.getDefaultDisplay().getHeight() / 14;
+						btnWidth = DM.widthPixels / 4.9;
+						width = DM.widthPixels / 4.9;
+						height = DM.heightPixels / 14.5;
 					}
 
 					LinearLayout.LayoutParams params = new LinearLayout.LayoutParams
@@ -144,12 +149,12 @@ List<List<Map<String, String>>> spotChild;
 					popUp.setOutsideTouchable(true);
 					popUp.setBackgroundDrawable(new BitmapDrawable());
 
-					double xpos = wm.getDefaultDisplay().getWidth() / 8 - popUp.getWidth();
-					double ypos = wm.getDefaultDisplay().getHeight() / 50 - (popUp.getHeight() / 0.54);
+					double xpos = DM.widthPixels / 8 - popUp.getWidth();
+					double ypos = DM.heightPixels / 50 - (popUp.getHeight() / 0.54);
 					
-					if (wm.getDefaultDisplay().getWidth() >= 800)
+					if (size >= 6.5)
 					{
-						ypos = wm.getDefaultDisplay().getHeight() / 50 - (popUp.getHeight() / 0.46);
+						ypos = DM.heightPixels / 50 - (popUp.getHeight() / 0.46);
 					}
 
 					popUp.showAsDropDown(v, (int)xpos, (int)ypos);
@@ -180,17 +185,16 @@ List<List<Map<String, String>>> spotChild;
 					ImageButton route1 = (ImageButton) view.findViewById(R.id.route1);
 					ImageButton route2 = (ImageButton) view.findViewById(R.id.route2);
 					
-					WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
-					double width =wm.getDefaultDisplay().getWidth() / 1.9;
-					double height =wm.getDefaultDisplay().getHeight() / 10.5;
-					double btnWidth =wm.getDefaultDisplay().getWidth() / 4;
+					double width = DM.widthPixels / 1.9;
+					double height = DM.heightPixels / 11;
+					double btnWidth = DM.widthPixels / 4;
 					Log.i("BtnWidth", ""+btnWidth);
 					
-					if (wm.getDefaultDisplay().getWidth() >= 800)
+					if (size >= 6.5)
 					{
-						btnWidth = wm.getDefaultDisplay().getWidth() / 4.9;
-						width =wm.getDefaultDisplay().getWidth() / 2.355;
-						height =wm.getDefaultDisplay().getHeight() / 14;
+						btnWidth = DM.widthPixels / 4.9;
+						width = DM.widthPixels / 2.355;
+						height = DM.heightPixels / 14.5;
 					}
 					
 					LinearLayout.LayoutParams params = new LinearLayout.LayoutParams
@@ -203,12 +207,12 @@ List<List<Map<String, String>>> spotChild;
 					popUp.setOutsideTouchable(true);
 					popUp.setBackgroundDrawable(new BitmapDrawable());
 					
-					double xpos = wm.getDefaultDisplay().getWidth() / 5 - popUp.getWidth();
-					double ypos = wm.getDefaultDisplay().getHeight() / 50 - (popUp.getHeight() / 0.54);
+					double xpos = DM.widthPixels / 5 - popUp.getWidth();
+					double ypos = DM.heightPixels / 50 - (popUp.getHeight() / 0.54);
 					
-					if (wm.getDefaultDisplay().getWidth() >= 800)
+					if (size >= 6.5)
 					{
-						ypos = wm.getDefaultDisplay().getHeight() / 50 - (popUp.getHeight() / 0.46);
+						ypos = DM.heightPixels / 50 - (popUp.getHeight() / 0.46);
 					}
 					
 					popUp.showAsDropDown(v, (int)xpos, (int)ypos);

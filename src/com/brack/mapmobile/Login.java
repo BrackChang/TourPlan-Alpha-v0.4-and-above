@@ -310,6 +310,12 @@ public class Login extends Activity {
     }
     
     public void offLineClick (View offlineClick) {
+    	Intent goOffLine = new Intent();
+    	goOffLine.setClass(Login.this, OffLineMode.class);
+    	Login.this.startActivity(goOffLine);
+    	
+    	
+    	/*
     	wifi = (WifiManager) getSystemService(Context.WIFI_SERVICE);
     	wifiInfo = wifi.getConnectionInfo();
     	int ip = wifiInfo == null ? 0 : wifiInfo.getIpAddress();
@@ -323,7 +329,6 @@ public class Login extends Activity {
     		longMessage("WIFI didn't open!");
     	}
     	
-    	/*
     	isWiFiActive();
     	if (isWiFiActive() == true)
     	{
@@ -332,8 +337,6 @@ public class Login extends Activity {
     		Toast.makeText(Login.this, "is FALSE!", Toast.LENGTH_SHORT).show();
     	}
     	*/
-    	//Toast.makeText(Login.this, "NOT NOW!!", Toast.LENGTH_SHORT).show();
-    	
     }
     
     
@@ -429,7 +432,7 @@ public class Login extends Activity {
     	toastText.setText(message);
     	
     	Toast toastStart = new Toast(Login.this);
-    	toastStart.setGravity(Gravity.BOTTOM, 0, 50);
+    	toastStart.setGravity(Gravity.BOTTOM, 0, 60);
     	toastStart.setDuration(Toast.LENGTH_LONG);
     	toastStart.setView(toastRoot);
     	toastStart.show();
