@@ -46,7 +46,7 @@
         <LinearLayout
             android1:id="@+id/footer"
             android1:layout_width="fill_parent"
-            android1:layout_height="96dp"
+            android1:layout_height="wrap_content"
             android1:layout_alignParentLeft="true"
             android1:layout_below="@+id/LoginForm"
             android1:layout_marginTop="-4dp"
@@ -118,26 +118,27 @@
                 android1:id="@+id/ButtonLayout"
                 android1:layout_width="match_parent"
                 android1:layout_height="wrap_content"
+                android1:layout_marginTop="15dp"
                 android1:orientation="horizontal" >
 
                 <Button
                     android1:id="@+id/SignInBtn"
                     android1:layout_width="0dp"
-                    android1:layout_height="wrap_content"
-                    android1:layout_marginTop="15dp"
+                    android1:layout_height="48dp"
                     android1:layout_weight="1"
+                    android1:background="@drawable/button_style_white"
                     android1:onClick="btn1Click"
-                    android1:text="@string/SignIn" />
+                    android1:text="@string/SignIn"
+                    android1:textSize="20sp" />
 
                 <Button
                     android1:id="@+id/RetypeBtn"
-                    style="?android:attr/buttonStyleSmall"
                     android1:layout_width="wrap_content"
-                    android1:layout_height="wrap_content"
-                    android1:layout_gravity="bottom"
+                    android1:layout_height="48dp"
+                    android1:background="@drawable/button_style03"
                     android1:onClick="reTypeClick"
                     android1:text="@string/Retype"
-                    android1:textColor="@drawable/Marron" />
+                    android1:textColor="@drawable/Ivory" />
 
             </LinearLayout>
 
@@ -183,11 +184,13 @@
                     android1:id="@+id/goOffLine"
                     android1:layout_width="wrap_content"
                     android1:layout_height="wrap_content"
+                    android1:background="@drawable/button_style_white"
                     android1:minHeight="24dp"
                     android1:onClick="offLineClick"
                     android1:text="@string/goOffLine"
                     android1:textColor="@drawable/SeeGreen"
-                    android1:textSize="15sp" />
+                    android1:textSize="15sp"
+                    android1:textStyle="bold" />
 
                 <TextView
                     android1:id="@+id/planName"

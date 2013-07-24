@@ -56,22 +56,23 @@ public class SearchOverlay extends ItemizedOverlay<OverlayItem> {
 			
 			AlertDialog.Builder infoDialog = new AlertDialog.Builder(context);
 			
+			TextView title = new TextView(context);
+			title.setText(Items.get(index).getTitle());
+			title.setTextColor(context.getResources().getColor(R.color.CadetBlue));
+			title.setGravity(Gravity.CENTER);
+			
 			if (size >= 6.5)
 			{
-				TextView title = new TextView(context);
-				title.setText(Items.get(index).getTitle());
-				title.setTextColor(context.getResources().getColor(R.color.CadetBlue));
-				title.setGravity(Gravity.CENTER);
 				title.setPadding(0, 15, 0, 15);
 				title.setTextSize(30);
 				//title.setTypeface(null,Typeface.BOLD);
-
 				infoDialog.setCustomTitle(title);
 			} else {
-				infoDialog.setTitle(Items.get(index).getTitle());
+				title.setPadding(0, 15, 0, 15);
+				title.setTextSize(22);
+				infoDialog.setCustomTitle(title);
 			}
 			
-			infoDialog.setIcon(R.drawable.info_icon);
 			infoDialog.setMessage(Items.get(index).getSnippet());
 			infoDialog.setPositiveButton("OK!", 
 					new DialogInterface.OnClickListener()
@@ -97,21 +98,26 @@ public class SearchOverlay extends ItemizedOverlay<OverlayItem> {
 			AlertDialog dialog = infoDialog.create();
 			dialog.show();
 			
+			dialog.getWindow().getAttributes();
+			
+			TextView msgText = (TextView) dialog.findViewById(android.R.id.message);
+			Button positive = (Button) dialog.getButton(DialogInterface.BUTTON_POSITIVE);
+			Button negative = (Button) dialog.getButton(DialogInterface.BUTTON_NEGATIVE);
+			msgText.setGravity(Gravity.CENTER);
+			positive.setTextColor(context.getResources().getColor(R.drawable.DarkOrange));
+			negative.setTextColor(context.getResources().getColor(R.drawable.Brown));
+			
 			if (size >= 6.5)
 			{
-				dialog.getWindow().getAttributes();
-				
-				TextView msgText = (TextView) dialog.findViewById(android.R.id.message);
-				Button positive = (Button) dialog.getButton(DialogInterface.BUTTON_POSITIVE);
-				Button negative = (Button) dialog.getButton(DialogInterface.BUTTON_NEGATIVE);
-
 				msgText.setTextSize(28);
-				msgText.setGravity(Gravity.CENTER);
 				msgText.setPadding(10, 15, 10, 15);
 				positive.setTextSize(28);
-				positive.setTextColor(context.getResources().getColor(R.drawable.DarkOrange));
 				negative.setTextSize(28);
-				negative.setTextColor(context.getResources().getColor(R.drawable.Brown));
+			} else {
+				msgText.setTextSize(18);
+				msgText.setPadding(10, 15, 10, 15);
+				positive.setTextSize(18);
+				negative.setTextSize(18);
 			}
 			
 			return true;

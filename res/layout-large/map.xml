@@ -7,8 +7,7 @@
     android:background="@drawable/Ivory"
     android:orientation="vertical"
     android:scrollbarAlwaysDrawVerticalTrack="true"
-    android:scrollbars="horizontal|vertical"
-     >
+    android:scrollbars="horizontal|vertical" >
 
     <RelativeLayout
         android:id="@+id/SayHi"
@@ -105,23 +104,23 @@
             android:layout_width="2dp"
             android:layout_height="fill_parent"
             android:layout_marginBottom="9dp"
-            android:layout_marginRight="4dp"
+            android:layout_marginRight="7dp"
             android:layout_marginTop="12dp"
             android:layout_toLeftOf="@+id/popWindow"
             android:background="@drawable/Gray" />
 
         <ImageButton
             android:id="@+id/popWindow"
-            android:layout_width="65dp"
-            android:layout_height="wrap_content"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
-            android:layout_marginRight="1dp"
+            android:layout_marginRight="4dp"
             android:layout_marginTop="2dp"
-            android:contentDescription="Popup the spots window"
+            android:background="@drawable/image_button_style"
             android:onClick="popUpClick"
-            android:scaleType="center"
-            android:src="@drawable/new_window_icon" />
+            android:scaleType="centerInside"
+            android:src="@drawable/options" />
 
     </RelativeLayout>
 
@@ -239,9 +238,18 @@
          android:layout_width="fill_parent"
          android:layout_height="wrap_content"
          android:animateLayoutChanges="true"
-         android:gravity="right"
+         android:gravity="right|center"
          android:orientation="horizontal" >
 
+          <ImageButton
+              android:id="@+id/pathBtn"
+              android:layout_width="70dp"
+              android:layout_height="50dp"
+              android:background="@drawable/button_style02"
+              android:onClick="showPathWindow"
+              android:scaleType="centerCrop"
+              android:src="@drawable/path_icon" />
+         
          <Button
              android:id="@+id/clearBtn"
              style="?android:attr/buttonStyleSmall"

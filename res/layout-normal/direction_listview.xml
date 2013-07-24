@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <RelativeLayout
+        android:id="@+id/RelativeLayout1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/AlphaBeige"
+        android:orientation="vertical"
+        android:paddingLeft="5dp"
+        android:paddingRight="5dp" >
+
+        <TextView
+            android:id="@+id/toText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:text="@string/to" />
+
+        <TextView
+            android:id="@+id/Destination"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="2dp"
+            android:layout_marginRight="30dp"
+            android:layout_toRightOf="@id/toText"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textColor="@color/DeepSkyBlue"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/needText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/Destination"
+            android:text="ETA:"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/TimeNeed"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/Destination"
+            android:layout_marginBottom="1dp"
+            android:layout_marginLeft="2dp"
+            android:layout_toRightOf="@+id/needText"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textColor="@drawable/SeeGreen"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/disText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/TimeNeed"
+            android:textColor="@color/CadetBlue"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/viaText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/TimeNeed"
+            android:layout_marginLeft="2dp"
+            android:layout_marginRight="2dp"
+            android:layout_toRightOf="@+id/disText"
+            android:text="via:"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/PathInfo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/TimeNeed"
+            android:layout_toRightOf="@+id/viaText"
+            android:textColor="@color/CadetBlue"
+            android:textSize="12sp" />
+
+        <ImageButton
+            android:id="@+id/CloseBtn"
+            android:layout_width="30dp"
+            android:layout_height="25dp"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:background="@drawable/button_style03"
+            android:scaleType="center"
+            android:src="@android:drawable/ic_menu_close_clear_cancel" />
+
+        <ImageButton
+            android:id="@+id/FindMyPos"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_alignParentRight="true"
+            android:layout_below="@+id/CloseBtn"
+            android:layout_marginTop="4dp"
+            android:background="@drawable/image_button_style"
+            android:scaleType="centerCrop"
+            android:src="@drawable/position" />
+
+    </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical" >
+
+        <ListView
+            android:id="@+id/directionList"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clickable="true"
+            android:divider="@drawable/Orange"
+            android:dividerHeight="2dp"
+            android:focusable="true"
+            android:focusableInTouchMode="true" >
+
+        </ListView>
+    </LinearLayout>
+
+</LinearLayout>

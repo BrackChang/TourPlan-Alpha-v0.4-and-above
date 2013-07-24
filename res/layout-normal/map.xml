@@ -7,8 +7,7 @@
     android:background="@drawable/Ivory"
     android:orientation="vertical"
     android:scrollbarAlwaysDrawVerticalTrack="true"
-    android:scrollbars="horizontal|vertical"
-    >
+    android:scrollbars="horizontal|vertical" >
 
     <RelativeLayout
         android:id="@+id/SayHi"
@@ -43,15 +42,17 @@
             android:indeterminate="false"
             android:visibility="gone" />
 
-        <Button
+        <ImageButton
             android:id="@+id/mapNoneBtn"
             android:layout_width="35dp"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
             android:layout_centerVertical="true"
             android:layout_marginLeft="2dp"
-            android:background="@drawable/map_none"
-            android:onClick="mapNoneClick" />
+            android:background="@drawable/image_button_style"
+            android:onClick="mapNoneClick"
+            android:scaleType="fitCenter"
+            android:src="@drawable/map_none" />
 
         <View
             android:id="@+id/headerLine2"
@@ -62,15 +63,17 @@
             android:layout_toRightOf="@+id/mapNoneBtn"
             android:background="@drawable/LightBrown" />
 
-        <Button
+        <ImageButton
             android:id="@+id/mapHalfBtn"
             android:layout_width="35dp"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:layout_marginLeft="1dp"
             android:layout_toRightOf="@+id/mapNoneBtn"
-            android:background="@drawable/map_half"
-            android:onClick="mapHalfClick" />
+            android:background="@drawable/image_button_style"
+            android:onClick="mapHalfClick"
+            android:scaleType="fitCenter"
+            android:src="@drawable/map_half" />
 
         <View
             android:id="@+id/headerLine3"
@@ -81,15 +84,17 @@
             android:layout_toRightOf="@+id/mapHalfBtn"
             android:background="@drawable/LightBrown" />
 
-        <Button
+        <ImageButton
             android:id="@+id/mapFullBtn"
             android:layout_width="35dp"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:layout_marginLeft="1dp"
             android:layout_toRightOf="@+id/mapHalfBtn"
-            android:background="@drawable/map_full"
-            android:onClick="mapFullClick" />
+            android:background="@drawable/image_button_style"
+            android:onClick="mapFullClick"
+            android:scaleType="fitCenter"
+            android:src="@drawable/map_full" />
 
         <View
             android:id="@+id/headerLine4"
@@ -106,22 +111,24 @@
             android:layout_width="2dp"
             android:layout_height="fill_parent"
             android:layout_marginBottom="3dp"
-            android:layout_marginRight="4dp"
+            android:layout_marginRight="5dp"
             android:layout_marginTop="6dp"
             android:layout_toLeftOf="@+id/popWindow"
             android:background="@drawable/Gray" />
 
         <ImageButton
             android:id="@+id/popWindow"
-            android:layout_width="40dp"
-            android:layout_height="35dp"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
-            android:layout_marginRight="1dp"
+            android:layout_marginRight="4dp"
             android:layout_marginTop="2dp"
-            android:contentDescription="Popup the spots window"
+            android:background="@drawable/image_button_style"
             android:onClick="popUpClick"
-            android:src="@drawable/new_window_icon" />
+            android:scaleType="fitCenter"
+            android:src="@drawable/options" />
+
     </RelativeLayout>
 
     <View
@@ -241,6 +248,15 @@
          android:gravity="right"
          android:orientation="horizontal" >
 
+         <ImageButton
+             android:id="@+id/pathBtn"
+             android:layout_width="50dp"
+             android:layout_height="38dp"
+             android:background="@drawable/button_style02"
+             android:onClick="showPathWindow"
+             android:scaleType="centerCrop"
+             android:src="@drawable/path_icon" />
+
          <Button
              android:id="@+id/clearBtn"
              style="?android:attr/buttonStyleSmall"
@@ -249,7 +265,8 @@
              android:background="@drawable/button_style01"
              android:onClick="clearClick"
              android:text="@string/Clear"
-             android:textColor="@drawable/AliceBlue" />
+             android:textColor="@drawable/AliceBlue"
+             android:textSize="15sp" />
 
          <AutoCompleteTextView
              android:id="@+id/typingText"

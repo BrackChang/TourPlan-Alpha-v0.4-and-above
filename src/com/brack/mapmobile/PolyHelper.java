@@ -5,7 +5,7 @@ import java.util.List;
 
 import com.google.android.maps.GeoPoint;
 
-public class PolyHelper {
+public final class PolyHelper {
 
 	public static List<GeoPoint> decodePolyline(String poly) {
         int len = poly.length();

@@ -17,6 +17,7 @@
             android:background="@drawable/Transparent1"
             android:dividerHeight="2dp" >
         </ListView>
+        
     </LinearLayout>
 
     <LinearLayout
@@ -32,6 +33,7 @@
             android:background="@drawable/Transparent2"
             android:dividerHeight="2dp" >
         </ListView>
+        
     </LinearLayout>
 
 </LinearLayout>

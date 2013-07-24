@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/pathLayout"
+    android:layout_width="fill_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/press_style01"
+    android:clickable="true"
+    android:gravity="center_vertical"
+    android:orientation="vertical" >
+
+    <TextView
+        android:id="@+id/pathText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textColor="@color/SkyBlue"
+        android:textSize="16sp" >
+
+    </TextView>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="1dp" >
+
+        <TextView
+            android:id="@+id/pathInfoText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@drawable/Ivory"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/pathGoOnText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="3dp"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@drawable/Silver"
+            android:textSize="15sp" />
+        
+    </LinearLayout>
+
+</LinearLayout>

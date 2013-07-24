@@ -12,7 +12,7 @@
         android:layout_marginBottom="5dip"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:textColor="@drawable/SeeGreen"
-        android:textSize="18sp" />
+        android:textSize="20sp" />
 
     <TextView
         android:id="@+id/groupDescr"
@@ -33,17 +33,19 @@
         android:focusable="false"
         android:src="@drawable/gomap_icon" />
 
-    <Button
+    <ImageButton
         android:id="@+id/routeDirection"
-        android:layout_width="35dp"
-        android:layout_height="30dp"
+        android:layout_width="40dp"
+        android:layout_height="35dp"
         android:layout_alignParentTop="true"
         android:layout_marginRight="5dp"
-        android:layout_marginTop="3dp"
+        android:layout_marginTop="5dp"
         android:layout_toLeftOf="@+id/showMap"
-        android:background="@drawable/route_blue_icon"
+        android:background="@drawable/image_button_style"
         android:contentDescription="Direct route"
-        android:focusable="false" />
+        android:focusable="false"
+        android:scaleType="fitCenter"
+        android:src="@drawable/route_blue_icon" />
     
     <ImageView
         android:id="@+id/typeImage1"

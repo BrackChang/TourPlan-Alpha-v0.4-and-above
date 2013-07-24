@@ -48,7 +48,7 @@
         <LinearLayout
             android:id="@+id/footer"
             android:layout_width="fill_parent"
-            android:layout_height="144dp"
+            android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
             android:layout_below="@+id/LoginForm"
             android1:layout_marginTop="-15dp"
@@ -119,30 +119,30 @@
                 android1:id="@+id/ButtonLayout"
                 android1:layout_width="match_parent"
                 android1:layout_height="wrap_content"
+                android1:layout_marginTop="30dp"
                 android1:orientation="horizontal" >
 
                 <Button
                     android1:id="@+id/SignInBtn"
                     android1:layout_width="0dip"
-                    android1:layout_height="wrap_content"
-                    android1:layout_marginTop="30dp"
+                    android1:layout_height="70dp"
                     android1:layout_weight="1"
+                    android1:background="@drawable/button_style_white"
                     android1:minHeight="65dp"
                     android1:onClick="btn1Click"
                     android1:text="@string/SignIn"
-                    android1:textSize="28sp" />
+                    android1:textSize="30sp" />
 
                 <Button
                     android1:id="@+id/RetypeBtn"
-                    style="?android:attr/buttonStyleSmall"
                     android1:layout_width="wrap_content"
-                    android1:layout_height="wrap_content"
-                    android1:layout_gravity="bottom"
-                    android1:layout_marginBottom="3dp"
+                    android1:layout_height="70dp"
+                    android1:background="@drawable/button_style03"
                     android1:onClick="reTypeClick"
                     android1:text="@string/Retype"
-                    android1:textColor="@drawable/Marron"
-                    android1:textSize="18sp" />
+                    android1:textColor="@drawable/Ivory"
+                    android1:textSize="24sp" />
+
             </LinearLayout>
 
             <LinearLayout
@@ -186,11 +186,13 @@
                     android1:id="@+id/goOffLine"
                     android1:layout_width="wrap_content"
                     android1:layout_height="wrap_content"
+                    android1:background="@drawable/button_style_white"
                     android1:minHeight="24dp"
                     android1:onClick="offLineClick"
                     android1:text="@string/goOffLine"
                     android1:textColor="@drawable/SeeGreen"
-                    android1:textSize="23sp" />
+                    android1:textSize="25sp"
+                    android1:textStyle="bold" />
 
                 <TextView
                     android1:id="@+id/planName"

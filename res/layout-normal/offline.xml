@@ -1,87 +1,119 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView android:id="@+id/ScrollView1"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/LinearLayout1"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" xmlns:android="http://schemas.android.com/apk/res/android">
-
-    <LinearLayout
-        android:id="@+id/LinearLayout1"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical" >
+    android:layout_height="match_parent"
+    android:animateLayoutChanges="true"
+    android:orientation="vertical" >
 
         <RelativeLayout
-            android:id="@+id/OffLineHeader"
-            android:layout_width="fill_parent"
-            android:layout_height="40dp"
-            android:layout_gravity="center"
-            android:animateLayoutChanges="true"
-            android:background="@drawable/title_bg1"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:paddingBottom="2dp" >
+        android:id="@+id/OffLineHeader"
+        android:layout_width="fill_parent"
+        android:layout_height="40dp"
+        android:animateLayoutChanges="true"
+        android:background="@drawable/title_bg1"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingBottom="2dp" >
 
-            <TextView
-                android:id="@+id/UserName2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:clickable="true"
-                android:onClick="userNameClick"
-                android:textAppearance="?android:attr/textAppearanceLarge"
-                android:textColor="@drawable/Brown"
-                android:textStyle="bold" />
+        <ImageButton
+            android:id="@+id/goBack"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:background="@drawable/image_button_style"
+            android:onClick="goBackClick"
+            android:scaleType="fitCenter"
+            android:src="@drawable/go_back_icon" />
 
-            <View
-                android:id="@+id/headerLineA"
-                android:layout_width="2dp"
-                android:layout_height="fill_parent"
-                android:layout_alignParentLeft="true"
-                android:layout_marginBottom="4dp"
-                android:layout_marginLeft="20dp"
-                android:layout_marginTop="6dp"
-                android:background="@drawable/Gray" />
-
-            <View
-                android:id="@+id/headerLineB"
-                android:layout_width="2dp"
-                android:layout_height="fill_parent"
-                android:layout_alignParentRight="true"
-                android:layout_marginBottom="4dp"
-                android:layout_marginRight="20dp"
-                android:layout_marginTop="6dp"
-                android:background="@drawable/Gray" />
-
-    </RelativeLayout>
+        <TextView
+            android:id="@+id/UserName2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:clickable="true"
+            android:onClick="userNameClick"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textColor="@drawable/Brown"
+            android:textStyle="bold" />
 
         <View
-            android:id="@+id/Line1"
-            android:layout_width="fill_parent"
-            android:layout_height="1dp"
-            android:background="#000000" />
+            android:id="@+id/headerLineA"
+            android:layout_width="2dp"
+            android:layout_height="fill_parent"
+            android:layout_marginBottom="4dp"
+            android:layout_marginLeft="5dp"
+            android:layout_marginTop="6dp"
+            android:layout_toRightOf="@+id/goBack"
+            android:background="@drawable/Gray" />
 
-        <LinearLayout
-            android:id="@+id/userNameLayout"
-            android:layout_width="match_parent"
+        <View
+            android:id="@+id/headerLineB"
+            android:layout_width="2dp"
+            android:layout_height="fill_parent"
+            android:layout_marginBottom="4dp"
+            android:layout_marginRight="5dp"
+            android:layout_marginTop="6dp"
+            android:layout_toLeftOf="@+id/popWindow"
+            android:background="@drawable/Gray" />
+
+        <ImageButton
+            android:id="@+id/popWindow"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="4dp"
+            android:layout_marginTop="2dp"
+            android:background="@drawable/image_button_style"
+            android:onClick="popUpClick"
+            android:scaleType="fitCenter"
+            android:src="@drawable/options" />
+    </RelativeLayout><View
+        android:id="@+id/Line1"
+        android:layout_width="fill_parent"
+        android:layout_height="1dp"
+        android:background="#000000" />
+
+    <LinearLayout
+        android:id="@+id/userNameLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="5dp"
+        android:animateLayoutChanges="true"
+        android:gravity="center|top" >
+
+        <TextView
+            android:id="@+id/userNameText"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginTop="10dp"
-            android:gravity="center" >
+            android:text="@string/UserName"
+            android:textSize="14sp"
+            android:visibility="gone" />
 
-            <TextView
-                android:id="@+id/userNameText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/UserName"
-                android:textSize="16sp" />
-
-            <Spinner
-                android:id="@+id/userNameSelector"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1" />
-
-        </LinearLayout>
+        <Spinner
+            android:id="@+id/userNameSelector"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:visibility="gone" />
 
     </LinearLayout>
 
-</ScrollView>
+    <LinearLayout
+        android:id="@+id/PlanLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:animateLayoutChanges="true"
+        android:orientation="vertical" >
+
+        <Spinner
+            android:id="@+id/planSelector"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone" />
+
+    </LinearLayout>
+
+</LinearLayout>

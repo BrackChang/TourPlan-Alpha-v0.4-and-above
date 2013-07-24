@@ -18,8 +18,6 @@ import com.google.android.maps.Projection;
 public class DrawOverlay extends Overlay 
 {
 	private List<GeoPoint> geoOverlays = new ArrayList<GeoPoint>();
-	private static final int Alpha = 120;
-	private static final float Stroke = 6f;
 	private final Path path;
 	private final Point point;
 	private final Paint paint;
@@ -38,22 +36,29 @@ public class DrawOverlay extends Overlay
 		super.draw(canvas, mapView, shadow);
 		
 		paint.setColor(Color.rgb(65, 105, 225));
-		paint.setAlpha(Alpha);
-		paint.setAntiAlias(true);
-		paint.setStrokeWidth(Stroke);
+		paint.setAlpha(130);
+		paint.setStrokeWidth(6.5f);
+		paint.setStrokeJoin(Paint.Join.ROUND);
+		paint.setStrokeCap(Paint.Cap.ROUND);
 		paint.setStyle(Paint.Style.STROKE);
+		paint.setDither(true);
+		paint.setAntiAlias(true);
 		
-		Projection proj = mapView.getProjection();
+		Projection projection = mapView.getProjection();
 		path.rewind();
 		
 		Iterator<GeoPoint> iterGeo = geoOverlays.iterator();
-		proj.toPixels(iterGeo.next(), point);
-		path.moveTo(point.x, point.y);
+		if (iterGeo.hasNext())
+		{
+			projection.toPixels(iterGeo.next(), point);
+			path.moveTo((float)point.x, (float)point.y);
+		} else 
+			return;
 		
 		while (iterGeo.hasNext())
 		{
-			proj.toPixels(iterGeo.next(), point);
-			path.lineTo(point.x, point.y);
+			projection.toPixels(iterGeo.next(), point);
+			path.lineTo((float)point.x, (float)point.y);
 		}
 		path.setLastPoint(point.x, point.y);
 		

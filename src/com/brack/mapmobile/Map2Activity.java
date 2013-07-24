@@ -27,6 +27,7 @@ import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.annotation.SuppressLint;
@@ -59,6 +60,7 @@ import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -73,6 +75,7 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.ExpandableListView;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.PopupWindow;
@@ -134,6 +137,8 @@ public class Map2Activity extends MapActivity implements LocationListener
     private String[] flagTransArr;
     private ArrayList<HashMap<String, String>> planListArr;
     private ArrayList<HashMap<String, Object>> spotListArr;
+    private List<Map<String, Object>> directionList;
+    private List<String> pathInfoList;
     private int dayCount;
     private int screenWidth;
     private int screenHeight;
@@ -163,9 +168,11 @@ public class Map2Activity extends MapActivity implements LocationListener
         this.setTitle(versionName + version);
         Debug.stopMethodTracing();
         
+        ImageButton pathBtn = (ImageButton) findViewById(R.id.pathBtn);
+    	pathBtn.setVisibility(View.GONE);
         typingText = (AutoCompleteTextView)findViewById(R.id.typingText);
         TextView UserName = (TextView)findViewById(R.id.UserName);
-        
+       
         Bundle userName = this.getIntent().getExtras();		//Obtain Bundle
         String Name = userName.getString("name").toString();
         MyName = Name;
@@ -227,17 +234,19 @@ public class Map2Activity extends MapActivity implements LocationListener
     		{
     			AlertDialog.Builder infoDialog = new AlertDialog.Builder(Map2Activity.this);
     			
+    			TextView title = new TextView(this);
+    			title.setText("GPS Setting");
+    			title.setTextColor(getResources().getColor(R.color.DeepSkyBlue));
+				title.setGravity(Gravity.CENTER);
+				title.setPadding(0, 20, 0, 20);
+    			
     			if (screenSize >= 6.5)
     			{
-    				TextView title = new TextView(this);
-        			title.setText("GPS Setting");
-        			title.setTextColor(getResources().getColor(R.color.DeepSkyBlue));
-    				title.setGravity(Gravity.CENTER);
-    				title.setPadding(0, 20, 0, 20);
     				title.setTextSize(30);
     				infoDialog.setCustomTitle(title);
     			} else {
-    				infoDialog.setTitle("GPS Setting");
+    				title.setTextSize(22);
+    				infoDialog.setCustomTitle(title);
     			}
     			infoDialog.setMessage("GPS is not enabled, do you want to switch to the setting page?")
     			.setCancelable(false).setPositiveButton("OKAY~", new DialogInterface.OnClickListener() {
@@ -254,20 +263,26 @@ public class Map2Activity extends MapActivity implements LocationListener
     			AlertDialog dialog = infoDialog.create();
     			dialog.show();
     			
+    			dialog.getWindow().getAttributes();
+				
+				TextView msgText = (TextView) dialog.findViewById(android.R.id.message);
+				Button positive = (Button) dialog.getButton(DialogInterface.BUTTON_POSITIVE);
+				Button negative = (Button) dialog.getButton(DialogInterface.BUTTON_NEGATIVE);
+				positive.setTextColor(getResources().getColor(R.drawable.DarkOrange));
+				negative.setTextColor(getResources().getColor(R.drawable.Brown));
+				
     			if (screenSize >= 6.5)
     			{
-    				dialog.getWindow().getAttributes();
-    				
-    				TextView msgText = (TextView) dialog.findViewById(android.R.id.message);
-    				Button positive = (Button) dialog.getButton(DialogInterface.BUTTON_POSITIVE);
-    				Button negative = (Button) dialog.getButton(DialogInterface.BUTTON_NEGATIVE);
-
     				msgText.setTextSize(28);
     				msgText.setPadding(10, 15, 10, 15);
     				positive.setTextSize(28);
-    				positive.setTextColor(getResources().getColor(R.drawable.DarkOrange));
     				negative.setTextSize(28);
-    				negative.setTextColor(getResources().getColor(R.drawable.Brown));
+    				
+    			} else {
+    				msgText.setTextSize(18);
+    				msgText.setPadding(10, 15, 10, 15);
+    				positive.setTextSize(18);
+    				negative.setTextSize(18);
     			}
     		}
     		else
@@ -466,6 +481,7 @@ public class Map2Activity extends MapActivity implements LocationListener
     					if (polyLine.length() > 0)
         				{
     						POLY = polyLine;
+    						directions(strResult);
         				}
     				} else {
     					POLY = "";
@@ -474,7 +490,7 @@ public class Map2Activity extends MapActivity implements LocationListener
     		} 
     		catch(Exception e)
     		{
-				Log.e("map", e.toString());
+				Log.e("mapUrlFailed", e.toString());
     		}
     		return geoPoints;
     	}
@@ -515,12 +531,170 @@ public class Map2Activity extends MapActivity implements LocationListener
     			drawOverlay = new DrawOverlay(myPoints);
     			mapView.getOverlays().add(drawOverlay);
     			mapView.invalidate();
+    			directionPop();
     		} else {
     			longMessage("Oops~Routed failed!!\nThe path is NOT drawable, it may cause by the path of cross sea.");
     		}
     	}
     }
     
+    public void directions(String routeInJSON)
+    {
+    	List<Map<String, Object>> dirList = new ArrayList<Map<String, Object>>();
+    	List<String> infoList = new ArrayList<String>();
+    	try
+    	{
+    		JSONObject jb = new JSONObject(routeInJSON);
+    		JSONArray routesArr = jb.getJSONArray("routes");
+    		JSONObject route = routesArr.getJSONObject(0);
+    		JSONArray legsArr = route.getJSONArray("legs");
+    		JSONObject leg = legsArr.getJSONObject(0);
+    		JSONArray stepsArr = leg.getJSONArray("steps");
+    		
+    		for (int i = 0; i < stepsArr.length(); i++)
+    		{
+    			JSONObject singleStep = stepsArr.getJSONObject(i);
+    			JSONObject distance = singleStep.getJSONObject("distance");
+    			JSONObject duration = singleStep.getJSONObject("duration");
+    			JSONObject endLocation = singleStep.getJSONObject("end_location");
+    			String path2 = singleStep.getString("html_instructions");
+    			
+    			Map<String, Object> listItem = new HashMap<String, Object>();
+    			
+    			String path = path2.replace("<b>", "");
+    			path = path.replace("</b>", "");
+    			if (path.contains("<div"))
+    			{
+    				String pathGoOn = path.substring(path.indexOf(">")+1, path.lastIndexOf("<"));
+    				if (pathGoOn.contains("div"))
+    				{
+    					StringBuffer clearGoOn = new StringBuffer(pathGoOn);
+    					clearGoOn.delete(pathGoOn.indexOf("<"), pathGoOn.lastIndexOf(">"));
+    					pathGoOn = clearGoOn.toString().replace(">", "-->");
+    				}
+    				Log.i("pathGoOn", pathGoOn.toString());
+    				
+    				listItem.put("pathGoOn", pathGoOn);
+    				
+    				StringBuffer pathClear = new StringBuffer(path);
+    				pathClear.delete(path.indexOf("<"), path.lastIndexOf(">")+1);
+    				path = pathClear.toString();
+    			}
+    			
+    			Log.i("Path", path);
+    			
+    			listItem.put("disText", distance.getString("text"));
+                listItem.put("durText", duration.getString("text"));
+                listItem.put("endLat", endLocation.getString("lat"));
+                listItem.put("endLng", endLocation.getString("lng"));
+                
+                listItem.put("path", path);
+                
+                dirList.add(listItem);
+    		}
+    		JSONObject Dis = leg.getJSONObject("distance");
+    		JSONObject Dur = leg.getJSONObject("duration");
+    		String Destination = leg.getString("end_address");
+    		String Duration = Dur.getString("text");
+    		String Distance = Dis.getString("text");
+    		String Summary = route.getString("summary");
+    		
+    		infoList.add(Destination);	//0
+    		infoList.add(Duration);		//1
+    		infoList.add(Distance);		//2
+    		infoList.add(Summary);		//3
+    		
+    		directionList = dirList;
+    		pathInfoList = infoList;
+    	}
+    	catch (JSONException e)
+    	{
+    		Log.e("Failed", e.getMessage().toString());
+    	}
+    }
+    
+    public void directionPop()
+    {
+    	if (popUp.isShowing())
+    		popUp.dismiss();
+    	
+    	ImageButton pathBtn = (ImageButton) findViewById(R.id.pathBtn);
+    	if (!pathBtn.isShown())
+    	pathBtn.setVisibility(View.INVISIBLE);
+    	pathBtn.setVisibility(View.VISIBLE);
+    	
+    	LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+    	view = inflater.inflate(R.layout.direction_listview, null);
+    	LinearLayout functionsLayout = (LinearLayout) findViewById(R.id.Functions);
+
+    	ListView directList = (ListView) view.findViewById(R.id.directionList);
+    	TextView destinationText = (TextView) view.findViewById(R.id.Destination);
+    	TextView timeNeedText = (TextView) view.findViewById(R.id.TimeNeed);
+    	TextView disText = (TextView) view.findViewById(R.id.disText);
+    	TextView pathInfoText = (TextView) view.findViewById(R.id.PathInfo);
+    	ImageButton closeBtn = (ImageButton) view.findViewById(R.id.CloseBtn);
+    	ImageButton findMyPos = (ImageButton) view.findViewById(R.id.FindMyPos);
+    	
+    	destinationText.setText(pathInfoList.get(0));
+    	timeNeedText.setText(pathInfoList.get(1));
+    	disText.setText(pathInfoList.get(2));
+    	pathInfoText.setText(pathInfoList.get(3));
+    	
+    	closeBtn.setOnClickListener(new OnClickListener() {
+    		public void onClick(View v) {
+    			showPathWindow(v);
+    		}
+    	});
+    	
+    	findMyPos.setOnClickListener(new OnClickListener() {
+			public void onClick(View v) {
+				if (stopAsk == false)
+    				requestGPS = true;
+    			GPSinit();
+			}
+    	});
+    	
+    	DirectionAdapter dirAdapter = new DirectionAdapter(this, directionList);
+    	directList.setAdapter(dirAdapter);
+
+    	double width = screenWidth / 1.6;
+    	double height = screenHeight / 2.16;
+    	
+    	if (screenSize >= 6.5) {
+    		height = screenHeight / 2.06;
+    	}
+
+    	popUp = new PopupWindow (view, (int)width, (int)height);
+
+    	popUp.setTouchable(true);
+    	popUp.setFocusable(false);
+    	popUp.setOutsideTouchable(false);
+
+    	int xpos = screenWidth / 2 - popUp.getWidth();
+    	double ypos = (screenHeight / 2) - (popUp.getHeight() * 1.08);
+
+    	if (screenSize >= 6.5) {
+    		ypos = (screenHeight / 2) - (popUp.getHeight() * 1.03);
+    	}
+    	
+    	popUp.showAsDropDown(functionsLayout, xpos, (int)ypos);
+    	
+    	directList.setOnItemClickListener(new OnItemClickListener() {
+			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+				String lat = directionList.get(arg2).get("endLat").toString();
+				String lng = directionList.get(arg2).get("endLng").toString();
+				exListMapMove(lat, lng);
+			}
+    	});
+    }
+    
+    public void showPathWindow(View pathView)
+    {
+    	if (popUp.isShowing())
+    		popUp.dismiss();
+    	else
+    		directionPop();
+    }
     
     Handler planMove = new Handler()
    	{
@@ -698,9 +872,10 @@ public class Map2Activity extends MapActivity implements LocationListener
 					putSpotArr();
 					
 					startNeed = true;
-					if (mapAutoNone == true) {
+					
+					if (mapAutoNone == true) 
 						mapNoneCountDown();
-					}
+					
 					mapControl.setZoom(8);
    			}
    		}
@@ -710,10 +885,7 @@ public class Map2Activity extends MapActivity implements LocationListener
    	{
    		exSpotList = (ExpandableListView) findViewById(R.id.exPlanList);
    		typingText = (AutoCompleteTextView)findViewById(R.id.typingText);
-   		/*
-   		LinearLayout exLayout = (LinearLayout) findViewById(R.id.exLayout);
-   		exLayout.setGravity(Gravity.TOP);
-	    */
+   		
 	    TextView planName = (TextView) findViewById(R.id.planName);
 	    TableRow titleRow = (TableRow) findViewById(R.id.titleRow);
 	    TableRow dayRow = (TableRow) findViewById(R.id.dayRow);
@@ -819,7 +991,7 @@ public class Map2Activity extends MapActivity implements LocationListener
 			List<Map<String, String>> spotInfos = new ArrayList<Map<String, String>>();
 			Map<String, String> spotInfo = new HashMap<String, String>();
 			
-			spotInfo.put("info", spotInfoArr[i]);
+			spotInfo.put("info", "Infos: \n" + spotInfoArr[i]);
 			spotInfos.add(spotInfo);
 			spotChild.add(spotInfos);
 			
@@ -1275,12 +1447,12 @@ public class Map2Activity extends MapActivity implements LocationListener
 					(Map2Activity.this, spotListArr, R.layout.my_list_layout02,
 							new String[] {"spot","day","pic1","pic2","pic3","pic4","pic5"}, 
 							new int[] {R.id.textView_2_1, R.id.textView_2_2, 
-									R.id.imageView1, R.id.imageView2, R.id.imageView3, R.id.imageView4, R.id.imageView5});
+									R.id.pathBgImage1, R.id.pathBgImage2, R.id.imageView3, R.id.imageView4, R.id.imageView5});
 
 			extanded_list.setAdapter(spotAdapter);
 			
 			double width = screenWidth / 1.15;
-			double height = screenHeight / 1.3;
+			double height = screenHeight / 1.25;
 
 			popUp = new PopupWindow (view, (int)width, (int)height);	//(view, width, height)
 			
@@ -1290,34 +1462,30 @@ public class Map2Activity extends MapActivity implements LocationListener
 			popUp.setBackgroundDrawable(new BitmapDrawable());
 
 			int xpos = screenWidth / 2 - popUp.getWidth() / 2;
-			double ypos = (screenHeight / 2) - (popUp.getHeight() / 1.54);
+			//double ypos = (screenHeight / 2) - (popUp.getHeight() / 1.54);
 
-			Log.i("Coder", "xPos:" + xpos);
-			Log.i("Coder", "yPos:" + ypos);
-
-			popUp.showAsDropDown(SayHiLayout, xpos, (int)ypos);
+			popUp.showAsDropDown(SayHiLayout, xpos, 1);
 
 			extanded_list.setOnItemClickListener(new AdapterView.OnItemClickListener(){
 				public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) 
 				{
 					AlertDialog.Builder infoDialog = new AlertDialog.Builder(Map2Activity.this);
 					
+					TextView title = new TextView(Map2Activity.this);
+					title.setText(spotList[arg2]);
+					title.setTextColor(getResources().getColor(R.color.DeepSkyBlue));
+					title.setGravity(Gravity.CENTER);
+					title.setPadding(0, 15, 0, 15);
+					
 					if (screenSize >= 6.5)
 					{
-						TextView title = new TextView(Map2Activity.this);
-						title.setText(spotList[arg2]);
-						title.setTextColor(getResources().getColor(R.color.DeepSkyBlue));
-						title.setGravity(Gravity.CENTER);
-						title.setPadding(0, 15, 0, 15);
 						title.setTextSize(30);
-						//title.setTypeface(null,Typeface.BOLD);
-
 						infoDialog.setCustomTitle(title);
 					} else {
-						infoDialog.setTitle(spotList[arg2]);
+						title.setTextSize(22);
+						infoDialog.setCustomTitle(title);
 					}
 					
-					infoDialog.setIcon(R.drawable.info_icon);
 					infoDialog.setMessage(spotInfoList[arg2]);
 					infoDialog.setPositiveButton("OK!", 
 							new DialogInterface.OnClickListener()
@@ -1330,15 +1498,20 @@ public class Map2Activity extends MapActivity implements LocationListener
 					AlertDialog dialog = infoDialog.create();
 					dialog.show();
 					
+					dialog.getWindow().getAttributes();
+					TextView msgText = (TextView) dialog.findViewById(android.R.id.message);
+					Button positive = (Button) dialog.getButton(DialogInterface.BUTTON_POSITIVE);
+					positive.setTextColor(getResources().getColor(R.drawable.DarkOrange));
+					
 					if (screenSize >= 6.5)
 					{
-						dialog.getWindow().getAttributes();
-						TextView msgText = (TextView) dialog.findViewById(android.R.id.message);
-						Button positive = (Button) dialog.getButton(DialogInterface.BUTTON_POSITIVE);
 						msgText.setTextSize(28);
 						msgText.setPadding(10, 15, 10, 15);
 						positive.setTextSize(28);
-						positive.setTextColor(getResources().getColor(R.drawable.DarkOrange));
+					} else {
+						msgText.setTextSize(18);
+						msgText.setPadding(10, 15, 10, 15);
+						positive.setTextSize(18);
 					}
 				}
 			});
@@ -1397,7 +1570,7 @@ public class Map2Activity extends MapActivity implements LocationListener
 			e.printStackTrace();
 			Log.e("IOException", e.getMessage().toString());
 		}
-		shortMessage("Done!");
+		longMessage(planTitle + "\n" + "Save completed!");
 		
 		//External storage!!
 		/*
@@ -1758,39 +1931,196 @@ public class Map2Activity extends MapActivity implements LocationListener
     	super.openOptionsMenu();
     }
     
-    @SuppressLint("NewApi")
+    @SuppressWarnings("deprecation")
+	@Override
+    public boolean onMenuOpened(int featureId, Menu menu)
+    {
+    	String[] menuItems = new String[]
+    	{
+    		"Test Saved Data",
+    		"Save This Plan for Offline",
+    		"Show Spot List",
+    		"Select Plan",
+    		"Find My Position",
+    		"Read Me",
+    		"Back to Login Screen",
+    		"Logout"
+    	};
+    	int[] menuIcons = new int[]
+    	{
+    		android.R.drawable.ic_menu_manage,
+    		android.R.drawable.ic_menu_save,
+    		android.R.drawable.ic_menu_view,
+    		android.R.drawable.ic_menu_view,
+    		android.R.drawable.ic_menu_mylocation,
+    		R.drawable.info_icon,
+    		R.drawable.go_back_icon,
+    		R.drawable.logout_icon
+    	};
+    		
+    	List<Map<String, Object>> menuList = new ArrayList<Map<String, Object>>();
+    	
+    	for (int i = 0; i < menuItems.length; i++)
+    	{
+    		HashMap<String, Object> items = new HashMap<String, Object>();
+    		items.put("menuItems", menuItems[i]);
+    		items.put("menuIcons", menuIcons[i]);
+    		menuList.add(items);
+    	}
+    	MenuListAdapter menuAdapter = new MenuListAdapter(this, menuList);
+    	
+    	LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		view = inflater.inflate(R.layout.menu_listview, null);
+		ListView menu_list = (ListView) view.findViewById(R.id.menuList); 
+		RelativeLayout SayHiLayout = (RelativeLayout) findViewById(R.id.SayHi);
+		
+		menu_list.setAdapter(menuAdapter);
+		
+		double width = screenWidth / 1.25;
+		double height = screenHeight / 1.4;
+
+		final PopupWindow popMenu = new PopupWindow (view, (int)width, (int)height);
+		
+		popMenu.setFocusable(true);
+		popMenu.setOutsideTouchable(true);
+		popMenu.setBackgroundDrawable(new BitmapDrawable());
+
+		int xpos = screenWidth / 2;
+
+		popMenu.showAsDropDown(SayHiLayout, xpos, 1);
+		
+		view.setFocusableInTouchMode(true);
+		view.setOnKeyListener(new OnKeyListener() {
+		@Override
+			public boolean onKey(View v, int keyCode, KeyEvent event) {
+				// TODO Auto-generated method stub
+				if ((keyCode == KeyEvent.KEYCODE_MENU) && (popMenu.isShowing()))
+				{
+					popMenu.dismiss();
+					return true;
+				}
+				return false;
+			}
+		});
+		
+		menu_list.setOnItemClickListener(new OnItemClickListener() {
+			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+				switch (arg2)
+				{
+					case 0:
+						savedDataTest();
+		    			break;
+					case 1:
+						if (startNeed == false)
+		    			{
+		    				longMessage("Please select a plan first!");
+		    			} else {
+		    				saveData();
+		    			}
+		    			break;
+					case 2:
+						showSpotWindow();
+		    			break;
+					case 3:
+						showPlanWindow();
+						break;
+					case 4:
+						if (stopAsk == false)
+		    			{
+		    				requestGPS = true;
+		    			}
+		    			GPSinit();
+						break;
+					case 5:
+						shortMessage("Still working on it...");
+						break;
+					case 6:
+						Intent goBack = new Intent();
+		    			goBack.setClass(Map2Activity.this, Login.class);
+		    			Map2Activity.this.startActivity(goBack);
+		    			finish();
+						break;
+					case 7:
+						AlertDialog.Builder infoDialog = new AlertDialog.Builder(Map2Activity.this);
+						
+						TextView title = new TextView(Map2Activity.this);
+	        			title.setText("Are you sure?!");
+	        			title.setTextColor(getResources().getColor(R.color.DeepSkyBlue));
+	    				title.setGravity(Gravity.CENTER);
+	    				title.setPadding(0, 20, 0, 20);
+						
+		    			if (screenSize >= 6.5)
+		    			{
+		    				title.setTextSize(30);
+		    				infoDialog.setCustomTitle(title);
+		    			} else {
+		    				title.setTextSize(22);
+		    				infoDialog.setCustomTitle(title);
+		    			}
+		    			infoDialog.setPositiveButton("No~", new DialogInterface.OnClickListener()
+		                {  
+		    				public void onClick(DialogInterface arg0, int arg1)
+		    				{  
+		    				} 
+		               }).setNegativeButton("Yes!", new DialogInterface.OnClickListener()
+		               	{  
+		            	   public void onClick(DialogInterface arg0, int arg1)
+		            	   {
+		            		   Intent goBack = new Intent();
+		            		   Bundle clear = new Bundle();
+		            		   goBack.setClass(Map2Activity.this, Login.class);
+		            		   clear.putString("Clear", "");
+		            		   goBack.putExtras(clear);
+		            		   Map2Activity.this.startActivity(goBack);
+		            		   finish();
+		            	   } 
+		               	});
+		               	AlertDialog dialog = infoDialog.create();
+		    			dialog.show();
+		    			
+		    			dialog.getWindow().getAttributes();
+						Button positive = (Button) dialog.getButton(DialogInterface.BUTTON_POSITIVE);
+						Button negative = (Button) dialog.getButton(DialogInterface.BUTTON_NEGATIVE);
+						positive.setTextColor(getResources().getColor(R.drawable.DarkOrange));
+						negative.setTextColor(getResources().getColor(R.drawable.Brown));
+		    			
+		    			if (screenSize >= 6.5)
+						{
+							positive.setTextSize(28);
+							positive.setPadding(0, 15, 0, 15);
+							negative.setTextSize(28);
+							negative.setPadding(0, 15, 0, 15);
+						} else {
+							positive.setTextSize(18);
+							positive.setPadding(0, 15, 0, 15);
+							negative.setTextSize(18);
+							negative.setPadding(0, 15, 0, 15);
+						}
+						break;
+						
+					default:
+						shortMessage("Oops!! Something wrong~");
+				}
+				popMenu.dismiss();
+			}
+		});
+    	
+    	return false;
+    }
+    
 	@Override
     public boolean onCreateOptionsMenu(Menu menu) {
     	//(groupId, itemId, order, title)
-    	menu.add(0,0,4,"Logout").setIcon(android.R.drawable.ic_menu_close_clear_cancel);
-    	menu.add(0,1,3,"Read Me").setIcon(android.R.drawable.ic_menu_info_details);
-    	menu.add(0,2,2,"Find My Position").setIcon(android.R.drawable.ic_menu_mylocation);
-    	menu.add(0,3,1,"Select Plan").setIcon(android.R.drawable.ic_menu_view);
-    	menu.add(0,4,0,"Show Spot List").setIcon(android.R.drawable.ic_menu_view);
-    	menu.add(0,5,5,"Back to Login Page").setIcon(android.R.drawable.ic_media_previous);
-    	menu.add(0,6,6,"Save my plans for offline").setIcon(android.R.drawable.ic_menu_save);
-    	menu.add(0,7,7,"Test the saved data!").setIcon(android.R.drawable.presence_offline);
-    	/*
-    	if (SDKversion > 10)
-    	{
-    		getMenuInflater().inflate(R.menu.options, menu);
-    		Button menuBtn1 = (Button) menu.findItem(R.id.selectPlan).getActionView();
-    		menuBtn1.setText("Select Plan");
-
-    		menuBtn1.setOnClickListener(new OnClickListener() {
-    			public void onClick(View v) {
-    				showPlanWindow();
-    			}
-    		});
-    	}
-    	 */
-    	return super.onCreateOptionsMenu(menu);
+    	MenuInflater menuInflater = getMenuInflater();
+    	menuInflater.inflate(R.menu.options, menu);
+    	return true;
     }
     
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-    	switch(item.getItemId()){
-    		case 0:
+    	switch(item.getItemId())
+    	{
+    		case R.id.menu_logout:
     			AlertDialog.Builder infoDialog = new AlertDialog.Builder(this);
     			if (screenSize >= 6.5)
     			{
@@ -1840,11 +2170,11 @@ public class Map2Activity extends MapActivity implements LocationListener
 				}
     		break;
     		
-    		case 1:
+    		case R.id.menu_readme:
     			shortMessage("Still working on it...");
     			break;
     			
-    		case 2:
+    		case R.id.menu_position:
     			if (stopAsk == false)
     			{
     				requestGPS = true;
@@ -1852,22 +2182,22 @@ public class Map2Activity extends MapActivity implements LocationListener
     			GPSinit();
     			break;
     		
-    		case 3:
+    		case R.id.menu_selectPlan:
     		    showPlanWindow(); 
     			break;
     			
-    		case 4:
+    		case R.id.menu_spotList:
     			showSpotWindow();
     			break;
     			
-    		case 5:
+    		case R.id.menu_back:
     			Intent goBack = new Intent();
     			goBack.setClass(Map2Activity.this, Login.class);
     			Map2Activity.this.startActivity(goBack);
     			finish();
     			break;
     		
-    		case 6:
+    		case R.id.menu_save:
     			if (startNeed == false)
     			{
     				longMessage("Please select a plan first!");
@@ -1875,7 +2205,7 @@ public class Map2Activity extends MapActivity implements LocationListener
     				saveData();
     			}
     			break;
-    		case 7:
+    		case R.id.menu_savedTest:
     			savedDataTest();
     			break;
     	}

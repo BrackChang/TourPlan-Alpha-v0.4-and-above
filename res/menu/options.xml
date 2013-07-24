@@ -1,9 +1,48 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
+
     
-        <item
-        android:id="@+id/selectPlan"
-        android:showAsAction="ifRoom|collapseActionView"
-        android:title="@string/Actions" 
-        android:actionViewClass="android.widget.Button" />
+    <item android:id="@+id/menu_logout" android:icon="@android:drawable/ic_menu_close_clear_cancel" android:orderInCategory="0" android:title="Logout">
+    </item><item
+        android:id="@+id/menu_back"
+        android:icon="@android:drawable/ic_media_previous"
+        android:orderInCategory="1"
+        android:title="Back to the Login Page">
+    </item>
+    <item
+        android:id="@+id/menu_readme"
+        android:icon="@android:drawable/ic_menu_info_details"
+        android:orderInCategory="2"
+        android:title="Read Me">
+    </item>
+    <item
+        android:id="@+id/menu_position"
+        android:icon="@android:drawable/ic_menu_mylocation"
+        android:orderInCategory="3"
+        android:title="Find My Position">
+    </item>
+    <item
+        android:id="@+id/menu_selectPlan"
+        android:icon="@android:drawable/ic_menu_view"
+        android:orderInCategory="4"
+        android:title="Select Plan">
+    </item>
+    <item
+        android:id="@+id/menu_spotList"
+        android:icon="@android:drawable/ic_menu_view"
+        android:orderInCategory="5"
+        android:title="Show Spot List">
+    </item>
+    <item
+        android:id="@+id/menu_save"
+        android:icon="@android:drawable/ic_menu_save"
+        android:orderInCategory="6"
+        android:title="Save This Plan for Offline">
+    </item>
+    <item
+        android:id="@+id/menu_savedTest"
+        android:icon="@android:drawable/presence_offline"
+        android:orderInCategory="7"
+        android:title="Test Saved Data">
+    </item>
 
 </menu>

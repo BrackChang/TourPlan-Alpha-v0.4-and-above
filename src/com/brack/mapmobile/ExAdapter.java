@@ -15,7 +15,6 @@ import android.view.View.OnClickListener;
 import android.view.inputmethod.InputMethodManager;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -112,7 +111,7 @@ List<List<Map<String, String>>> spotChild;
 		final String lat = (String) spotGroup.get(groupPosition).get("lat");
 		final String lng = (String) spotGroup.get(groupPosition).get("lng");
 		
-		Button directRoute = (Button) layout.findViewById(R.id.routeDirection);
+		ImageButton directRoute = (ImageButton) layout.findViewById(R.id.routeDirection);
 		directRoute.setFocusable(false);
 		directRoute.setFocusableInTouchMode(false);
 		directRoute.setClickable(true);
@@ -129,7 +128,7 @@ List<List<Map<String, String>>> spotChild;
 					ImageButton route1 = (ImageButton) view.findViewById(R.id.route1);
 					
 					double width = DM.widthPixels / 4;
-					double height = DM.heightPixels / 11;
+					double height = DM.heightPixels / 11.5;
 					double btnWidth = DM.widthPixels / 4;
 					Log.i("BtnWidth", ""+btnWidth);
 					
@@ -137,7 +136,7 @@ List<List<Map<String, String>>> spotChild;
 					{
 						btnWidth = DM.widthPixels / 4.9;
 						width = DM.widthPixels / 4.9;
-						height = DM.heightPixels / 14.5;
+						height = DM.heightPixels / 15;
 					}
 
 					LinearLayout.LayoutParams params = new LinearLayout.LayoutParams
@@ -150,11 +149,11 @@ List<List<Map<String, String>>> spotChild;
 					popUp.setBackgroundDrawable(new BitmapDrawable());
 
 					double xpos = DM.widthPixels / 8 - popUp.getWidth();
-					double ypos = DM.heightPixels / 50 - (popUp.getHeight() / 0.54);
+					double ypos = DM.heightPixels / 50 - (popUp.getHeight() / 0.5);
 					
 					if (size >= 6.5)
 					{
-						ypos = DM.heightPixels / 50 - (popUp.getHeight() / 0.46);
+						ypos = DM.heightPixels / 50 - (popUp.getHeight() / 0.42);
 					}
 
 					popUp.showAsDropDown(v, (int)xpos, (int)ypos);
@@ -186,7 +185,7 @@ List<List<Map<String, String>>> spotChild;
 					ImageButton route2 = (ImageButton) view.findViewById(R.id.route2);
 					
 					double width = DM.widthPixels / 1.9;
-					double height = DM.heightPixels / 11;
+					double height = DM.heightPixels / 11.5;
 					double btnWidth = DM.widthPixels / 4;
 					Log.i("BtnWidth", ""+btnWidth);
 					
@@ -194,7 +193,7 @@ List<List<Map<String, String>>> spotChild;
 					{
 						btnWidth = DM.widthPixels / 4.9;
 						width = DM.widthPixels / 2.355;
-						height = DM.heightPixels / 14.5;
+						height = DM.heightPixels / 15;
 					}
 					
 					LinearLayout.LayoutParams params = new LinearLayout.LayoutParams
@@ -208,11 +207,11 @@ List<List<Map<String, String>>> spotChild;
 					popUp.setBackgroundDrawable(new BitmapDrawable());
 					
 					double xpos = DM.widthPixels / 5 - popUp.getWidth();
-					double ypos = DM.heightPixels / 50 - (popUp.getHeight() / 0.54);
+					double ypos = DM.heightPixels / 50 - (popUp.getHeight() / 0.5);
 					
 					if (size >= 6.5)
 					{
-						ypos = DM.heightPixels / 50 - (popUp.getHeight() / 0.46);
+						ypos = DM.heightPixels / 50 - (popUp.getHeight() / 0.42);
 					}
 					
 					popUp.showAsDropDown(v, (int)xpos, (int)ypos);
@@ -256,11 +255,11 @@ List<List<Map<String, String>>> spotChild;
 		showMap.setFocusableInTouchMode(false);
 		showMap.setClickable(true);
 		
-		if (pic1 != null) { foodFlag.setImageResource(R.drawable.food_icon); }
-		if (pic2 != null) { hotelFlag.setImageResource(R.drawable.hotel_icon); }
-		if (pic3 != null) { shopFlag.setImageResource(R.drawable.shopping_icon); }
-		if (pic4 != null) { sceneFlag.setImageResource(R.drawable.scene_icon); }
-		if (pic5 != null) { transFlag.setImageResource(R.drawable.transport_icon); }
+		if (pic1 != null) foodFlag.setImageResource(R.drawable.food_icon);
+		if (pic2 != null) hotelFlag.setImageResource(R.drawable.hotel_icon);
+		if (pic3 != null) shopFlag.setImageResource(R.drawable.shopping_icon);
+		if (pic4 != null) sceneFlag.setImageResource(R.drawable.scene_icon);
+		if (pic5 != null) transFlag.setImageResource(R.drawable.transport_icon);
 		
 		showMap.setOnClickListener(new OnClickListener() {
 			public void onClick(View arg0) {

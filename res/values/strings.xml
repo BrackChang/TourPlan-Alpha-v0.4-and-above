@@ -5,7 +5,7 @@
     <string name="emailLabel">E-Mail</string>
     <string name="passLabel">Password</string>
     <string name="SignIn">Sign In</string>
-    <string name="or">or</string>
+    <string name="to">To:</string>
     <string name="SignUp">Sign Up</string>
     <string name="EmailInput_hint">Enter your e-mail</string>
     <string name="PassInput_hint">Enter your password</string>
@@ -22,11 +22,11 @@
     <string name="searchBotton">GO</string>
     <string name="goOffLine">Offline Mode</string>
     <string name="rememberMe">Remember Me</string>
-    <string name="SearchSomething">Do Something~</string><string name="Version">0.9.7</string><string name="VersionName">TourPlan-Alpha_v</string>
+    <string name="SearchSomething">Do Something~</string><string name="Version">0.9.8</string><string name="VersionName">TourPlan-Alpha_v</string>
     <string name="Options">Options</string>
     <string name="Actions">Actions</string>
     <string name="Clear">Clear</string>
     <string name="Retype">Retype</string>
-    <string name="UserName">User Name</string>
+    <string name="UserName">YourName:</string>
     
 </resources>
