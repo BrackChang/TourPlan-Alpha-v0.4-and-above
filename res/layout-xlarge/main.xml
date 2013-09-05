@@ -120,6 +120,7 @@
                 android1:layout_width="match_parent"
                 android1:layout_height="wrap_content"
                 android1:layout_marginTop="40dp"
+                android1:gravity="center"
                 android1:orientation="horizontal" >
 
                 <Button
@@ -136,7 +137,7 @@
                 <Button
                     android1:id="@+id/RetypeBtn"
                     android1:layout_width="wrap_content"
-                    android1:layout_height="80dp"
+                    android1:layout_height="110dp"
                     android1:background="@drawable/button_style03"
                     android1:onClick="reTypeClick"
                     android1:text="@string/Retype"

@@ -54,12 +54,12 @@ public class MenuListAdapter extends BaseAdapter {
 		String menuItem = (String) items.get(position).get("menuItems");
 		int menuIcon = (Integer) items.get(position).get("menuIcons");
 		
-		if (position == 7)
+		if (position == 6)
 			menuText.setTextColor(context.getResources().getColor(R.drawable.Brown));
 		if (position == 1)
 			menuText.setTextColor(context.getResources().getColor(R.drawable.DarkOrange));
-		if (position == 4)
-			menuText.setTextColor(context.getResources().getColor(R.color.DeepSkyBlue));
+		if (position == 2)
+			menuText.setTextColor(context.getResources().getColor(R.drawable.SteelBlue));
 		if (position == 3)
 			menuText.setTextColor(context.getResources().getColor(R.drawable.SeeGreen));
 		

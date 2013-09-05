@@ -37,7 +37,7 @@ public class DrawOverlay extends Overlay
 		
 		paint.setColor(Color.rgb(65, 105, 225));
 		paint.setAlpha(130);
-		paint.setStrokeWidth(6.5f);
+		paint.setStrokeWidth(7f);
 		paint.setStrokeJoin(Paint.Join.ROUND);
 		paint.setStrokeCap(Paint.Cap.ROUND);
 		paint.setStyle(Paint.Style.STROKE);

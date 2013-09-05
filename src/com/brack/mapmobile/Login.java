@@ -3,42 +3,46 @@ package com.brack.mapmobile;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
+import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
 
-import com.brack.mapmobile.R;
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
-import android.net.wifi.WifiInfo;
-import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.Message;
+import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.WindowManager;
 import android.view.View.OnKeyListener;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
@@ -49,12 +53,13 @@ import android.widget.Toast;
 @SuppressLint("HandlerLeak")
 public class Login extends Activity {
 	
+	private double screenSize;
 	private SharedPreferences infoSave;
 	private SharedPreferences.Editor editor;
 	private ConnectivityManager CM;
 	private NetworkInfo NI;
-	private WifiManager wifi;
-	private WifiInfo wifiInfo;
+//	private WifiManager wifi;
+//	private WifiInfo wifiInfo;
 	protected static final int REFRESH_DATA = 0x00000001;
 	private PopupWindow popUp;
 	/*
@@ -63,6 +68,7 @@ public class Login extends Activity {
     private int iCount = 0;
     */
     private String loading;
+    private String ipMsg;
 	
 	 /** Called when the activity is first created. */ 
     @Override
@@ -73,6 +79,12 @@ public class Login extends Activity {
         String versionName = getResources().getString(R.string.VersionName);
         this.setTitle(versionName + version);
     	
+        DisplayMetrics DM = new DisplayMetrics();
+		getWindowManager().getDefaultDisplay().getMetrics(DM);
+		double diagonalPixels = Math.sqrt((Math.pow(DM.widthPixels, 2) + Math.pow(DM.heightPixels, 2)));
+        double screen = diagonalPixels / (160 * DM.density);
+        screenSize = screen;
+        
     	final CheckBox rememberMe = (CheckBox)findViewById(R.id.remember);
     	final EditText emailInput = (EditText)findViewById(R.id.EmailInput);
     	final EditText passInput = (EditText)findViewById(R.id.PassInput);
@@ -106,10 +118,8 @@ public class Login extends Activity {
 				editor.commit();
         	}
     	}
-    	
-    	if (emailInput.getText().toString().contains("@")){
+    	if (emailInput.getText().toString().contains("@"))
     		rememberMe.setChecked(true);
-    	}
     	
     	rememberMe.setOnCheckedChangeListener(new OnCheckedChangeListener() {
     		public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -130,6 +140,14 @@ public class Login extends Activity {
     		}
     	});
     	
+    	new Thread()
+    	{
+    		public void run()
+    		{
+    			getCurrentIP();
+    			showIP.obtainMessage(REFRESH_DATA, ipMsg).sendToTarget();
+    		}
+    	}.start();
     }
 
     /*
@@ -152,6 +170,121 @@ public class Login extends Activity {
 		return false;
 	}
 	*/
+    /*
+    public String pingHost()
+    {
+    	String result = "";
+    	try
+    	{
+    		Process p = Runtime.getRuntime().exec("/system/bin/ping -c 8 " + "google.com.tw");
+    		
+    		int count = p.waitFor();
+    		String echo = Integer.toString(count);
+    		
+    		BufferedReader reader = new BufferedReader( new InputStreamReader(p.getInputStream()));
+    		
+    		int i;
+    		char[] buffer = new char[4096];
+    		
+    		StringBuffer output = new StringBuffer();
+    		
+    		while ((i = reader.read(buffer)) > 0)
+    			output.append(buffer, 0, i);
+    		
+    		reader.close();
+    		
+    		result = echo;
+    	}
+    	catch (IOException e)
+    	{
+    		longMessage(e.getMessage().toString());
+    		Log.e("PingFailed", e.getMessage().toString());
+    	}
+    	catch (InterruptedException e)
+    	{
+    		longMessage(e.getMessage().toString());
+    		Log.e("Interruption", e.getMessage().toString());
+    	}
+    	return result;
+    }
+    */
+    
+    public void getCurrentIP ()
+    {
+    	try
+    	{
+    		HttpClient httpClient = new DefaultHttpClient();
+    		HttpGet httpGet = new HttpGet("http://api.externalip.net/ip");
+    		HttpResponse response;
+
+    		response = httpClient.execute(httpGet);
+
+    		Log.i("Connect Status",response.getStatusLine().toString());
+
+    		HttpEntity entity = response.getEntity();
+    		
+    		if (entity != null)
+    		{
+    			long len = entity.getContentLength();
+    			
+    			if (len != -1 && len < 1024)
+    			{
+    				ipMsg = EntityUtils.toString(entity);
+    				Log.i("External Ip", ipMsg);
+    			}
+    			else
+    			{
+    				ipMsg = "Response too long or error! " + EntityUtils.toString(entity);
+    				Log.e("IP Error!", "Response too long or error: " + EntityUtils.toString(entity));
+    			}            
+    		} else {
+    			ipMsg = response.getStatusLine().toString();
+    			Log.i("Connect Status", response.getStatusLine().toString());
+    		}
+    	}
+    	catch (Exception e)
+    	{
+    		ipMsg = e.toString();
+    		Log.e("Connect Error", e.toString());
+    	}
+    }
+    
+    Handler showIP = new Handler()
+	{
+		@Override
+		public void handleMessage(Message msg)
+		{
+			switch (msg.what)
+			{
+			case REFRESH_DATA:
+				
+				String IP = null;
+				
+				if (msg.obj instanceof String)
+					IP = (String) msg.obj;
+				
+				if (IP.contains("ProtocolException"))
+				{
+					Button SignInBtn = (Button) findViewById(R.id.SignInBtn);
+					TextView SignUp = (TextView) findViewById(R.id.Register);
+					TextView goWeb = (TextView) findViewById(R.id.goWeb);
+					
+					SignInBtn.setClickable(false);
+					SignUp.setClickable(false);
+					goWeb.setClickable(false);
+					
+					noConnection();
+					//longMessage("WiFi didn't login yet, online mode was disabled!");
+				}
+				else if (IP.contains("Exception"))
+					longMessage("Your Network is NOT Available!");
+				else
+					longMessage("External IP¡G" + IP);
+				
+				break;
+			}
+		}
+	};
     
     public void btn1Click(View SignInClick) {
     	EditText email_input = (EditText) findViewById(R.id.EmailInput);
@@ -171,26 +304,21 @@ public class Login extends Activity {
     		editor.putString("pass", "");
     		editor.commit();
     	}
-    	
-    	CM = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
-    	NI = CM.getActiveNetworkInfo();
-    	
-    	
-    	
+    	/*
     	wifi = (WifiManager) getSystemService(Context.WIFI_SERVICE);
     	wifiInfo = wifi.getConnectionInfo();
     	int ip = wifiInfo == null ? 0 : wifiInfo.getIpAddress();
     	
     	if (wifi.isWifiEnabled() && ip == 0)
-    	{
     		longMessage("Your WiFi is NOT connected yet!");
-    	}
-    	
-    	else if (NI == null || NI.isAvailable() == false)
-    	{
+    	*/
+    	CM = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
+    	NI = CM.getActiveNetworkInfo();
+
+    	if (NI == null || NI.isAvailable() == false)
     		longMessage("Your Network is NOT Available!");
-    	} 
-    	else {
+    	else 
+    	{
     		final String[] msg = new String[2];
 
     		if (email_input != null && pass_input != null)
@@ -283,7 +411,8 @@ public class Login extends Activity {
     	passInput.setText("");
 	}
     
-    public void textClick(View goWebClick) {
+    public void textClick(View goWebClick)
+    {
     	CM = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
     	NI = CM.getActiveNetworkInfo();
     	
@@ -294,7 +423,7 @@ public class Login extends Activity {
     		Uri uri = Uri.parse(getString(R.string.Labm406));
     		Intent intent = new Intent(Intent.ACTION_VIEW,uri);
     		startActivity(intent);
-    	}	
+    	}
     }
     
     public void signUpClick (View register) {
@@ -313,30 +442,6 @@ public class Login extends Activity {
     	Intent goOffLine = new Intent();
     	goOffLine.setClass(Login.this, OffLineMode.class);
     	Login.this.startActivity(goOffLine);
-    	
-    	
-    	/*
-    	wifi = (WifiManager) getSystemService(Context.WIFI_SERVICE);
-    	wifiInfo = wifi.getConnectionInfo();
-    	int ip = wifiInfo == null ? 0 : wifiInfo.getIpAddress();
-    	
-    	if (wifi.isWifiEnabled() && ip == 0)
-    	{
-    		longMessage("Your WIFI is NOT connected yet!");
-    	} else if (wifi.isWifiEnabled()){
-    		longMessage("WIFI is good to GO~");
-    	} else {
-    		longMessage("WIFI didn't open!");
-    	}
-    	
-    	isWiFiActive();
-    	if (isWiFiActive() == true)
-    	{
-    		Toast.makeText(Login.this, "is TRUE!", Toast.LENGTH_SHORT).show();
-    	} else {
-    		Toast.makeText(Login.this, "is FALSE!", Toast.LENGTH_SHORT).show();
-    	}
-    	*/
     }
     
     
@@ -395,35 +500,57 @@ public class Login extends Activity {
    				loading = loads;
    			}
    		}.start();
-    	/*
-    	Thread loadingThread = new Thread(new Runnable() {
-			public void run() {
-				for (int i = 0; i < 20; i++)
-				{
-					try 
-					{
-						iCount = (i+1) * 5;
-						Thread.sleep(1000);
-						if (i == 19)
-						{
-							Message msg = new Message();
-							msg.what = STOP;
-							loadingHandler.sendMessage(msg);
-							break;
-						} else {
-							Message msg = new Message();
-							msg.what = NEXT;
-							loadingHandler.sendMessage(msg);
-						}
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-				}
-			}
-    	});
-    	loadingThread.start();
-    	*/
     }
+    
+    public void noConnection()
+    {
+    	AlertDialog.Builder warning = new AlertDialog.Builder(Login.this);
+		
+		TextView title = new TextView(this);
+		title.setText("Network Error!!");
+		title.setTextColor(getResources().getColor(R.color.DeepSkyBlue));
+		title.setGravity(Gravity.CENTER);
+		title.setPadding(0, 20, 0, 20);
+		
+		if (screenSize >= 6.5)
+		{
+			title.setTextSize(30);
+			warning.setCustomTitle(title);
+		} else {
+			title.setTextSize(22);
+			warning.setCustomTitle(title);
+		}
+		warning.setMessage("Can't connect to Internet!\n" +
+				"The WiFi currently connected may need login,\n" +
+				"And restart this App for using online mode.")
+		.setPositiveButton("Alright~", new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int which) {
+				
+			}
+		});
+		AlertDialog dialog = warning.create();
+		dialog.show();
+		dialog.setCancelable(false);
+		dialog.getWindow().getAttributes();
+		
+		TextView msgText = (TextView) dialog.findViewById(android.R.id.message);
+		msgText.setGravity(Gravity.CENTER);
+		Button positive = (Button) dialog.getButton(DialogInterface.BUTTON_POSITIVE);
+		positive.setTextColor(getResources().getColor(R.drawable.DarkOrange));
+		
+		if (screenSize >= 6.5)
+		{
+			msgText.setTextSize(28);
+			msgText.setPadding(10, 15, 10, 15);
+			positive.setTextSize(28);
+			
+		} else {
+			msgText.setTextSize(18);
+			msgText.setPadding(10, 15, 10, 15);
+			positive.setTextSize(18);
+		}
+    }
+    
     
     private void longMessage(String message)
     {

@@ -56,8 +56,8 @@ public class DirectionAdapter extends BaseAdapter {
 		String distance = (String) items.get(position).get("disText");
 		String pathGoOn = (String) items.get(position).get("pathGoOn");
 		
-		final String lat = (String) items.get(position).get("endLat");
-		final String lng = (String) items.get(position).get("endLng");
+		final String lat = (String) items.get(position).get("startLat");
+		final String lng = (String) items.get(position).get("startLng");
 		
 		pathText.setText(path);
 		pathInfoText.setText(distance);

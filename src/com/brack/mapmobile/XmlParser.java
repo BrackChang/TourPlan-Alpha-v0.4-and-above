@@ -16,7 +16,7 @@ public class XmlParser extends Activity {
 	
 	public static PlanVO parse(String xmlString) {
 
-		Log.i("Brack", "XmlParser.StartParse");
+		Log.i("XmlParser", "StartParse");
 		
 		PlanVO planVO = new PlanVO();
 		
@@ -139,7 +139,7 @@ public class XmlParser extends Activity {
 			e.printStackTrace();
 		}
 		
-		Log.i("Brack", "XmlParser.ParseSuccessful");
+		Log.i("XmlParser", "ParseSuccessful");
 
 		return planVO;
 	}

@@ -120,6 +120,7 @@
                 android1:layout_width="match_parent"
                 android1:layout_height="wrap_content"
                 android1:layout_marginTop="30dp"
+                android1:gravity="center"
                 android1:orientation="horizontal" >
 
                 <Button
@@ -154,8 +155,9 @@
 
                 <CheckBox
                     android1:id="@+id/remember"
-                    android1:layout_width="wrap_content"
+                    android1:layout_width="180dp"
                     android1:layout_height="wrap_content"
+                    android1:button="@drawable/big_checkbox"
                     android1:checked="false"
                     android1:gravity="center"
                     android1:text="@string/rememberMe"
@@ -168,6 +170,7 @@
                     android1:layout_width="match_parent"
                     android1:layout_height="wrap_content"
                     android1:layout_gravity="right"
+                    android1:layout_marginRight="5dp"
                     android1:clickable="true"
                     android1:gravity="right"
                     android1:onClick="signUpClick"
@@ -175,6 +178,7 @@
                     android1:textColor="#0b84aa"
                     android1:textSize="22sp"
                     android1:textStyle="italic" />
+
             </LinearLayout>
 
             <LinearLayout

@@ -221,56 +221,55 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textFilterEnabled="true" >
-
         </ExpandableListView>
     </LinearLayout>
-    
-     <View
+
+    <View
         android:id="@+id/Line3"
         android:layout_width="fill_parent"
         android:layout_height="1dp"
         android:background="#000000" />
-    
-     <LinearLayout
-         android:id="@+id/Functions"
-         android:layout_width="fill_parent"
-         android:layout_height="wrap_content"
-         android:animateLayoutChanges="true"
-         android:gravity="right"
-         android:orientation="horizontal" >
 
-         <Button
-             android:id="@+id/clearBtn"
-             style="?android:attr/buttonStyleSmall"
-             android:layout_width="wrap_content"
-             android:layout_height="38dp"
-             android:background="@drawable/button_style01"
-             android:onClick="clearClick"
-             android:text="@string/Clear"
-             android:textColor="@drawable/AliceBlue" />
+    <LinearLayout
+        android:id="@+id/Functions"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:animateLayoutChanges="true"
+        android:gravity="right"
+        android:orientation="horizontal" >
 
-         <AutoCompleteTextView
-             android:id="@+id/typingText"
-             android:layout_width="0dp"
-             android:layout_height="wrap_content"
-             android:layout_weight="1"
-             android:completionThreshold="1"
-             android:ems="10"
-             android:focusable="false"
-             android:focusableInTouchMode="false"
-             android:hint="@string/SearchSomething"
-             android:imeOptions="actionGo|actionSearch"
-             android:singleLine="true"
-             android:textColor="@drawable/Brown" />
+        <Button
+            android:id="@+id/clearBtn"
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="38dp"
+            android:background="@drawable/button_style01"
+            android:onClick="clearClick"
+            android:text="@string/Clear"
+            android:textColor="@drawable/AliceBlue" />
 
-         <ImageButton
-             android:id="@+id/search"
-             android:layout_width="wrap_content"
-             android:layout_height="38dp"
-             android:background="@drawable/button_style01"
-             android:contentDescription="@string/searchBotton"
-             android:onClick="searchClick"
-             android:src="@drawable/ic_action_search" />
-     </LinearLayout>
+        <AutoCompleteTextView
+            android:id="@+id/typingText"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:completionThreshold="1"
+            android:ems="10"
+            android:focusable="false"
+            android:focusableInTouchMode="false"
+            android:hint="@string/SearchSomething"
+            android:imeOptions="actionGo|actionSearch"
+            android:singleLine="true"
+            android:textColor="@drawable/Brown" />
+
+        <ImageButton
+            android:id="@+id/search"
+            android:layout_width="wrap_content"
+            android:layout_height="38dp"
+            android:background="@drawable/button_style01"
+            android:contentDescription="@string/searchBotton"
+            android:onClick="searchClick"
+            android:src="@drawable/ic_action_search" />
+    </LinearLayout>
 
 </LinearLayout>

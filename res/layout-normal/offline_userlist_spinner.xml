@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/RelativeLayout1"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <ImageButton
+        android:id="@+id/CloseBtn"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_alignParentRight="true"
+        android:background="@drawable/button_style03"
+        android:onClick="userDeleteClick"
+        android:scaleType="centerCrop"
+        android:src="@android:drawable/ic_menu_close_clear_cancel" />
+    
+    <TextView
+        android:id="@+id/offlineUserText_spinner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="2dp"
+        android:layout_marginTop="2dp"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textColor="@drawable/SkyBlue"
+        android:textSize="18sp" >
+
+    </TextView>
+
+    <TextView
+        android:id="@+id/offlineUserInfoText_spinner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/offlineUserText_spinner"
+        android:layout_marginLeft="2dp"
+        android:layout_marginTop="3dp"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:textColor="@drawable/Ivory"
+        android:textSize="14sp" >
+
+    </TextView>
+
+</RelativeLayout>

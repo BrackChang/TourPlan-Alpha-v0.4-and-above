@@ -18,9 +18,10 @@
 
         <ImageButton
             android:id="@+id/goBack"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
             android:layout_centerVertical="true"
+            android:layout_marginLeft="2dp"
             android:background="@drawable/image_button_style"
             android:onClick="goBackClick"
             android:scaleType="fitCenter"
@@ -69,7 +70,9 @@
             android:onClick="popUpClick"
             android:scaleType="fitCenter"
             android:src="@drawable/options" />
-    </RelativeLayout><View
+    </RelativeLayout>
+    
+    <View
         android:id="@+id/Line1"
         android:layout_width="fill_parent"
         android:layout_height="1dp"
@@ -80,39 +83,84 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginTop="5dp"
         android:animateLayoutChanges="true"
-        android:gravity="center|top" >
-
-        <TextView
-            android:id="@+id/userNameText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/UserName"
-            android:textSize="14sp"
-            android:visibility="gone" />
+        android:background="@drawable/Transparent3"
+        android:gravity="center"
+        android:visibility="gone" >
 
         <Spinner
             android:id="@+id/userNameSelector"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:visibility="gone" />
+            android:spinnerMode="dropdown" />
+        
+        <View
+            android:id="@+id/Line2"
+            android:layout_width="2dp"
+            android:layout_height="fill_parent"
+            android:layout_marginBottom="6dp"
+            android:layout_marginTop="7dp"
+            android:layout_toRightOf="@+id/goBack"
+            android:background="@drawable/Ivory" />
+
+        <Spinner
+            android:id="@+id/planSelector"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:spinnerMode="dropdown" />
 
     </LinearLayout>
+    
+    <View
+        android:id="@+id/Line3"
+        android:layout_width="fill_parent"
+        android:layout_height="1dp"
+        android:background="#000000" />
+
+    <LinearLayout
+        android:id="@+id/offLineMapLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:animateLayoutChanges="true"
+        android:orientation="vertical"
+        android:visibility="gone" >
+        
+       <com.google.android.maps.MapView
+           android:id="@+id/MapView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:apiKey="0nBP-9OdMeXA2iC6Qdpy6NjXh6wKMZN9DhaakFQ"
+            android:clickable="true"
+            android:isScrollContainer="true"
+            android:overScrollMode="always"
+            android:scrollbars="horizontal|vertical" />
+
+    </LinearLayout>
+    
+    <View
+        android:id="@+id/Line4"
+        android:layout_width="fill_parent"
+        android:layout_height="1dp"
+        android:background="#000000" />
 
     <LinearLayout
         android:id="@+id/PlanLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:animateLayoutChanges="true"
-        android:orientation="vertical" >
+        android:background="@drawable/Beige"
+        android:orientation="vertical"
+        android:visibility="gone" >
 
-        <Spinner
-            android:id="@+id/planSelector"
+        <ExpandableListView
+            android:id="@+id/exSpotList"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:visibility="gone" />
+            android:textFilterEnabled="true" >
+
+        </ExpandableListView>
 
     </LinearLayout>
 
