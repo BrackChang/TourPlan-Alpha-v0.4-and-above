@@ -263,7 +263,7 @@ public class Login extends Activity {
 				if (msg.obj instanceof String)
 					IP = (String) msg.obj;
 				
-				if (IP.contains("ProtocolException"))
+				if (IP.contains("ProtocolException") || IP.contains("IllegalStateException"))
 				{
 					Button SignInBtn = (Button) findViewById(R.id.SignInBtn);
 					TextView SignUp = (TextView) findViewById(R.id.Register);
@@ -277,7 +277,7 @@ public class Login extends Activity {
 					//longMessage("WiFi didn't login yet, online mode was disabled!");
 				}
 				else if (IP.contains("Exception"))
-					longMessage("Your Network is NOT Available!");
+					longMessage(IP);
 				else
 					longMessage("External IP¡G" + IP);
 				
@@ -480,7 +480,7 @@ public class Login extends Activity {
     	
     	new CountDownTimer(2000,400){
    			public void onFinish() {
-   				loadingDone.setText("Login Succeed!!");
+   				loadingDone.setText("Successful Logged!!");
    				
    				Intent goMap = new Intent();
 				goMap.setClass(Login.this, Map2Activity.class);
@@ -521,7 +521,7 @@ public class Login extends Activity {
 			warning.setCustomTitle(title);
 		}
 		warning.setMessage("Can't connect to Internet!\n" +
-				"The WiFi currently connected may need login,\n" +
+				"The WiFi you currently connected may need to login,\n" +
 				"And restart this App for using online mode.")
 		.setPositiveButton("Alright~", new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int which) {
@@ -543,7 +543,6 @@ public class Login extends Activity {
 			msgText.setTextSize(28);
 			msgText.setPadding(10, 15, 10, 15);
 			positive.setTextSize(28);
-			
 		} else {
 			msgText.setTextSize(18);
 			msgText.setPadding(10, 15, 10, 15);
@@ -610,7 +609,7 @@ public class Login extends Activity {
     
     private String sendPostDataToInternet(String[] strArr)
     {
-    	String uriAPI = "http://labm406.serveftp.com/mobileApp/connect.php";
+    	String uriAPI = "http://140.128.198.44/mobileApp/connect.php";
     	HttpPost httpRequest = new HttpPost(uriAPI);
     	
     	List<NameValuePair> params = new ArrayList<NameValuePair>();

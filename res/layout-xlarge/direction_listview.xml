@@ -79,7 +79,7 @@
             android:textSize="20sp" />
 
         <Button
-            android:id="@+id/CloseBtn"
+            android:id="@+id/UserDeleteBtn"
             android:layout_width="wrap_content"
             android:layout_height="30dp"
             android:layout_alignParentRight="true"
@@ -94,7 +94,7 @@
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_alignParentRight="true"
-            android:layout_below="@+id/CloseBtn"
+            android:layout_below="@+id/UserDeleteBtn"
             android:background="@drawable/image_button_style"
             android:scaleType="centerCrop"
             android:src="@drawable/position" />

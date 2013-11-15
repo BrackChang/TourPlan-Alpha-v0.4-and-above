@@ -28,5 +28,5 @@
     <string name="Clear">Clear</string>
     <string name="Retype">Retype</string>
     <string name="UserName">YourName:</string>
-    
+    <string name="cache_dirname">imageCache</string>
 </resources>

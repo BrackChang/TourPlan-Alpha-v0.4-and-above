@@ -95,27 +95,27 @@ public class OffLineMode extends MapActivity
 		else if (folders.length == 1)
 		{
 			ArrayList<HashMap<String, String>> Lists = new ArrayList<HashMap<String, String>>();
-			for (int i = 0; i < folders.length; i++)
-			{
-				HashMap<String, String> items = new HashMap<String, String>();
+			
+			HashMap<String, String> items = new HashMap<String, String>();
 
-				items.put("userName", folders[i].getName());
+			items.put("userName", folders[0].getName());
 
-				File dirInside = new File(dirs, folders[i].getName());
-				File[] numbers = dirInside.listFiles();
-				int number = (numbers.length)-1;
-				String amount = Integer.toString(number);
-				Log.i("planAmount", amount);
+			File dirInside = new File(dirs, folders[0].getName());
+			File[] numbers = dirInside.listFiles();
 
-				if (number <= 0)
-					items.put("amount", "This guy got no plan!");
-				else if (number == 1)
-					items.put("amount", "Got only " + amount + " plan");
-				else
-					items.put("amount", "Got " + amount + " plans");
+			int number = (numbers.length)-1;
+			String amount = Integer.toString(number);
+			Log.i("planAmount", amount);
 
-				Lists.add(items);
-			}
+			if (number <= 0)
+				items.put("amount", "This guy got no plan!");
+			else if (number == 1)
+				items.put("amount", "Got only " + amount + " plan");
+			else
+				items.put("amount", "Got " + amount + " plans");
+
+			Lists.add(items);
+			
 			userInfoList = Lists;
 			
 			if (userInfoList.get(0).get("amount").contains("no plan"))
@@ -137,6 +137,7 @@ public class OffLineMode extends MapActivity
 				
 				File dirInside = new File(dirs, folders[i].getName());
 				File[] numbers = dirInside.listFiles();
+				
 				int number = (numbers.length)-1;
 				String amount = Integer.toString(number);
 				Log.i("planAmount", amount);
@@ -182,7 +183,6 @@ public class OffLineMode extends MapActivity
         
         mapControl.animateTo(GP);
         mapControl.setZoom(8);
-        
 	}
 	
 	public void popUserList()
@@ -191,7 +191,7 @@ public class OffLineMode extends MapActivity
 		userName.setText("Select User");
 		
 		LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		view = inflater.inflate(R.layout.expanded_list, null);
+		view = inflater.inflate(R.layout.popup_list, null);
 		ListView user_list = (ListView) view.findViewById(R.id.exList1); 
 		RelativeLayout header = (RelativeLayout) findViewById(R.id.OffLineHeader);
 
@@ -428,7 +428,7 @@ public class OffLineMode extends MapActivity
 							planItems.put("planInfos","Total " + planDaysArr[j] +" Day," + " On " + planStartArr[j]);
 						} else {
 							planItems.put("planInfos","Total " + planDaysArr[j] +" Days,"+ "\n" + "From " + planStartArr[j]
-									+ " To " + planEndArr[j]);
+									+ " to " + planEndArr[j]);
 						}
 					}
 				}
@@ -626,11 +626,11 @@ public class OffLineMode extends MapActivity
 			List<Map<String, String>> spotInfos = new ArrayList<Map<String, String>>();
 			Map<String, String> spotInfo = new HashMap<String, String>();
 			
-			spotInfo.put("info", "Infos: \n" + spotInfoArr[i]);
+			spotInfo.put("info", "Info: \n" + spotInfoArr[i]);
 			spotInfos.add(spotInfo);
 			spotChild.add(spotInfos);
 		}
-		ExAdapter exAdapter = new ExAdapter(this, spotGroup, spotChild);
+		ExAdapter exAdapter = new ExAdapter(this, spotGroup, spotChild, screenSize);
    		exSpotList.setIndicatorBounds(0, 20);
    		exSpotList.setAdapter(exAdapter);
 	}

@@ -27,7 +27,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="2dp"
-            android:layout_marginRight="40dp"
             android:layout_toRightOf="@id/toText"
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:textColor="@color/DeepSkyBlue"
@@ -82,22 +81,12 @@
             android:textSize="20sp" />
 
         <ImageButton
-            android:id="@+id/CloseBtn"
-            android:layout_width="wrap_content"
-            android:layout_height="35dp"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentTop="true"
-            android:background="@drawable/button_style03"
-            android:scaleType="centerCrop"
-            android:src="@android:drawable/ic_menu_close_clear_cancel" />
-
-        <ImageButton
             android:id="@+id/FindMyPos"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_alignParentRight="true"
-            android:layout_below="@+id/CloseBtn"
-            android:layout_marginTop="8dp"
+            android:layout_below="@+id/Destination"
+            android:layout_marginTop="-6dp"
             android:background="@drawable/image_button_style"
             android:scaleType="centerCrop"
             android:src="@drawable/position" />

@@ -58,8 +58,17 @@ public class XmlParser extends Activity {
 					}
 					
 					if (tagName.equals("infocontent")) {
-						Log.i("Brack", "Info= " + parser.getAttributeValue(0));
-						planVO.setSpotInfo(parser.getAttributeValue(0));
+						
+						if (parser.getAttributeValue(0).length() == 0)
+						{
+							Log.i("Brack", "Info= " + "Empty!!!!!!!!!!!!!!!!!");
+							planVO.setSpotInfo("Ker Ker...");
+						}
+						else
+						{
+							Log.i("Brack", "Info= " + parser.getAttributeValue(0));
+							planVO.setSpotInfo(parser.getAttributeValue(0));
+						}
 					}
 					
 					if (tagName.equals("day")) {

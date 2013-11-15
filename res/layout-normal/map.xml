@@ -8,7 +8,7 @@
     android:orientation="vertical"
     android:scrollbarAlwaysDrawVerticalTrack="true"
     android:scrollbars="horizontal|vertical"
-    android:layoutAnimation="@anim/layout_anim_ctrl" >
+     >
 
     <RelativeLayout
         android:id="@+id/SayHi"
@@ -195,6 +195,30 @@
         android:animateLayoutChanges="true"
         android:background="#ffffff" >
 
+        <ImageButton
+            android:id="@+id/listControlBtn"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_alignParentLeft="true"
+            android:layout_below="@+id/titleRow"
+            android:background="@drawable/button_style_white"
+            android:onClick="listControl"
+            android:scaleType="centerCrop"
+            android:src="@drawable/list_expand"
+            android:visibility="gone" />
+
+        <ImageButton
+            android:id="@+id/downloadAllBtn"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_alignParentRight="true"
+            android:layout_below="@+id/titleRow"
+            android:background="@drawable/button_style_white"
+            android:onClick="downloadAll"
+            android:scaleType="center"
+            android:src="@drawable/download_icon"
+            android:visibility="gone" />
+
         <TableRow
             android:id="@+id/titleRow"
             android:layout_width="match_parent"
@@ -219,6 +243,8 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/titleRow"
+            android:layout_toLeftOf="@+id/downloadAllBtn"
+            android:layout_toRightOf="@+id/listControlBtn"
             android:fillViewport="true" >
 
             <LinearLayout

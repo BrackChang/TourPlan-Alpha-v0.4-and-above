@@ -8,7 +8,7 @@
     android:orientation="vertical"
     android:scrollbarAlwaysDrawVerticalTrack="true"
     android:scrollbars="horizontal|vertical"
-    android:layoutAnimation="@anim/layout_anim_ctrl" >
+     >
 
     <RelativeLayout
         android:id="@+id/SayHi"

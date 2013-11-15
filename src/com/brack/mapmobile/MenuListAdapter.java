@@ -5,6 +5,8 @@ import java.util.Map;
 
 import android.content.Context;
 import android.graphics.Typeface;
+import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -54,14 +56,21 @@ public class MenuListAdapter extends BaseAdapter {
 		String menuItem = (String) items.get(position).get("menuItems");
 		int menuIcon = (Integer) items.get(position).get("menuIcons");
 		
-		if (position == 6)
-			menuText.setTextColor(context.getResources().getColor(R.drawable.Brown));
-		if (position == 1)
+		if (position == 0)
 			menuText.setTextColor(context.getResources().getColor(R.drawable.DarkOrange));
+		if (position == 1)
+		{
+			menuText.setTextColor(context.getResources().getColor(R.drawable.Gray));
+			double size = menuText.getTextSize() * 0.9;
+			Log.i("TextSize", ""+size);
+			menuText.setTextSize(TypedValue.COMPLEX_UNIT_PX, (float) size);
+		}
 		if (position == 2)
 			menuText.setTextColor(context.getResources().getColor(R.drawable.SteelBlue));
 		if (position == 3)
 			menuText.setTextColor(context.getResources().getColor(R.drawable.SeeGreen));
+		if (position == 6)
+			menuText.setTextColor(context.getResources().getColor(R.drawable.Brown));
 		
 		menuText.setText(menuItem);
 		menuText.setTypeface(null, Typeface.ITALIC);

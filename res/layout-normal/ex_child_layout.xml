@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:animateLayoutChanges="true" xmlns:android1="http://schemas.android.com/apk/res/android">
+ 
+    <TextView
+        android:id="@+id/spotInfo"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentLeft="true"
+        android:layout_marginLeft="5dip"
+        android:textSize="16sp" />
+    
+    <View
+        android:id="@+id/exLine1"
+        android:layout_width="fill_parent"
+        android:layout_height="1dp"
+        android1:layout_below="@+id/spotInfo"
+        android:background="@drawable/AliceBlue" />
+
+    <ImageView
+        android:id="@+id/spotImage1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/exLine1"
+        android:src="@drawable/tour_icon" />
+
+    <ImageView
+        android:id="@+id/spotImage2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/exLine1"
+        android:layout_toRightOf="@+id/spotImage1"
+        android1:layout_marginLeft="5dp"
+        android:src="@drawable/tour_icon" />
+
+    <ImageButton
+        android:id="@+id/imageDownloadBtn"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_alignParentRight="true"
+        android1:layout_below="@+id/exLine1"
+        android1:layout_marginRight="3dp"
+        android1:layout_marginTop="3dp"
+        android:src="@android:drawable/stat_sys_download"
+        android1:background="@drawable/button_style01"
+        android1:scaleType="center" />
+
+    <ImageButton
+        android1:id="@+id/imageDeleteBtn"
+        android1:layout_width="40dp"
+        android1:layout_height="40dp"
+        android1:layout_alignParentBottom="true"
+        android1:layout_alignParentRight="true"
+        android1:layout_below="@+id/imageDownloadBtn"
+        android1:layout_marginBottom="3dp"
+        android1:layout_marginRight="3dp"
+        android1:background="@drawable/button_style03"
+        android1:scaleType="fitCenter"
+        android1:src="@drawable/menu_delete"
+        android1:visibility="gone" />
+ 
+</RelativeLayout>
