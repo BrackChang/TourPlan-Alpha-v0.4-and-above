@@ -213,6 +213,10 @@ public class Login extends Activity {
     {
     	try
     	{
+    		GetStringByUrl urlString = new GetStringByUrl("http://api.externalip.net/ip");
+    		String response = urlString.getString();
+    		ipMsg = response;
+    		/*
     		HttpClient httpClient = new DefaultHttpClient();
     		HttpGet httpGet = new HttpGet("http://api.externalip.net/ip");
     		HttpResponse response;
@@ -241,6 +245,7 @@ public class Login extends Activity {
     			ipMsg = response.getStatusLine().toString();
     			Log.i("Connect Status", response.getStatusLine().toString());
     		}
+    		*/
     	}
     	catch (Exception e)
     	{
@@ -274,7 +279,7 @@ public class Login extends Activity {
 					goWeb.setClickable(false);
 					
 					noConnection();
-					//longMessage("WiFi didn't login yet, online mode was disabled!");
+					longMessage(IP);
 				}
 				else if (IP.contains("Exception"))
 					longMessage(IP);
@@ -521,7 +526,7 @@ public class Login extends Activity {
 			warning.setCustomTitle(title);
 		}
 		warning.setMessage("Can't connect to Internet!\n" +
-				"The WiFi you currently connected may need to login,\n" +
+				"The WiFi you currently connected may need to log on,\n" +
 				"And restart this App for using online mode.")
 		.setPositiveButton("Alright~", new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int which) {

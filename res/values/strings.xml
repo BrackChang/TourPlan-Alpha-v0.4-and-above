@@ -29,4 +29,5 @@
     <string name="Retype">Retype</string>
     <string name="UserName">YourName:</string>
     <string name="cache_dirname">imageCache</string>
+    <string name="menuHeadline">TourPlan Features</string>
 </resources>

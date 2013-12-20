@@ -553,7 +553,7 @@ public class OffLineMode extends MapActivity
 					String[] latList = Lat2.split(",");
 					String[] lngList = Lng2.split(",");
 					String[] spotList = Spot2.split(",");
-					String[] spotInfoList = SpotInfo2.split(",");
+					String[] spotInfoList = SpotInfo2.split("%%");
 					String[] dayList = Day2.split(",");
 					String[] queList = Que2.split(",");
 					String[] flagFoodList = flagFood2.split(",");
@@ -630,7 +630,7 @@ public class OffLineMode extends MapActivity
 			spotInfos.add(spotInfo);
 			spotChild.add(spotInfos);
 		}
-		ExAdapter exAdapter = new ExAdapter(this, spotGroup, spotChild, screenSize);
+		ExAdapter exAdapter = new ExAdapter(this, spotGroup, spotChild);
    		exSpotList.setIndicatorBounds(0, 20);
    		exSpotList.setAdapter(exAdapter);
 	}

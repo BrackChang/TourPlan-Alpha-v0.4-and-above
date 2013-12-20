@@ -38,17 +38,17 @@ public class GetStringByUrl {
     	
     	catch (ClientProtocolException e)
     	{
-    		Toast.makeText(context,e.getMessage().toString(),Toast.LENGTH_SHORT).show();
+    		Toast.makeText(context,e.getMessage().toString(),Toast.LENGTH_LONG).show();
     		e.printStackTrace();
     	}
     	catch (IOException e)
     	{
-    		Toast.makeText(context,e.getMessage().toString(),Toast.LENGTH_SHORT).show();
+    		Toast.makeText(context,e.getMessage().toString(),Toast.LENGTH_LONG).show();
     		e.printStackTrace();
     	}
     	catch (Exception e)
     	{
-    		Toast.makeText(context,e.getMessage().toString(),Toast.LENGTH_SHORT).show();
+    		Toast.makeText(context,e.getMessage().toString(),Toast.LENGTH_LONG).show();
     		e.printStackTrace();
     	}
 		return null;

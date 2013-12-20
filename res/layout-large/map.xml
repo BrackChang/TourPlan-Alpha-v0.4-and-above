@@ -140,9 +140,9 @@
             android:layout_centerVertical="true"
             android:layout_marginRight="4dp"
             android:layout_marginTop="2dp"
-            android:background="@drawable/image_button_style"
+            android:background="@drawable/menu_press_style01"
             android:onClick="popUpClick"
-            android:scaleType="centerInside"
+            android:scaleType="fitCenter"
             android:src="@drawable/options" />
 
     </RelativeLayout>
@@ -188,11 +188,36 @@
         android:animateLayoutChanges="true"
         android:background="#ffffff" >
 
+        <ImageButton
+            android:id="@+id/listControlBtn"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
+            android:layout_alignParentLeft="true"
+            android:layout_below="@+id/titleRow"
+            android:background="@drawable/button_style_white"
+            android:onClick="listControl"
+            android:scaleType="centerCrop"
+            android:src="@drawable/list_expand"
+            android:visibility="gone" />
+
+        <ImageButton
+            android:id="@+id/downloadAllBtn"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
+            android:layout_alignParentRight="true"
+            android:layout_below="@+id/titleRow"
+            android:background="@drawable/button_style_white"
+            android:onClick="downloadAll"
+            android:scaleType="center"
+            android:src="@drawable/download_icon"
+            android:visibility="gone" />
+        
         <TableRow
             android:id="@+id/titleRow"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:animateLayoutChanges="true"
             android:background="@drawable/SteelBlue"
             android:gravity="center"
             android:paddingBottom="2dp"
@@ -212,6 +237,8 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/titleRow"
+            android:layout_toLeftOf="@+id/downloadAllBtn"
+            android:layout_toRightOf="@+id/listControlBtn"
             android:fillViewport="true" >
 
             <LinearLayout

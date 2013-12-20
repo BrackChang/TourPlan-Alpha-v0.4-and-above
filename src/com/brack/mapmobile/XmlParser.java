@@ -43,17 +43,17 @@ public class XmlParser extends Activity {
 					String tagName = parser.getName();
 					
 					if (tagName.equals("name")) {
-							Log.i("Brack", "plan= " + parser.getAttributeValue(0));
+							Log.i("PlanName", parser.getAttributeValue(0));
 							//Log.i("Brack", "planText= " + parser.getText());
 							planVO.setPlan(parser.getAttributeValue(0));
 					}
 					if (tagName.equals("planid")) {
-						Log.i("Brack", "pid= " + parser.getAttributeValue(0));
+						Log.i("PlanID", parser.getAttributeValue(0));
 						planVO.setPid(parser.getAttributeValue(0));
 					}
 					
 					if (tagName.equals("itemname")) {
-						Log.i("Brack", "Spot= " + parser.getAttributeValue(0));
+						Log.i("SpotName", parser.getAttributeValue(0));
 						planVO.setSpot(parser.getAttributeValue(0));
 					}
 					
@@ -61,72 +61,72 @@ public class XmlParser extends Activity {
 						
 						if (parser.getAttributeValue(0).length() == 0)
 						{
-							Log.i("Brack", "Info= " + "Empty!!!!!!!!!!!!!!!!!");
+							Log.i("SpotInfo", "Empty!!!!!!!!!!!!!!!!!");
 							planVO.setSpotInfo("Ker Ker...");
 						}
 						else
 						{
-							Log.i("Brack", "Info= " + parser.getAttributeValue(0));
+							Log.i("SpotInfo", parser.getAttributeValue(0));
 							planVO.setSpotInfo(parser.getAttributeValue(0));
 						}
 					}
 					
 					if (tagName.equals("day")) {
-						Log.i("Brack", "Day " + parser.getAttributeValue(0));
+						Log.i("SpotDay", parser.getAttributeValue(0));
 						planVO.setDay(parser.getAttributeValue(0));
 					}
 					
 					if (tagName.equals("lat")) {
-						Log.i("Brack", "Latitude= " + parser.getAttributeValue(0));
+						Log.i("SpotLat", parser.getAttributeValue(0));
 						planVO.setLat(parser.getAttributeValue(0));
 					}
 					if (tagName.equals("lng")) {
-						Log.i("Brack", "Longitude= " + parser.getAttributeValue(0));
+						Log.i("SpotLng", parser.getAttributeValue(0));
 						planVO.setLng(parser.getAttributeValue(0));
 					}
 					
 					if (tagName.equals("queue")) {
-						Log.i("Brack", "Queue= " + parser.getAttributeValue(0));
+						Log.i("SpotQueue", parser.getAttributeValue(0));
 						planVO.setQue(parser.getAttributeValue(0));
 					}
 					
 					if (tagName.equals("days")) {
-						Log.i("Brack", "planDays= " + parser.getAttributeValue(0));
+						Log.i("PlanDays", parser.getAttributeValue(0));
 						planVO.setPlanDays(parser.getAttributeValue(0));
 					}
 					
 					if (tagName.equals("start")) {
-						Log.i("Brack", "planStart= " + parser.getAttributeValue(0));
+						Log.i("PlanStart", parser.getAttributeValue(0));
 						planVO.setPlanStart(parser.getAttributeValue(0));
 					}
 					
 					if (tagName.equals("end")) {
-						Log.i("Brack", "planEnd= " + parser.getAttributeValue(0));
+						Log.i("PlanEnd", parser.getAttributeValue(0));
 						planVO.setPlanEnd(parser.getAttributeValue(0));
 					}
 					
 					if (tagName.equals("flag_food")) {
-						Log.i("Brack", "flagFood= " + parser.getAttributeValue(0));
+						Log.i("FlagFood", parser.getAttributeValue(0));
 						planVO.setFlagFood(parser.getAttributeValue(0));
 					}
 					
 					if (tagName.equals("flag_hotel")) {
-						Log.i("Brack", "flagHotel= " + parser.getAttributeValue(0));
+						Log.i("FlagHotel", parser.getAttributeValue(0));
 						planVO.setFlagHotel(parser.getAttributeValue(0));
 					}
 					
 					if (tagName.equals("flag_shopping")) {
-						Log.i("Brack", "flagShop= " + parser.getAttributeValue(0));
+						Log.i("FlagShopping", parser.getAttributeValue(0));
 						planVO.setFlagShop(parser.getAttributeValue(0));
 					}
 					
 					if (tagName.equals("flag_scene")) {
-						Log.i("Brack", "flagScene= " + parser.getAttributeValue(0));
+						Log.i("FlagScene", parser.getAttributeValue(0));
 						planVO.setFlagScene(parser.getAttributeValue(0));
 					}
 					
 					if (tagName.equals("flag_transport")) {
-						Log.i("Brack", "flagTrans= " + parser.getAttributeValue(0));
+						Log.i("FlagTrans", parser.getAttributeValue(0));
 						planVO.setFlagTrans(parser.getAttributeValue(0));
 					}
 					break;

@@ -40,8 +40,8 @@ public class PlanVO {
 		return spotInfo;
 	}
 	public void setSpotInfo(String spotInfo) {
-		StringBuffer sb = new StringBuffer(this.spotInfo + "," + spotInfo);
-		sb.delete(0, sb.indexOf(","));
+		StringBuffer sb = new StringBuffer(this.spotInfo + "%%" + spotInfo);
+		sb.delete(0, sb.indexOf("%%"));
 		this.spotInfo = sb.toString();
 	}
 	

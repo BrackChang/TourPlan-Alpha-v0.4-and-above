@@ -32,6 +32,23 @@
             android:background="@drawable/Transparent2"
             android:dividerHeight="2dp" >
         </ListView>
+        
+    </LinearLayout>
+    
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" >
+
+        <ListView
+            android:id="@+id/publicList"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:divider="@drawable/SteelBlue"
+            android:background="@drawable/Transparent1"
+            android:dividerHeight="2dp" >
+        </ListView>
+        
     </LinearLayout>
 
 </LinearLayout>

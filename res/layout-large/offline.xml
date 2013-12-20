@@ -67,7 +67,7 @@
             android:layout_centerVertical="true"
             android:layout_marginRight="4dp"
             android:layout_marginTop="2dp"
-            android:background="@drawable/image_button_style"
+            android:background="@drawable/menu_press_style01"
             android:onClick="popUpClick"
             android:scaleType="fitCenter"
             android:src="@drawable/options" />
@@ -151,7 +151,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:animateLayoutChanges="true"
-        android:background="@drawable/Beige"
         android:orientation="vertical"
         android:visibility="gone" >
 

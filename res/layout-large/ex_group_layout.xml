@@ -7,9 +7,11 @@
         android:id="@+id/groupName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="20dip"
-        android:layout_marginTop="5dip"
+        android:layout_alignParentLeft="true"
         android:layout_marginBottom="12dip"
+        android:layout_marginLeft="20dip"
+        android:layout_marginRight="135dp"
+        android:layout_marginTop="5dip"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:textColor="@drawable/SeeGreen"
         android:textSize="28sp" />

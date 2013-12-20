@@ -55,7 +55,9 @@ public class ExAdapter extends BaseExpandableListAdapter {
 private Context context;
 List<Map<String, Object>> spotGroup;
 List<List<Map<String, String>>> spotChild;
-double screenSize;
+private int screenWidth;
+private int screenHeight;
+private double screenSize;
 @SuppressWarnings("deprecation")
 int SDKVersion = Integer.parseInt(VERSION.SDK);
 
@@ -72,12 +74,24 @@ private boolean notFinishYet;
 
 private LruCache<String, Bitmap> memCache;
 
-	public ExAdapter (Context context, List<Map<String, Object>> groups, List<List<Map<String, String>>> childs, double screenSize)
+	public ExAdapter (Context context, List<Map<String, Object>> groups, List<List<Map<String, String>>> childs)
 	{
 		this.spotGroup = groups;
 		this.spotChild = childs;
 		this.context = context;
-		this.screenSize = screenSize;
+		
+		DisplayMetrics DM = new DisplayMetrics();
+		((Activity) context).getWindowManager().getDefaultDisplay().getMetrics(DM);
+		double diagonalPixels = Math.sqrt((Math.pow(DM.widthPixels, 2) + Math.pow(DM.heightPixels, 2)));
+        double screen = diagonalPixels / (160 * DM.density);
+        
+        screenSize = screen;
+        screenWidth = DM.widthPixels;
+        screenHeight = DM.heightPixels;
+        
+        Log.i("exScreenSize", ""+screenSize);
+        Log.i("exScreenWidth", ""+screenWidth);
+        Log.i("exScreenHeight", ""+screenHeight);
 		
 		if (screenSize < 4)
 		{
@@ -86,12 +100,26 @@ private LruCache<String, Bitmap> memCache;
 		}
 		else if (screenSize >=4 && screenSize < 6.5)
 		{
-			this.imageWidth = 300;
-			this.imageHeight = 250;
+			if (screenWidth <= 800)
+			{
+				this.imageWidth = 300;
+				this.imageHeight = 250;
+			} else
+			{
+				this.imageWidth = 450;
+				this.imageHeight = 400;
+			}
 		}
 		else {
-			this.imageWidth = 450;
-			this.imageHeight = 400;
+			if (screenWidth <= 800)
+			{
+				this.imageWidth = 350;
+				this.imageHeight = 300;				
+			} else
+			{
+				this.imageWidth = 450;
+				this.imageHeight = 400;
+			}
 		}
 		
 		ActivityManager am = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
