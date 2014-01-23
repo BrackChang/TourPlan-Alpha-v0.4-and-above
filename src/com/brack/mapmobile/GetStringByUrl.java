@@ -25,32 +25,37 @@ public class GetStringByUrl {
 	public String getString ()
 	{
     	HttpGet httpRequest = new HttpGet(Url);
-
+    	String strResult = "";
+    	
     	try
     	{
     		HttpResponse httpResponse = new DefaultHttpClient().execute(httpRequest);
     		if (httpResponse.getStatusLine().getStatusCode() == 200)
     		{
-    			String strResult = EntityUtils.toString(httpResponse.getEntity());
+    			strResult = EntityUtils.toString(httpResponse.getEntity());
     			return strResult;
     		}
+    		else
+    			return "Connection Failed!";
     	}
     	
     	catch (ClientProtocolException e)
     	{
     		Toast.makeText(context,e.getMessage().toString(),Toast.LENGTH_LONG).show();
     		e.printStackTrace();
+    		return e.toString();
     	}
     	catch (IOException e)
     	{
     		Toast.makeText(context,e.getMessage().toString(),Toast.LENGTH_LONG).show();
     		e.printStackTrace();
+    		return e.toString();
     	}
     	catch (Exception e)
     	{
     		Toast.makeText(context,e.getMessage().toString(),Toast.LENGTH_LONG).show();
     		e.printStackTrace();
+    		return e.toString();
     	}
-		return null;
 	}
 }

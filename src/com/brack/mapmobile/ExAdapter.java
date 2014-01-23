@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -22,19 +23,27 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.ActivityManager.MemoryInfo;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.graphics.drawable.BitmapDrawable;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build.VERSION;
 import android.os.CountDownTimer;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v4.util.LruCache;
 import android.text.format.Formatter;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.ContextThemeWrapper;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
@@ -42,7 +51,6 @@ import android.view.View.OnClickListener;
 import android.view.inputmethod.InputMethodManager;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
-import android.widget.ExpandableListView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -53,8 +61,20 @@ import android.widget.TextView;
 public class ExAdapter extends BaseExpandableListAdapter {
 
 private Context context;
-List<Map<String, Object>> spotGroup;
-List<List<Map<String, String>>> spotChild;
+private List<Map<String, Object>> spotGroup;
+private List<List<Map<String, String>>> spotChild;
+
+boolean online;
+private ArrayList<String> thumbList;
+protected static final int REFRESH_DATA = 0x00000001;
+//private ArrayList<Object> imageList;
+//public ImageLoader_bean imageLoader_bean;
+public ImageLoader imageLoader;
+
+private List<Map<String, Object>> originalList;
+private ArrayList<String> originalThumbList;
+private boolean filterable;
+
 private int screenWidth;
 private int screenHeight;
 private double screenSize;
@@ -66,19 +86,38 @@ private CountDownTimer cd;
 private int rounds;
 private String spotName;
 private int imageNum;
+private int downloadCount;
+private int downloadPos;
 
 private int imageWidth;
 private int imageHeight;
 private boolean needBackup;
 private boolean notFinishYet;
 
+private TextView loadNum;
+
 private LruCache<String, Bitmap> memCache;
 
-	public ExAdapter (Context context, List<Map<String, Object>> groups, List<List<Map<String, String>>> childs)
+	public ExAdapter (Context context, List<Map<String, Object>> groups, List<List<Map<String, String>>> childs,
+						boolean online)
 	{
 		this.spotGroup = groups;
 		this.spotChild = childs;
+		this.online = online;
 		this.context = context;
+		
+		this.originalList = new ArrayList<Map<String, Object>>();
+		this.originalThumbList = new ArrayList<String>();
+		this.originalList.addAll(spotGroup);
+		
+		//imageLoader_bean = new ImageLoader_bean(context.getApplicationContext());
+		imageLoader = new ImageLoader(context.getApplicationContext());
+		//imageList = new ArrayList<Object>();
+		thumbList = new ArrayList<String>();
+		if (online) {
+			loadNum = (TextView) ((Map2Activity)context).findViewById(R.id.downloadCount);
+			getAllThumbUrl();
+		}
 		
 		DisplayMetrics DM = new DisplayMetrics();
 		((Activity) context).getWindowManager().getDefaultDisplay().getMetrics(DM);
@@ -174,6 +213,8 @@ private LruCache<String, Bitmap> memCache;
 		final ImageView spotImage1 = (ImageView) layout.findViewById(R.id.spotImage1);
 		final ImageView spotImage2 = (ImageView) layout.findViewById(R.id.spotImage2);
 		ImageButton imageDownloadBtn = (ImageButton) layout.findViewById(R.id.imageDownloadBtn);
+		if (!online)
+			imageDownloadBtn.setVisibility(View.GONE);
 		final ImageButton imageDeleteBtn = (ImageButton) layout.findViewById(R.id.imageDeleteBtn);
 		
 		final String titleText = (String) spotGroup.get(groupPosition).get("title");
@@ -184,8 +225,8 @@ private LruCache<String, Bitmap> memCache;
 		{
 			if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED))
 			{
-				File imageFile1 = new File(SDpath + "/tourPlanSaved/imageTempSaved/" + titleText + "1.jpg");
-				File imageFile2 = new File(SDpath + "/tourPlanSaved/imageTempSaved/" + titleText + "2.jpg");
+				File imageFile1 = new File(SDpath + "/tourPlanSaved/imageSaved/" + titleText + "1.jpg");
+				File imageFile2 = new File(SDpath + "/tourPlanSaved/imageSaved/" + titleText + "2.jpg");
 				
 				if (imageFile1.exists())
 				{
@@ -194,9 +235,15 @@ private LruCache<String, Bitmap> memCache;
 					params1.height = imageHeight;
 					spotImage1.setLayoutParams(params1);
 					
-					FileInputStream FIS1 = new FileInputStream(SDpath + "/tourPlanSaved/imageTempSaved/" + titleText + "1.jpg");
-					Bitmap bitmap1 = BitmapFactory.decodeStream(FIS1);
-					spotImage1.setImageBitmap(bitmap1);
+					FileInputStream FIS1 = new FileInputStream(imageFile1);
+					//Bitmap bitmap1 = BitmapFactory.decodeStream(FIS1);
+					
+					BitmapFactory.Options option = new BitmapFactory.Options();
+					option.inSampleSize = 4;
+					Bitmap reSizeBitmap = BitmapFactory.decodeStream(FIS1, null, option);
+					Log.i("reSizeBitmap1", reSizeBitmap.getWidth() + " x " + reSizeBitmap.getHeight());
+					
+					spotImage1.setImageBitmap(reSizeBitmap);
 					
 					imageDeleteBtn.setVisibility(View.VISIBLE);
 				}
@@ -207,9 +254,15 @@ private LruCache<String, Bitmap> memCache;
 					params2.height = imageHeight;
 					spotImage2.setLayoutParams(params2);
 					
-					FileInputStream FIS2 = new FileInputStream(SDpath + "/tourPlanSaved/imageTempSaved/" + titleText + "2.jpg");
-					Bitmap bitmap2 = BitmapFactory.decodeStream(FIS2);
-					spotImage2.setImageBitmap(bitmap2);
+					FileInputStream FIS2 = new FileInputStream(imageFile2);
+					//Bitmap bitmap2 = BitmapFactory.decodeStream(FIS2);
+					
+					BitmapFactory.Options option = new BitmapFactory.Options();
+					option.inSampleSize = 4;
+					Bitmap reSizeBitmap = BitmapFactory.decodeStream(FIS2, null, option);
+					Log.i("reSizeBitmap2", reSizeBitmap.getWidth() + " x " + reSizeBitmap.getHeight());
+					
+					spotImage2.setImageBitmap(reSizeBitmap);
 					
 					imageDeleteBtn.setVisibility(View.VISIBLE);
 				}
@@ -220,6 +273,52 @@ private LruCache<String, Bitmap> memCache;
 			Log.e("FileNotFound", e.toString());
 		}
 		
+		spotImage1.setOnClickListener(new OnClickListener() {
+			public void onClick(View v) {
+				try
+				{
+					if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED))
+					{
+						File imageFile1 = new File(SDpath + "/tourPlanSaved/imageSaved/" + titleText + "1.jpg");
+						Log.i("FilePath", "file://" + imageFile1);
+						if (imageFile1.exists())
+						{
+							Intent intent = new Intent();
+							intent.setAction(Intent.ACTION_VIEW);
+							intent.setDataAndType(Uri.parse("file://"+imageFile1), "image/*");
+							context.startActivity(intent);
+						}
+					}
+				}
+				catch (Exception e) {
+					e.printStackTrace();
+					Log.e("CannotOpenImage", e.toString());
+				}
+			}
+		});
+		spotImage2.setOnClickListener(new OnClickListener() {
+			public void onClick(View v) {
+				try
+				{
+					if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED))
+					{
+						File imageFile2 = new File(SDpath + "/tourPlanSaved/imageSaved/" + titleText + "2.jpg");
+						Log.i("FilePath", "file://" + imageFile2);
+						if (imageFile2.exists())
+						{
+							Intent intent = new Intent();
+							intent.setAction(Intent.ACTION_VIEW);
+							intent.setDataAndType(Uri.parse("file://"+imageFile2), "image/*");
+							context.startActivity(intent);
+						}
+					}
+				}
+				catch (Exception e) {
+					e.printStackTrace();
+					Log.e("CannotOpenImage", e.toString());
+				}
+			}
+		});
 		imageDownloadBtn.setOnClickListener(new OnClickListener() {
 			public void onClick(View v)
 			{	
@@ -251,16 +350,16 @@ private LruCache<String, Bitmap> memCache;
 								params2.width = imageWidth;
 								params2.height = imageHeight;
 								spotImage2.setLayoutParams(params2);
-
+								
 								Bitmap imageFromCache1 = getBitmapFromMemCache("image1");
 								Bitmap imageFromCache2 = getBitmapFromMemCache("image2");
-
 								spotImage1.setImageBitmap(imageFromCache1);
 								spotImage2.setImageBitmap(imageFromCache2);
+								
 								spotImage1.setVisibility(View.VISIBLE);
 								spotImage2.setVisibility(View.VISIBLE);
 								imageDeleteBtn.setVisibility(View.VISIBLE);
-								notFinishYet = false;
+								
 								Log.i("ImageDownload", "DONE!!");
 								
 								final int usedMemory = (int) (Runtime.getRuntime().totalMemory() -
@@ -283,8 +382,8 @@ private LruCache<String, Bitmap> memCache;
 		imageDeleteBtn.setOnClickListener(new OnClickListener() {
 			public void onClick(View v)
 			{
-				File imageFile1 = new File(SDpath + "/tourPlanSaved/imageTempSaved/" + titleText + "1.jpg");
-				File imageFile2 = new File(SDpath + "/tourPlanSaved/imageTempSaved/" + titleText + "2.jpg");
+				File imageFile1 = new File(SDpath + "/tourPlanSaved/imageSaved/" + titleText + "1.jpg");
+				File imageFile2 = new File(SDpath + "/tourPlanSaved/imageSaved/" + titleText + "2.jpg");
 				imageFile1.delete();
 				imageFile2.delete();
 				
@@ -330,6 +429,7 @@ private LruCache<String, Bitmap> memCache;
 		return groupPosition;
 	}
 
+	@SuppressLint("HandlerLeak")
 	@Override
 	public View getGroupView(int groupPosition, boolean isExpanded, View convertView, ViewGroup parent)
 	{
@@ -515,7 +615,79 @@ private LruCache<String, Bitmap> memCache;
 				imm.hideSoftInputFromWindow(arg0.getApplicationWindowToken(), 0);
 			}
 		});
-
+		
+		final ImageView tbImage = (ImageView) layout.findViewById(R.id.thumbNail);
+		
+		final Handler loadThumb = new Handler()
+		{
+			@Override
+			public void handleMessage(Message url)
+			{
+				switch (url.what)
+				{
+				case REFRESH_DATA:
+					String urlString = null;
+					if (url.obj instanceof String)
+						urlString = (String) url.obj;
+					imageLoader.DisplayImage(urlString, tbImage);
+					break;
+				}
+			};
+		};
+		tbImage.setOnClickListener(new OnClickListener() {
+			public void onClick(View v) {
+				
+				new Thread()
+				{
+					public void run()
+					{
+						String thumbUrl = getThumbUrl(titleText);
+						loadThumb.obtainMessage(REFRESH_DATA, thumbUrl).sendToTarget();
+					}
+				}.start();
+			}
+		});
+		
+		/*
+		if (imageList.size() == spotGroup.size() && online)
+		{
+			GoogleImageBean imageBean = (GoogleImageBean) imageList.get(groupPosition);
+			tbImage.setTag(imageBean.getThumbUrl());
+			imageLoader_bean.DisplayImage(imageBean.getThumbUrl(), context, tbImage);
+		}
+		*/
+		if (thumbList.size() == spotGroup.size() && online)
+		{
+			String[] urlList = thumbList.toArray(new String[thumbList.size()]);
+			imageLoader.DisplayImage(urlList[groupPosition], tbImage);
+		}
+		
+		if (!online)
+		{
+			showMap.setVisibility(View.GONE);
+			directRoute.setVisibility(View.GONE);
+			final File SDpath = new File(Environment.getExternalStorageDirectory().getPath());
+			try
+			{
+				if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED))
+				{
+					File thumbFile = new File(SDpath + "/tourPlanSaved/thumbNailSaved/" + titleText + "0.jpg");
+					
+					if (thumbFile.exists())
+					{
+						
+						FileInputStream FIS1 = new FileInputStream(thumbFile);
+						Bitmap bitmap = BitmapFactory.decodeStream(FIS1);
+						tbImage.setImageBitmap(bitmap);
+					}
+				}
+			}
+			catch (FileNotFoundException e) {
+				e.printStackTrace();
+				Log.e("ThumbNotFound", e.toString());
+			}
+		}
+		
 		return layout;
 	}
 
@@ -531,6 +703,195 @@ private LruCache<String, Bitmap> memCache;
 		return false;
 	}
 	
+	public void getAllThumbUrl()
+	{
+		((Map2Activity) context).loadingBarRun();
+		final String url = spotGroup.get(thumbList.size()).get("title").toString();
+		//Log.d("thumbSize&Name", thumbList.size() + " " + url);
+		loadNum.setVisibility(View.VISIBLE);
+		loadNum.setText(thumbList.size()+"/"+spotGroup.size());
+		new Thread()
+		{
+			public void run()
+			{
+				String tbUrl = getThumbUrl(url);
+				setThumbUrl.obtainMessage(REFRESH_DATA, tbUrl).sendToTarget();
+			}
+		}.start();
+	}
+	
+	@SuppressLint("HandlerLeak")
+	Handler setThumbUrl = new Handler()
+	{
+		@Override
+		public void handleMessage(Message url)
+		{
+			switch (url.what)
+			{
+			case REFRESH_DATA:
+   				String urlString = null;
+   				if (url.obj instanceof String)
+   					urlString = (String) url.obj;
+   				
+   				thumbList.add(urlString);
+   				
+   				int tbNum = thumbList.size();
+   				int spotSize = spotGroup.size();
+   				
+   				Log.i("ThumbUrlAdded", tbNum + "/" + spotSize);
+   				loadNum.setText(tbNum + "/" + spotSize);
+   				
+   				if (tbNum == spotSize)
+   				{
+   					int failNum = 0;
+   					for (int i = 0; i < tbNum; i++)
+   					{
+   						if (thumbList.get(i).equals("fail"))
+   							failNum ++;
+   					}
+   					if (failNum > 0) {
+   						((Map2Activity) context).longMessage("Got " + (spotSize-failNum) + ", " + failNum + " Failed!");
+   						Log.i("thumbGot", "Got " + (spotSize-failNum) + ", " + failNum + " Failed!");
+   					}
+   					else {
+   						//((Map2Activity) context).shortMessage("Got All!");
+   					}
+   					//putImageList();
+   					
+   					originalThumbList.addAll(thumbList);
+   					filterable = true;
+   					
+   					notifyDataSetChanged();
+   					loadNum.setVisibility(View.GONE);
+   					((Map2Activity) context).loadingBarStop();
+   					
+   					ImageButton downloadAllBtn = (ImageButton)((Map2Activity)context).findViewById(R.id.downloadAllBtn);
+   					downloadAllBtn.setVisibility(View.VISIBLE);
+   					downloadAllBtn.setOnClickListener(new OnClickListener() {
+   						public void onClick(View v) {
+   							optionDialog();
+   						}
+   					});
+   				}
+   				else
+   					getAllThumbUrl();
+			}
+		}
+	};
+	
+	private String getThumbUrl(String spot)
+	{
+		String spotNameBuf = spot;
+		spotNameBuf = spotNameBuf.replace(" ", "").trim();
+		spotNameBuf = spotNameBuf.replace("'", "");
+		spotNameBuf = spotNameBuf.replace("出發", "");
+		spotNameBuf = spotNameBuf.replace("回程", "");
+		spotNameBuf = spotNameBuf.replace("返回", "");
+		Log.i("spotNameInput", spotNameBuf);
+		
+		String Url = "https://ajax.googleapis.com/ajax/services/search/images?v=1.0&q="+spotNameBuf+"&rsz=1";
+		HttpGet httpGet = new HttpGet(Url);
+		try
+		{
+			HttpResponse HR = new DefaultHttpClient().execute(httpGet);
+
+			if (HR.getStatusLine().getStatusCode() == 200)
+			{
+				String strResult = EntityUtils.toString(HR.getEntity());
+
+				JSONObject jo = new JSONObject(strResult);
+				JSONArray ja = jo.getJSONObject("responseData").getJSONArray("results");
+
+				String tbUrl = ja.getJSONObject(0).getString("tbUrl").replace("\u003d", "=");
+				//Log.i("tbUrlGot", tbUrl);
+				return tbUrl;
+			}
+			else {
+				Log.e("API Url Error", Url);
+			}
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+			Log.e("ThumbUrlFailed", e.getMessage().toString());
+		}
+		return "fail";
+	}
+	/*
+	private void putImageList()
+	{
+		GoogleImageBean bean;
+		try 
+		{
+			for (int i = 0; i < spotGroup.size(); i++)
+			{
+				bean = new GoogleImageBean();
+
+				bean.setThumbUrl(thumbList.get(i));
+				imageList.add(bean);
+			}
+			Log.i("imageListSize", ""+imageList.size());
+		}
+		catch (Exception e) 
+		{
+			e.printStackTrace();
+			Log.e("thumbError", e.toString());
+		}
+	}
+	*/
+	private void getTbBitmap(String url)
+	{		
+		url = url.replace("\u003d", "=");
+		url = url.replace("%3F", "?");
+		url = url.replace("%3D", "=");
+		String[] urlCheck = url.split("25");
+		if (urlCheck.length > 8)
+			url = url.replace("25", "");
+		Log.i("FinalUrl", url);
+		
+		DefaultHttpClient client = new DefaultHttpClient();
+		HttpGet getRequest = new HttpGet(url);
+		
+		try
+		{
+			HttpResponse HR = client.execute(getRequest);
+			// Check 200 OK for success
+			int statusCode = HR.getStatusLine().getStatusCode();
+			
+			if (statusCode != HttpStatus.SC_OK)
+			{
+				Log.w("ThumbImage", "Error " + statusCode + ", While retrieving bitmap from " + url);
+			}
+			HttpEntity entity = HR.getEntity();
+			
+			if (entity != null)
+			{
+				InputStream is = null;
+				try
+				{
+					// Getting contents from the stream 
+					is = entity.getContent();
+					 // Decoding stream data back into image Bitmap that android understands
+					Bitmap bitmap = BitmapFactory.decodeStream(is);
+					//bitmap.recycle();
+					
+					saveToSD(bitmap, "0");
+					downloadCount++;
+				}
+				finally
+				{
+					if (is != null)
+						is.close();
+					entity.consumeContent();
+					Log.w("Finally", "thumbNailFinally~");
+				}
+			}
+		}
+		catch (Exception e) {
+			getRequest.abort();
+			Log.e("ThumbImage", "Something went wrong while retrieving bitmap from " + url +", "+ e.toString());
+		}
+	}
 	
 	private class getImageSource extends AsyncTask <Void, Void, Void>
 	{
@@ -552,6 +913,7 @@ private LruCache<String, Bitmap> memCache;
 			spotNameBuf = spotNameBuf.replace("'", "");
 			spotNameBuf = spotNameBuf.replace("出發", "");
 			spotNameBuf = spotNameBuf.replace("回程", "");
+			spotNameBuf = spotNameBuf.replace("返回", "");
 			Log.i("SpotText", spotNameBuf);
 
 			String Url = "https://ajax.googleapis.com/ajax/services/search/images?v=1.0&q="+spotNameBuf+"&rsz=4";
@@ -630,21 +992,22 @@ private LruCache<String, Bitmap> memCache;
 		@Override
 		protected void onPostExecute(Void result)
 		{
-			Log.i("imageUrl", imageUrl);
-			Log.i("imageUrl2", imageUrl2);
-			Log.i("imageTitle1", imageTitle1);
-			Log.i("imageTitle2", imageTitle2);
-			Log.i("imageWidth1", imageWidth1);
-			Log.i("imageHeight1", imageHeight1);
-			Log.i("imageWidth2", imageWidth2);
-			Log.i("imageHeight2", imageHeight2);
-			
 			if (fail) {
 				cd.cancel();
 				notFinishYet = false;
 				((Map2Activity) context).shortMessage("Image Url Failed!!");
-			} else
+			}
+			else {
+				Log.i("imageUrl", imageUrl);
+				Log.i("imageUrl2", imageUrl2);
+				Log.i("imageTitle1", imageTitle1);
+				Log.i("imageTitle2", imageTitle2);
+				Log.i("imageSize1", imageWidth1 + " x " + imageHeight1);
+				Log.i("imageSize2", imageWidth2 + " x " + imageHeight2);
 				done = true;
+				notFinishYet = false;
+				notifyDataSetChanged();
+			}
 			((Map2Activity) context).loadingBarStop();
 		}
 	}
@@ -659,6 +1022,7 @@ private LruCache<String, Bitmap> memCache;
 		if (height > 360)
 			height = 360;
 		
+		url = url.replace("\u003d", "=");
 		url = url.replace("%3F", "?");
 		url = url.replace("%3D", "=");
 		String[] urlCheck = url.split("25");
@@ -705,7 +1069,7 @@ private LruCache<String, Bitmap> memCache;
 					
 					imageNum ++;
 					String num = Integer.toString(imageNum);
-					saveToSD(resizeBitmap, num);
+					saveToSD(bitmap, num);
 					
 					return resizeBitmap;
 				}
@@ -735,7 +1099,9 @@ private LruCache<String, Bitmap> memCache;
 			else
 				return;
 			
-			File path = new File(SDCard.getParent() + "/" + SDCard.getName() + "/tourPlanSaved/imageTempSaved/");
+			File path = new File(SDCard.getParent() + "/" + SDCard.getName() + "/tourPlanSaved/imageSaved/");
+			if (num.equals("0"))
+				path = new File(SDCard.getParent() + "/" + SDCard.getName() + "/tourPlanSaved/thumbNailSaved/");
 			if (!path.exists())
 				path.mkdirs();
 			
@@ -756,18 +1122,130 @@ private LruCache<String, Bitmap> memCache;
 		}
 	}
 	
-	public void downloadAll (View downAll)
+	public void optionDialog()
 	{
-		ImageButton daBtn = (ImageButton) ((Map2Activity) context).findViewById(R.id.downloadAllBtn);
-		ExpandableListView exSpot = (ExpandableListView) ((Map2Activity) context).findViewById(R.id.exPlanList);
+		final String[] options = {"Plan and Thumbnails", "Only Plan"};
 		
-		int totalSpot = spotGroup.size();
-		
-		for (int i = 0; i < totalSpot; i++)
+		ContextThemeWrapper CTW;
+		if (SDKVersion > 10)
 		{
-			
+			if (screenSize >= 6.5)
+				CTW = new ContextThemeWrapper(context, R.style.dialog_LargeText);
+			else
+				CTW = new ContextThemeWrapper(context, R.style.dialog_smallText);
 		}
+		else
+		{
+			if (screenSize >= 6.5)
+				CTW = new ContextThemeWrapper(context, R.style.dialog_LargeText);
+			else
+				CTW = new ContextThemeWrapper(context, R.style.dialog_smallText);
+		}
+		AlertDialog.Builder builder = new AlertDialog.Builder(CTW);
+		
+		TextView title = new TextView(context);
+		title.setText("Plan Saving Options");
+		title.setTextColor(context.getResources().getColor(R.drawable.Ivory));
+		title.setGravity(Gravity.CENTER);
+		title.setPadding(0, 20, 0, 20);
+		
+		if (screenSize >= 6.5)
+		{
+			title.setTextSize(34);
+			builder.setCustomTitle(title);
+		} else {
+			title.setTextSize(24);
+			builder.setCustomTitle(title);
+		}
+		
+		builder.setItems(options, new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int which) {
+				switch (which)
+				{
+				case 0:
+					downloadAllClick();
+					((Map2Activity) context).saveData();
+					break;
+				case 1:
+					((Map2Activity) context).saveData();
+					break;
+				}
+			}
+		});
+		builder.show();
+		/*
+		AlertDialog dialogStyle = builder.create();
+		dialogStyle.show();
+		
+		dialogStyle.getWindow().getAttributes();
+		TextView text = new TextView(context.getApplicationContext());
+		
+		if (screenSize >= 6.5)
+		{
+			text.setTextSize(30);
+			text.setPadding(0, 15, 0, 15);
+		} else {
+			text.setTextSize(22);
+			text.setPadding(0, 10, 0, 10);
+		}
+		text.setGravity(Gravity.CENTER);
+		*/
 	}
+	
+	public void downloadAllClick ()
+	{
+		downloadCount = 0;
+		downloadPos = 0;
+		loadNum.setVisibility(View.VISIBLE);
+		loadNum.setText(downloadPos + "/" + thumbList.size());
+		downloadAllThumb();
+	}
+	
+	public void downloadAllThumb()
+	{
+		((Map2Activity) context).loadingBarRun();
+		
+		final String thumbUrl = thumbList.get(downloadPos);
+		spotName = spotGroup.get(downloadPos).get("title").toString();
+		new Thread()
+		{
+			public void run()
+			{
+				getTbBitmap(thumbUrl);
+				getThumbDone.obtainMessage(REFRESH_DATA, null).sendToTarget();
+			}
+		}.start();
+	}
+	@SuppressLint("HandlerLeak")
+	Handler getThumbDone = new Handler()
+	{
+		@Override
+		public void handleMessage(Message url)
+		{
+			switch (url.what)
+			{
+			case REFRESH_DATA:
+				
+				int failNum = 0;
+				for (int i = 0; i < thumbList.size(); i++)
+				{
+					if (thumbList.get(i).equals("fail"))
+						failNum ++;
+				}
+				if (downloadCount == (spotGroup.size()-failNum)) {
+					loadNum.setVisibility(View.GONE);
+					((Map2Activity) context).longMessage("All Thumb Get!");
+					((Map2Activity) context).loadingBarStop();
+				}
+				else {
+					downloadPos++;
+					loadNum.setText(downloadPos + "/" + thumbList.size());
+					downloadAllThumb();
+				}
+				break;
+			}
+		};
+	};
 	
 	public void addBitmapToMemCache(String key, Bitmap bitmap)
 	{
@@ -780,49 +1258,35 @@ private LruCache<String, Bitmap> memCache;
 		return (Bitmap) memCache.get(key);
 	}
 	
-	
-/*
-	@Override
-	public Filter getFilter() {
-		// TODO Auto-generated method stub
-		Filter filter = new Filter() {
+	@SuppressLint("DefaultLocale")
+	public void filterData(String query)
+	{
+		if (filterable)
+		{
+			spotGroup.clear();
+			thumbList.clear();
 			
-			@SuppressWarnings("unchecked")
-			@Override
-			protected void publishResults(CharSequence constraint, FilterResults results)
+			if(query.equals(""))
 			{
-				// TODO Auto-generated method stub
-				spotGroup = (List<Map<String, Object>>) results.values;
-				notifyDataSetChanged();
+				spotGroup.addAll(originalList);
+				thumbList.addAll(originalThumbList);
 			}
-			
-			@SuppressLint("DefaultLocale")
-			@Override
-			protected FilterResults performFiltering(CharSequence arg0)
+			else
 			{
-				// TODO Auto-generated method stub
-				FilterResults results = new FilterResults();
-				List<Map<String, String>> filterData = new ArrayList<Map<String, String>>();
-				
-				arg0 = arg0.toString().toLowerCase();
-				
-				for (int i = 0; i < spotGroup.size(); i++)
+				for (int i = 0; i < originalList.size(); i++)
 				{
-					Map<String, String> data = spotGroup.get(i);
-					if (data.toString().startsWith(arg0.toString()))
+					if (originalList.get(i).get("title").toString().toLowerCase().contains(query.toLowerCase()) ||
+							originalList.get(i).get("titleDescribe").toString().contains(query.toUpperCase()))
 					{
-						filterData.add(data);
+						spotGroup.add(originalList.get(i));
+						thumbList.add(originalThumbList.get(i));
 					}
 				}
-				
-				results.count = filterData.size();
-				results.values = filterData;
-				Log.i("Value", results.values.toString());
-				
-				return results;
 			}
-		};
-		return filter;
+			notifyDataSetChanged();			
+		}
+		else {
+			((Map2Activity) context).shortMessage("Wait a second! Not so fast~");
+		}
 	}
-*/
 }

@@ -8,7 +8,7 @@
     android:orientation="vertical"
     android:scrollbarAlwaysDrawVerticalTrack="true"
     android:scrollbars="horizontal|vertical"
-     >
+    android:layoutAnimation="@anim/layout_anim_ctrl" >
 
     <RelativeLayout
         android:id="@+id/SayHi"
@@ -39,10 +39,19 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
-            android:layout_marginLeft="10dp"
+            android:layout_marginLeft="7dp"
             android:layout_toRightOf="@+id/UserName"
             android:indeterminate="false"
             android:visibility="gone" />
+        
+        <TextView
+            android:id="@+id/downloadCount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="4dp"
+            android:layout_toRightOf="@+id/loadingPlan"
+            android:textSize="22sp" />
 
         <ImageButton
             android:id="@+id/mapNoneBtn"
@@ -193,7 +202,7 @@
             android:layout_width="45dp"
             android:layout_height="45dp"
             android:layout_alignParentLeft="true"
-            android:layout_below="@+id/titleRow"
+            android:layout_below="@+id/NearestRow"
             android:background="@drawable/button_style_white"
             android:onClick="listControl"
             android:scaleType="centerCrop"
@@ -202,13 +211,13 @@
 
         <ImageButton
             android:id="@+id/downloadAllBtn"
-            android:layout_width="45dp"
+            android:layout_width="46dp"
             android:layout_height="45dp"
-            android:layout_alignParentRight="true"
-            android:layout_below="@+id/titleRow"
+            android:layout_below="@+id/NearestRow"
+            android:layout_toRightOf="@+id/listControlBtn"
             android:background="@drawable/button_style_white"
             android:onClick="downloadAll"
-            android:scaleType="center"
+            android:scaleType="centerCrop"
             android:src="@drawable/download_icon"
             android:visibility="gone" />
         
@@ -231,18 +240,55 @@
                 android:gravity="center"
                 android:textColor="@drawable/White" />
         </TableRow>
+        
+        <TableRow
+            android:id="@+id/NearestRow"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/titleRow"
+            android:background="@drawable/nearest_row_press_style"
+            android:clickable="true"
+            android:gravity="center_vertical"
+            android:paddingBottom="4dp"
+            android:paddingLeft="6dp"
+            android:paddingRight="6dp"
+            android:paddingTop="4dp"
+            android:visibility="gone" >
+
+            <TextView
+                android:id="@+id/nearestText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/Nearest"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/nearestPoi"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_weight="1"
+                android:textColor="@drawable/SeeGreen"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/nearestDistance"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@drawable/Ivory" />
+
+        </TableRow>
 
         <HorizontalScrollView
             android:id="@+id/DayScrollArea"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/titleRow"
-            android:layout_toLeftOf="@+id/downloadAllBtn"
-            android:layout_toRightOf="@+id/listControlBtn"
+            android:layout_below="@+id/NearestRow"
+            android:layout_toRightOf="@+id/downloadAllBtn"
             android:fillViewport="true" >
 
             <LinearLayout
-                android:id="@+id/LinearLayout1"
+                android:id="@+id/slidingLayout"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" >
 

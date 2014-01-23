@@ -189,7 +189,7 @@
             android:fillViewport="true" >
 
             <LinearLayout
-                android:id="@+id/LinearLayout1"
+                android:id="@+id/slidingLayout"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" >
 

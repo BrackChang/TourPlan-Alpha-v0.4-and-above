@@ -79,6 +79,17 @@
             android:textColor="@color/CadetBlue"
             android:textSize="12sp" />
 
+        <TextView
+            android:id="@+id/nearestNum"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/Destination"
+            android:layout_marginRight="5dp"
+            android:layout_toLeftOf="@+id/FindMyPos"
+            android:textColor="@drawable/Black"
+            android:textSize="14sp"
+            android:visibility="visible" />
+
         <ImageButton
             android:id="@+id/FindMyPos"
             android:layout_width="25dp"

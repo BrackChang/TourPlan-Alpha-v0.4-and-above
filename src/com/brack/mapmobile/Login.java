@@ -3,12 +3,9 @@ package com.brack.mapmobile;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
@@ -25,7 +22,6 @@ import android.content.SharedPreferences;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
@@ -68,7 +64,6 @@ public class Login extends Activity {
     private int iCount = 0;
     */
     private String loading;
-    private String ipMsg;
 	
 	 /** Called when the activity is first created. */ 
     @Override
@@ -144,7 +139,7 @@ public class Login extends Activity {
     	{
     		public void run()
     		{
-    			getCurrentIP();
+    			String ipMsg = getCurrentIP();
     			showIP.obtainMessage(REFRESH_DATA, ipMsg).sendToTarget();
     		}
     	}.start();
@@ -170,52 +165,13 @@ public class Login extends Activity {
 		return false;
 	}
 	*/
-    /*
-    public String pingHost()
-    {
-    	String result = "";
-    	try
-    	{
-    		Process p = Runtime.getRuntime().exec("/system/bin/ping -c 8 " + "google.com.tw");
-    		
-    		int count = p.waitFor();
-    		String echo = Integer.toString(count);
-    		
-    		BufferedReader reader = new BufferedReader( new InputStreamReader(p.getInputStream()));
-    		
-    		int i;
-    		char[] buffer = new char[4096];
-    		
-    		StringBuffer output = new StringBuffer();
-    		
-    		while ((i = reader.read(buffer)) > 0)
-    			output.append(buffer, 0, i);
-    		
-    		reader.close();
-    		
-    		result = echo;
-    	}
-    	catch (IOException e)
-    	{
-    		longMessage(e.getMessage().toString());
-    		Log.e("PingFailed", e.getMessage().toString());
-    	}
-    	catch (InterruptedException e)
-    	{
-    		longMessage(e.getMessage().toString());
-    		Log.e("Interruption", e.getMessage().toString());
-    	}
-    	return result;
-    }
-    */
-    
-    public void getCurrentIP ()
+    public String getCurrentIP ()
     {
     	try
     	{
     		GetStringByUrl urlString = new GetStringByUrl("http://api.externalip.net/ip");
     		String response = urlString.getString();
-    		ipMsg = response;
+    		return response;
     		/*
     		HttpClient httpClient = new DefaultHttpClient();
     		HttpGet httpGet = new HttpGet("http://api.externalip.net/ip");
@@ -249,8 +205,8 @@ public class Login extends Activity {
     	}
     	catch (Exception e)
     	{
-    		ipMsg = e.toString();
     		Log.e("Connect Error", e.toString());
+    		return e.toString();
     	}
     }
     
@@ -418,6 +374,8 @@ public class Login extends Activity {
     
     public void textClick(View goWebClick)
     {
+    	longMessage("Still working on it...");
+    	/*
     	CM = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
     	NI = CM.getActiveNetworkInfo();
     	
@@ -429,6 +387,7 @@ public class Login extends Activity {
     		Intent intent = new Intent(Intent.ACTION_VIEW,uri);
     		startActivity(intent);
     	}
+    	*/
     }
     
     public void signUpClick (View register) {

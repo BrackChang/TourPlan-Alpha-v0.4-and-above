@@ -79,6 +79,17 @@
             android:layout_toRightOf="@+id/viaText"
             android:textColor="@color/CadetBlue"
             android:textSize="20sp" />
+        
+        <TextView
+            android:id="@+id/nearestNum"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/Destination"
+            android:layout_marginRight="10dp"
+            android:layout_toLeftOf="@+id/FindMyPos"
+            android:textColor="@drawable/Black"
+            android:textSize="22sp"
+            android:visibility="visible" />
 
         <ImageButton
             android:id="@+id/FindMyPos"

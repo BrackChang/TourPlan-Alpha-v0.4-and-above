@@ -36,7 +36,7 @@
                 android1:layout_width="match_parent"
                 android1:layout_height="match_parent"
                 android1:layout_gravity="center"
-                android1:layout_marginRight="25dp"
+                android1:layout_marginRight="60dp"
                 android1:gravity="center"
                 android1:text="@string/TitleText"
                 android1:textColor="@drawable/Beige"

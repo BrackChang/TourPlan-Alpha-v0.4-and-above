@@ -3,15 +3,24 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
 
+    <ImageView
+        android:id="@+id/thumbNail"
+        android:layout_width="45dp"
+        android:layout_height="45dp"
+        android:layout_alignParentLeft="true"
+        android:layout_marginLeft="15dp"
+        android:layout_marginTop="2dp"
+        android:src="@drawable/Gray" />
+
     <TextView
         android:id="@+id/groupName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
         android:layout_marginBottom="5dip"
-        android:layout_marginLeft="20dip"
+        android:layout_marginLeft="5dp"
         android:layout_marginTop="5dip"
         android:layout_toLeftOf="@+id/routeDirection"
+        android:layout_toRightOf="@id/thumbNail"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:textColor="@drawable/SeeGreen"
         android:textSize="20sp" />
@@ -20,9 +29,9 @@
         android:id="@+id/groupDescr"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:layout_alignParentLeft="true"
         android:layout_below="@id/groupName"
-        android:layout_marginLeft="15dip"
+        android:layout_marginLeft="1dp"
+        android:layout_toRightOf="@+id/thumbNail"
         android:paddingBottom="5dip"
         android:paddingTop="4dip"
         android:textAppearance="?android:attr/textAppearanceSmall" />

@@ -8,8 +8,11 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.text.DecimalFormat;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -75,9 +78,11 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.MeasureSpec;
 import android.view.View.OnClickListener;
 import android.view.View.OnKeyListener;
 import android.view.View.OnTouchListener;
+import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.view.Window;
 import android.view.WindowManager;
@@ -88,9 +93,12 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.ExpandableListView;
+import android.widget.ExpandableListView.OnGroupCollapseListener;
+import android.widget.ExpandableListView.OnGroupExpandListener;
 import android.widget.ImageButton;
 import android.widget.ImageView.ScaleType;
 import android.widget.LinearLayout;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.ProgressBar;
@@ -159,6 +167,9 @@ public class Map2Activity extends MapActivity implements LocationListener
     private ArrayList<HashMap<String, String>> publicListArr;
     private List<Map<String, Object>> directionList;
     private List<String> pathInfoList;
+    private List<List<Map<String, String>>> sharedList = new ArrayList<List<Map<String, String>>>();
+    private ArrayList<Poi> pois;
+    private boolean countable;
     
     private int dayCount;
     private int screenWidth;
@@ -175,6 +186,7 @@ public class Map2Activity extends MapActivity implements LocationListener
     private boolean alreadyPop;
     private boolean listExpanded;
 	private String mapStatus;
+	private boolean mapFocusMove;
     private float posX;
 	private float posY;
 	private float currentPosX;
@@ -200,6 +212,7 @@ public class Map2Activity extends MapActivity implements LocationListener
         
         ImageButton pathBtn = (ImageButton) findViewById(R.id.pathBtn);
     	pathBtn.setVisibility(View.GONE);
+    	directionList = new ArrayList<Map<String, Object>>();
         typingText = (AutoCompleteTextView)findViewById(R.id.typingText);
         TextView UserName = (TextView)findViewById(R.id.UserName);
        
@@ -232,7 +245,6 @@ public class Map2Activity extends MapActivity implements LocationListener
         Log.i("ScreenDisplay", ""+screenWidth +" x "+ screenHeight);
         
         slideMove();
-        menuSliding();
     }
 
     private void findMapControl()
@@ -253,8 +265,7 @@ public class Map2Activity extends MapActivity implements LocationListener
         mapControl.setZoom(8);
         
         locManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        getLocationProvider();
-        
+        //getLocationProvider();
         //findMyLocation();
     }
     
@@ -336,22 +347,22 @@ public class Map2Activity extends MapActivity implements LocationListener
     protected void onResume()
     {
     	super.onResume();
+    	getLocationProvider();
     	providerType = locManager.getBestProvider(criteria, true);
-    	locManager.requestLocationUpdates(providerType, 2000, 1, Map2Activity.this);
+    	locManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 1, Map2Activity.this);
+    	locManager.requestLocationUpdates(providerType, 1000, 1, Map2Activity.this);
     	if (enableTool)
     	{
     		//locManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 0, Map2Activity.this);
     		//locManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000, 0, Map2Activity.this);
     		myLayer.enableMyLocation();
     		myLayer.enableCompass();
-    		longMessage("Location Provider¡G" + providerType);
     		Log.i("ProviderType", providerType);
     		Log.i("onState", "Resume");
     	}
     	else
     	{
     		GPSinit();
-    		Log.i("ProviderType", providerType);
     		Log.i("onState", "Resume else");
     	}
     }
@@ -362,6 +373,11 @@ public class Map2Activity extends MapActivity implements LocationListener
     	if (enableTool)
     	{
     		locManager.removeUpdates(Map2Activity.this);
+    		if (directionList.size() != 0)
+    		{
+    			DirectionAdapter dirAdapter = new DirectionAdapter(this, directionList);
+    			dirAdapter.removeUpdate();
+    		}
     		myLayer.disableMyLocation();
     		myLayer.disableCompass();
     		Log.i("onState", "Pause");
@@ -416,9 +432,12 @@ public class Map2Activity extends MapActivity implements LocationListener
     		
     		providerType = locManager.getBestProvider(criteria, true);
     		myLocation = locManager.getLastKnownLocation(providerType);
+    		if ((""+myLocation).equals("null"))
+    			myLocation = locManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+    		Log.i("myLocationInfo", ""+myLocation);
     		
     		Log.i("LocProviderType", providerType);
-    		shortMessage("ProviderType = " + providerType);
+    		shortMessage("LocationProvider = " + providerType);
     	}
     	catch (Exception e)
     	{
@@ -429,31 +448,39 @@ public class Map2Activity extends MapActivity implements LocationListener
     }
     
     public void routeFromMyPosition(String toLat, String toLng)
-    { 	
-    	double lat = myLocation.getLatitude();
-    	double lng = myLocation.getLongitude();
-    	Log.i("MyPosition", ""+lat +" "+ lng);
-    	
-    	double toGPLat = Double.parseDouble(toLat);
-    	double toGPLng = Double.parseDouble(toLng);
-    	Log.i("Destination", ""+ toGPLat +" & " + toGPLng );
-    	
-    	exListMapMove(""+lat, ""+lng);
-    	
-    	new GoogleDirection().execute(lat + "," + lng, toGPLat + "," + toGPLng);
-    	loadingBarRun();
+    {
+    	if ((""+myLocation).equals("null") && locManager.isProviderEnabled(LocationManager.GPS_PROVIDER))
+    		longMessage("Unable to get the position value! Please turn off the GPS and try again.");
+    	else {
+    		double lat = myLocation.getLatitude();
+    		double lng = myLocation.getLongitude();
+    		Log.i("MyPosition", ""+lat +" "+ lng);
+
+    		double toGPLat = Double.parseDouble(toLat);
+    		double toGPLng = Double.parseDouble(toLng);
+    		Log.i("Destination", ""+ toGPLat +" & " + toGPLng );
+
+    		exListMapMove(""+lat, ""+lng);
+
+    		new GoogleDirection().execute(lat + "," + lng, toGPLat + "," + toGPLng);
+    		loadingBarRun();
+    	}
     }
     
     public void routeToSearch(String searchLat, String searchLng)
     {
-    	double lat = myLocation.getLatitude();
-    	double lng = myLocation.getLongitude();
-    	Log.i("MyPosition", ""+lat +" "+ lng);
+    	if ((""+myLocation).equals("null") && locManager.isProviderEnabled(LocationManager.GPS_PROVIDER))
+    		longMessage("Unable to get the position value! Please turn off the GPS and try again.");
+    	else {
+    		double lat = myLocation.getLatitude();
+    		double lng = myLocation.getLongitude();
+    		Log.i("MyPosition", ""+lat +" "+ lng);
 
-    	exListMapMove(""+lat, ""+lng);
-    	
-    	new GoogleDirection().execute(lat + "," + lng, searchLat + "," + searchLng);
-    	loadingBarRun();
+    		exListMapMove(""+lat, ""+lng);
+
+    		new GoogleDirection().execute(lat + "," + lng, searchLat + "," + searchLng);
+    		loadingBarRun();
+    	}
     }
     
     public void routeToNextSpot(String fromLat, String fromLng, String toLat, String toLng)
@@ -470,17 +497,16 @@ public class Map2Activity extends MapActivity implements LocationListener
     	loadingBarRun();
     }
 
-    private class GoogleDirection extends AsyncTask<String, Integer, List<GeoPoint>>
+    private class GoogleDirection extends AsyncTask<String, Integer, String>
     {
     	private final String mapAPI = 
     	"http://maps.google.com/maps/api/directions/json?" + "origin={0}&destination={1}&language=zh-TW&sensor=true";
     	private String from;
     	private String to;
-    	private List<GeoPoint> geoPoints = new ArrayList<GeoPoint>();
     	private String POLY;
     	
     	@Override
-    	protected List<GeoPoint> doInBackground(String...params)
+    	protected String doInBackground(String...params)
     	{
     		if (params.length < 0)
     			return null;
@@ -519,7 +545,7 @@ public class Map2Activity extends MapActivity implements LocationListener
     					if (polyLine.length() > 0)
         				{
     						POLY = polyLine;
-    						directions(strResult);
+    						return strResult;
         				}
     				} else {
     					POLY = "";
@@ -530,11 +556,11 @@ public class Map2Activity extends MapActivity implements LocationListener
     		{
 				Log.e("mapUrlFailed", e.toString());
     		}
-    		return geoPoints;
+    		return null;
     	}
 
     	@SuppressWarnings({ "rawtypes", "unchecked" })
-		protected void onPostExecute(List<GeoPoint> geoPoints)
+		protected void onPostExecute(String routeResult)
     	{
     		if (POLY.length() > 0)
     		{
@@ -543,7 +569,7 @@ public class Map2Activity extends MapActivity implements LocationListener
     			drawOverlay = new DrawOverlay(myPoints);
     			mapView.getOverlays().add(drawOverlay);
     			mapView.invalidate();
-    			directionPop();
+    			directions(routeResult);
     			loadingBarStop();
     		} else {
     			loadingBarStop();
@@ -577,6 +603,7 @@ public class Map2Activity extends MapActivity implements LocationListener
     			
     			String path = path2.replace("<b>", "");
     			path = path.replace("</b>", "");
+    			path = (i+1) + "-" + path;
     			if (path.contains("<div"))
     			{
     				String pathGoOn = path.substring(path.indexOf(">")+1, path.lastIndexOf("<"));
@@ -597,8 +624,12 @@ public class Map2Activity extends MapActivity implements LocationListener
     			
     			Log.i("Path", path);
     			
-    			listItem.put("disText", distance.getString("text"));
-                listItem.put("durText", duration.getString("text"));
+    			String disValue = distance.getString("text");
+    			double dis = Double.parseDouble(disValue.substring(0, disValue.indexOf(" ")));
+    			if (dis < 1)
+    				disValue = distance.getString("value") + " ¤½¤Ø";
+    			listItem.put("disText", disValue);
+    			listItem.put("durText", duration.getString("text"));
                 listItem.put("startLat", startLocation.getString("lat"));
                 listItem.put("startLng", startLocation.getString("lng"));
                 
@@ -613,6 +644,10 @@ public class Map2Activity extends MapActivity implements LocationListener
     		String Distance = Dis.getString("text");
     		String Summary = route.getString("summary");
     		
+			double dis = Double.parseDouble(Distance.substring(0, Distance.indexOf(" ")));
+			if (dis < 1)
+				Distance = Dis.getString("value") + " ¤½¤Ø";
+    		
     		infoList.add(Destination);	//0
     		infoList.add(Duration);		//1
     		infoList.add(Distance);		//2
@@ -620,16 +655,18 @@ public class Map2Activity extends MapActivity implements LocationListener
     		
     		directionList = dirList;
     		pathInfoList = infoList;
+    		
+    		directionPop();
     	}
     	catch (JSONException e)
     	{
-    		Log.e("Failed", e.getMessage().toString());
+    		Log.e("DirectionFailed", e.getMessage().toString());
     	}
     }
     
     public void directionPop()
     {
-    	ImageButton pathBtn = (ImageButton) findViewById(R.id.pathBtn);
+    	final ImageButton pathBtn = (ImageButton) findViewById(R.id.pathBtn);
     	
     	if (alreadyPop == true)
     	{
@@ -665,6 +702,7 @@ public class Map2Activity extends MapActivity implements LocationListener
 				if (stopAsk == false)
     				requestGPS = true;
     			GPSinit();
+    			mapFocusMove = true;
 			}
     	});
     	
@@ -694,7 +732,16 @@ public class Map2Activity extends MapActivity implements LocationListener
     	}
     	
     	popUp.showAsDropDown(functionsLayout, xpos, (int)ypos);
-
+    	
+    	typingText.setOnClickListener(new OnClickListener() {
+			public void onClick(View v) {
+				if (popUp.isShowing() && mapStatus.equals("half")) {
+					popUp.dismiss();
+					pathBtn.setImageResource(R.drawable.path_icon);
+		        	pathBtn.setScaleType(ScaleType.CENTER_CROP);
+				}
+			}
+   		});
     	//ListView OnClick event implement in DirectionAdapter!!
     }
     
@@ -713,6 +760,12 @@ public class Map2Activity extends MapActivity implements LocationListener
     	}
     }
     
+    public void setNearestNum(String num)
+    {
+    	TextView nearestNum = (TextView) view.findViewById(R.id.nearestNum);
+    	nearestNum.setText(num);
+    }
+    
     Handler planMove = new Handler()
    	{
    		@SuppressWarnings("deprecation")
@@ -729,7 +782,6 @@ public class Map2Activity extends MapActivity implements LocationListener
    				if (msg.obj instanceof String)
    					xmlString = (String) msg.obj;
    				
-   		        typingText = (AutoCompleteTextView)findViewById(R.id.typingText);
 				typingText.setFocusable(true);
 		        typingText.setFocusableInTouchMode(true);
    				
@@ -863,7 +915,7 @@ public class Map2Activity extends MapActivity implements LocationListener
 					String[] latList = Lat2.split(",");
 					String[] lngList = Lng2.split(",");
 					String[] spotList = Spot2.split(",");
-					String[] spotInfoList = SpotInfo2.split("%%");
+					String[] spotInfoList = SpotInfo2.split("¢H");
 					String[] dayList = Day2.split(",");
 					String[] queList = Que2.split(",");
 					String[] flagFoodList = flagFood2.split(",");
@@ -886,8 +938,9 @@ public class Map2Activity extends MapActivity implements LocationListener
 					
 					dayCount = 1;
 					
-					showSpotList();
+					typingText.setText("");
 					putSpotArr();
+					showSpotList();
 					
 					startNeed = true;
 					
@@ -903,6 +956,8 @@ public class Map2Activity extends MapActivity implements LocationListener
 						ImageButton pathBtn = (ImageButton) findViewById(R.id.pathBtn);
 						pathBtn.setVisibility(View.GONE);
 			    	}
+					ImageButton downloadAllBtn = (ImageButton) findViewById(R.id.downloadAllBtn);
+					downloadAllBtn.setVisibility(View.GONE);
    			}
    		}
    	};
@@ -910,12 +965,13 @@ public class Map2Activity extends MapActivity implements LocationListener
 	public void showSpotList()
    	{
    		exSpotList = (ExpandableListView) findViewById(R.id.exPlanList);
-   		typingText = (AutoCompleteTextView)findViewById(R.id.typingText);
    		
    		ImageButton listControlBtn = (ImageButton) findViewById(R.id.listControlBtn);
    		ImageButton downloadAllBtn = (ImageButton) findViewById(R.id.downloadAllBtn);
    		listControlBtn.setVisibility(View.VISIBLE);
-   		//downloadAllBtn.setVisibility(View.VISIBLE);
+   		
+   		TableRow nearestRow = (TableRow) findViewById(R.id.NearestRow);
+   		nearestRow.setVisibility(View.GONE);
 	    
 	    TableRow dayRow = (TableRow) findViewById(R.id.dayRow);
 	    
@@ -977,6 +1033,7 @@ public class Map2Activity extends MapActivity implements LocationListener
 		*/
 		
 		setTitle(textSize, false);
+		setNearestTextSize(textSize);
 		
 		LayoutParams listBtnParams = listControlBtn.getLayoutParams();
 		listBtnParams.height = (int) (btnHeight);
@@ -1119,8 +1176,8 @@ public class Map2Activity extends MapActivity implements LocationListener
 		mapView.getOverlays().add(Marker);
 		mapView.invalidate();	
 		
-   		exAdapter = new ExAdapter(this, spotGroup, spotChild);
-   		exSpotList.setIndicatorBounds(0, 20);
+   		exAdapter = new ExAdapter(this, spotGroup, spotChild, true);
+   		exSpotList.setIndicatorBounds(0, 40);
    		exSpotList.setAdapter(exAdapter);
 
    		/*
@@ -1155,6 +1212,11 @@ public class Map2Activity extends MapActivity implements LocationListener
 			@SuppressLint("DefaultLocale")
 			public void onTextChanged(CharSequence s, int start, int before, int count) {
 				if (!s.toString().equals(""))
+					exAdapter.filterData(s.toString());
+				else
+					exAdapter.filterData("");
+				/*		
+				if (!s.toString().equals(""))
 				{
 					List<Map<String, Object>> spot = new ArrayList<Map<String, Object>>();
 					List<List<Map<String, String>>> spotContent = new ArrayList<List<Map<String, String>>>();
@@ -1169,21 +1231,26 @@ public class Map2Activity extends MapActivity implements LocationListener
 							//Log.i("Value",spot.toString());
 						}
 					}
-					exAdapter = new ExAdapter(Map2Activity.this, spot, spotContent);
+					if (spot.size() == 0)
+						exAdapter = new ExAdapter(Map2Activity.this, spot, spotContent, false);
+					else
+						exAdapter = new ExAdapter(Map2Activity.this, spot, spotContent, true);
 					exSpotList.setAdapter(exAdapter);
 				} else {
-					exAdapter = new ExAdapter(Map2Activity.this, spotGroup, spotChild);
+					exAdapter = new ExAdapter(Map2Activity.this, spotGroup, spotChild, true);
 					exSpotList.setAdapter(exAdapter);
 				}
+				*/
 			}
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
             }
             public void afterTextChanged(Editable s) {
             }
 		});
+   		putPoi();
    	}
 	
-	public void setTitle(int textSize, final boolean already)
+	public void setTitle(int textSize, final boolean alreadyShared)
 	{
 		final TextView planName = (TextView) findViewById(R.id.planName);
 	    final TableRow titleRow = (TableRow) findViewById(R.id.titleRow);
@@ -1202,7 +1269,7 @@ public class Map2Activity extends MapActivity implements LocationListener
 					planName.setText(planTitle + " (Already Shared)");
 					titleRow.addView(planName);
 				}
-				if (already == true) {
+				if (alreadyShared == true) {
 					titleRow.removeAllViews();
 					planName.setText(planTitle + " (Already Shared)");
 					titleRow.addView(planName);
@@ -1210,6 +1277,90 @@ public class Map2Activity extends MapActivity implements LocationListener
 			}
 			public void onTick(long millisUntilFinished) {}
 		}.start();
+	}
+	
+	public void putPoi()
+	{
+		pois = new ArrayList<Poi>();
+		for (int i = 0; i < spotArr.length; i++)
+		{
+			double lat = Double.parseDouble(latArr[i]);
+			double lng = Double.parseDouble(lngArr[i]);
+			pois.add(new Poi(spotArr[i], lat, lng));
+		}
+		countable = true;
+	}
+	
+	private void setNearestTextSize(int size)
+	{
+		TextView nearestText = (TextView) findViewById(R.id.nearestText);
+		TextView nearestPoi = (TextView) findViewById(R.id.nearestPoi);
+		TextView nearestDis = (TextView) findViewById(R.id.nearestDistance);
+		
+		nearestText.setTextSize((float) (size * 0.9));
+		nearestDis.setTextSize((float) (size * 0.9));
+		nearestPoi.setTextSize(size);
+	}
+	
+	public void setNearestView()
+	{
+		TableRow nearestRow = (TableRow) findViewById(R.id.NearestRow);
+		TextView nearestPoi = (TextView) findViewById(R.id.nearestPoi);
+		TextView nearestDis = (TextView) findViewById(R.id.nearestDistance);
+		
+		nearestRow.setVisibility(View.VISIBLE);
+		
+		nearestPoi.setText(pois.get(0).getName());
+		nearestDis.setText(distanceText(pois.get(0).getDistance()));
+		
+		final String lat = String.valueOf(pois.get(0).getLatitude());
+		final String lng = String.valueOf(pois.get(0).getLongitude());
+		
+		nearestRow.setOnClickListener(new OnClickListener() {
+			public void onClick(View v) {
+				typingText.setText(pois.get(0).getName());
+				int spotCount = exSpotList.getExpandableListAdapter().getGroupCount();
+				for (int i = 0; i < spotCount; i++)
+					exSpotList.expandGroup(i);
+				exListMapMove(lat, lng);
+			}
+		});
+	}
+	
+	private String distanceText(double distance)
+	{
+		if (distance < 1000)
+			return String.valueOf((int)distance) + "m";
+		else
+			return new DecimalFormat("#.00").format(distance / 1000) + "km";
+	}
+	
+	private void distanceSort(ArrayList<Poi> poi)
+	{
+		Collections.sort(poi, new Comparator<Poi>()
+		{
+			@Override
+			public int compare(Poi poi1, Poi poi2)
+			{
+				return poi1.getDistance() < poi2.getDistance() ? -1 : 1;
+			}
+		});
+	}
+	
+	public double distance(double lat1, double lng1, double lat2, double lng2)
+	{
+		double redLat1 = lat1 * Math.PI / 180;
+		double redLat2 = lat2 * Math.PI / 180;
+		double l = redLat1 - redLat2;
+		double p = (lng1 * Math.PI / 180) - (lng2 * Math.PI /180);
+		
+		double distance = 2 * Math.asin(Math.sqrt(Math.pow(Math.sin(l/2), 2)
+						+ Math.cos(redLat1) * Math.cos(redLat2)
+						* Math.pow(Math.sin(p/2), 2)));
+		distance = distance * 6378137.0;
+		distance = Math.round(distance * 10000) / 10000;
+		
+		return distance;
 	}
 	
 	public void slideMove()
@@ -1273,9 +1424,10 @@ public class Map2Activity extends MapActivity implements LocationListener
 				mapControl.animateTo(GP);
 			}
 		}
-		
 		if (mapStatus.equals("none"))
 			mapHalf();
+		
+		mapFocusMove = false;
    	}
    	
    	public void clearClick(View clearClick)
@@ -1284,8 +1436,8 @@ public class Map2Activity extends MapActivity implements LocationListener
    		typingText.setText("");
    	}
    	
-	public void searchClick(View searchClick) {
-   		typingText = (AutoCompleteTextView)findViewById(R.id.typingText);
+	public void searchClick(View searchClick)
+	{
    		final String input = typingText.getText().toString().trim().replace(" ", "");
    		
    		InputMethodManager imm = (InputMethodManager)searchClick.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -1514,7 +1666,7 @@ public class Map2Activity extends MapActivity implements LocationListener
 	
    	public void startCountDown()
    	{
-   		new CountDownTimer(800,800){
+   		new CountDownTimer(700, 700){
    			@Override
    			public void onFinish() {
    				// TODO Auto-generated method stub
@@ -1890,13 +2042,15 @@ public class Map2Activity extends MapActivity implements LocationListener
 	public boolean isPlanExists()
 	{
 		String currentPlan = Pid + " " + planTitle;
-		boolean exist = false;
 		for (int i = 0; i < publicListArr.size(); i++)
 		{
 			if (publicListArr.get(i).get("plan").contains(currentPlan))
-				exist = true;
+			{
+				Log.i("Exists Plan", publicListArr.get(i).get("plan"));
+				return true;
+			}
 		}
-		return exist;
+		return false;
 	}
 	
 	public void saveData()
@@ -1977,6 +2131,10 @@ public class Map2Activity extends MapActivity implements LocationListener
 		
 		planCount = 0;
 		
+		TextView loadNum = (TextView) findViewById(R.id.downloadCount);
+		loadNum.setVisibility(View.VISIBLE);
+		loadNum.setText(planCount + "/" + planArr.length);
+		
 		for (int i = 0; i < planArr.length; i++)
 		{
 			final String pid = planArr[i].substring(0, planArr[i].indexOf(" "));
@@ -2041,9 +2199,14 @@ public class Map2Activity extends MapActivity implements LocationListener
    				}
    				
    				planCount = planCount + 1;
+   				
+   				TextView loadNum = (TextView) findViewById(R.id.downloadCount);
+   				loadNum.setText(planCount + "/" + planArr.length);
+   				
    				if (planCount == planArr.length) {
    					loadingBarStop();
    					longMessage("All plans save completed!");
+   					loadNum.setVisibility(View.GONE);
    				}
    			}
    		}
@@ -2140,7 +2303,7 @@ public class Map2Activity extends MapActivity implements LocationListener
 
 				JSONObject jo = new JSONObject(urlResult);
 				JSONArray ja = jo.getJSONArray("result");
-				Log.i("JSONArrayLength",""+ja.length());
+				Log.i("SharedPlans", ""+ja.length());
 				for (int i = 0; i < ja.length(); i++)
 				{
 					String name = ja.getJSONObject(i).getString("name");
@@ -2195,6 +2358,7 @@ public class Map2Activity extends MapActivity implements LocationListener
 			publicListArr = publicList;
 			Log.i("getPublicList", "Done!");
 			showPlanWindow();
+			menuSliding();
 			loadingBarStop();
 		}
 	}
@@ -2223,8 +2387,21 @@ public class Map2Activity extends MapActivity implements LocationListener
 			if (postResult.contains("already"))
 				shortMessage("Plan Already Exists!");
 			else if (postResult.contains("Done")) {
-				shortMessage("Done!");
+				shortMessage("Share completed!");
 				setTitle(0, true);
+				refreshList("add", 0);
+				
+				HashMap<String, String> listItem = new HashMap<String, String>();
+
+				listItem.put("user", "Shared by " + MyName);
+				listItem.put("plan", Pid + " " + planTitle + " ");
+				if (planDaysArr[currentChose].equals("1"))
+					listItem.put("days", "Total " + planDaysArr[currentChose] + " Day, On " + planStartArr[currentChose]);
+				else
+					listItem.put("days", "Total " + planDaysArr[currentChose]+" Days," + "\n" + 
+							"From "+planStartArr[currentChose]+" to "+planEndArr[currentChose]);
+
+				publicListArr.add(listItem);
 			}
 			else {
 				shortMessage("Oops! Something Wrong~");
@@ -2371,6 +2548,8 @@ public class Map2Activity extends MapActivity implements LocationListener
 				longMessage("Press BACK again to exit.");
 				exitTime = System.currentTimeMillis();
 			} else {
+				ImageLoader imageLoader = new ImageLoader(this);
+				imageLoader.clearCache();
 				finish();
 			}
 			return true;
@@ -2467,6 +2646,13 @@ public class Map2Activity extends MapActivity implements LocationListener
 	public void popUpClick(View popWindow)
 	{
 		//openOptionMenu();
+		if (alreadyPop) {
+    		if (popUp.isShowing()) {
+    			ImageButton pathBtn = (ImageButton) findViewById(R.id.pathBtn);
+    			pathBtn.setImageResource(R.drawable.path_icon);
+    			popUp.dismiss();
+    		}
+    	}
 		slidingMenu.toggleRightDrawer();
 	}
 	
@@ -2477,7 +2663,6 @@ public class Map2Activity extends MapActivity implements LocationListener
 	
 	public void listControl(View listCtrl)
 	{
-		exSpotList = (ExpandableListView) findViewById(R.id.exPlanList);
 		int spotCount = exSpotList.getExpandableListAdapter().getGroupCount();
 		Log.i("SpotCount", ""+spotCount);
 		ImageButton listControl = (ImageButton) findViewById(R.id.listControlBtn);
@@ -2601,18 +2786,40 @@ public class Map2Activity extends MapActivity implements LocationListener
     	// TODO Auto-generated method stub
     	Log.v("mapLocation", location.toString());
     	myLocation = location;
+    	
+    	if (countable && !(""+myLocation).equals("null"))
+    	{
+    		for (Poi poi : pois)
+    		{
+    			poi.setDistance(distance(location.getLatitude(),
+				    					location.getLongitude(),
+				    					poi.getLatitude(),
+				    					poi.getLongitude()));
+			}
+    		distanceSort(pois);
+    		setNearestView();
+    	}
+    	if (mapFocusMove)
+    	{
+    		GP = new GeoPoint((int)(location.getLatitude()*1E6), (int)(location.getLongitude()*1E6));
+    		mapControl.animateTo(GP);
+    		
+    		mapView.setOnTouchListener(new OnTouchListener() {
+    			public boolean onTouch(View v, MotionEvent event) {
+    				mapFocusMove = false;
+    				return false;
+    			}
+        	});
+    	}
     }
-
     @Override
     public void onProviderDisabled(String provider) {
     	// TODO Auto-generated method stub
     }
-
     @Override
     public void onProviderEnabled(String provider) {
     	// TODO Auto-generated method stub
     }
-
     @Override
     public void onStatusChanged(String provider, int status, Bundle extras) {
     	// TODO Auto-generated method stub
@@ -2635,12 +2842,440 @@ public class Map2Activity extends MapActivity implements LocationListener
     }
     
     
+    public static void setListViewHeightBasedOnChildren(ListView listView)
+    {
+        ListAdapter listAdapter = listView.getAdapter();
+        if (listAdapter == null)
+            return;
+
+        int desiredWidth = MeasureSpec.makeMeasureSpec(listView.getWidth(), MeasureSpec.UNSPECIFIED);
+        int totalHeight = 10;
+        View view = null;
+        for (int i = 0; i < listAdapter.getCount(); i++) {
+            view = listAdapter.getView(i, view, listView);
+            if (i == 0)
+                view.setLayoutParams(new ViewGroup.LayoutParams(desiredWidth, LayoutParams.WRAP_CONTENT));
+
+            view.measure(desiredWidth, MeasureSpec.UNSPECIFIED);
+            totalHeight += view.getMeasuredHeight();
+        }
+        ViewGroup.LayoutParams params = listView.getLayoutParams();
+        params.height = totalHeight + (listView.getDividerHeight() * (listAdapter.getCount() - 1));
+        listView.setLayoutParams(params);
+        listView.requestLayout();
+    }
+    
+    public static void setExListViewHeightBasedOnChildren(ExpandableListView listView, int height)
+    {
+        ListAdapter listAdapter = listView.getAdapter();
+        if (listAdapter == null)
+            return;
+        
+        int widthMeasureSpec = View.MeasureSpec.makeMeasureSpec(ViewGroup.LayoutParams.MATCH_PARENT, View.MeasureSpec.EXACTLY);
+        int heightMeasureSpec = View.MeasureSpec.makeMeasureSpec(ViewGroup.LayoutParams.WRAP_CONTENT, View.MeasureSpec.EXACTLY);
+        int desiredWidth = MeasureSpec.makeMeasureSpec(listView.getWidth(), MeasureSpec.UNSPECIFIED);
+        int totalHeight = height;
+        View view = null;
+        
+        for (int i = 0; i < listAdapter.getCount(); i++) {
+            view = listAdapter.getView(0, view, listView);
+            if (i == 0)
+                view.setLayoutParams(new ViewGroup.LayoutParams(desiredWidth, LayoutParams.WRAP_CONTENT));
+
+            view.measure(desiredWidth, MeasureSpec.UNSPECIFIED);
+            view.measure(widthMeasureSpec, heightMeasureSpec);
+            totalHeight += view.getMeasuredHeight();
+        }
+        
+        ViewGroup.LayoutParams params = listView.getLayoutParams();
+        params.height = totalHeight + (listView.getDividerHeight() * (listAdapter.getCount() - 1));
+        listView.setLayoutParams(params);
+        listView.requestLayout();
+    }
+    
     public void menuSliding()
     {
         slidingMenu = new SimpleSideDrawer(this);
         slidingMenu.setRightBehindContentView(R.layout.sliding_menu);
         
+        LinearLayout slidingLayout = (LinearLayout) findViewById(R.id.slidingLayout);
+        LayoutParams params = slidingLayout.getLayoutParams();
+        params.width = (int) (screenWidth * 0.7);
+        slidingLayout.setLayoutParams(params);
         
+        slideMenuPos();
+        slideMenuSave();
+        slideMenuShare();
+        slideMenuGeneral();
+    }
+    
+    private void slideMenuPos()
+    {
+    	ListView slideMenuList = (ListView) findViewById(R.id.positionOptionListView);
+    	
+    	String[] menuItems = new String[]
+    	{
+    		"Find My Position",
+    	};
+    	int[] menuIcons = new int[]
+    	{
+    		android.R.drawable.ic_menu_mylocation,
+    	};
+    	List<Map<String, Object>> menuList = new ArrayList<Map<String, Object>>();
+    	for (int i = 0; i < menuItems.length; i++)
+    	{
+    		HashMap<String, Object> items = new HashMap<String, Object>();
+    		items.put("menuItems", menuItems[i]);
+    		items.put("menuIcons", menuIcons[i]);
+    		menuList.add(items);
+    	}
+    	MenuListAdapter menuAdapter = new MenuListAdapter(this, menuList, "position");
+    	slideMenuList.setAdapter(menuAdapter);
+    	
+    	setListViewHeightBasedOnChildren(slideMenuList);
+    	
+    	slideMenuList.setOnItemClickListener(new OnItemClickListener() {
+			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+				switch (arg2)
+				{
+				case 0:
+					if (stopAsk == false)
+	    				requestGPS = true;
+	    			GPSinit();
+	    			break;
+				default:
+					shortMessage("Oops!! Something wrong~");
+				}
+				slidingMenu.toggleRightDrawer();
+			}
+    	});
+    }
+    
+    private void slideMenuSave()
+    {
+    	ListView slideMenuList = (ListView) findViewById(R.id.saveOptionListView);
+    	
+    	String[] menuItems = new String[]
+    	{
+    		"Save All Plans",
+    		"Save Current Viewing Plan",
+    	};
+    	int[] menuIcons = new int[]
+    	{
+    		R.drawable.save_all_icon,
+    		R.drawable.save_icon,
+    	};
+    	List<Map<String, Object>> menuList = new ArrayList<Map<String, Object>>();
+    	for (int i = 0; i < menuItems.length; i++)
+    	{
+    		HashMap<String, Object> items = new HashMap<String, Object>();
+    		items.put("menuItems", menuItems[i]);
+    		items.put("menuIcons", menuIcons[i]);
+    		menuList.add(items);
+    	}
+    	MenuListAdapter menuAdapter = new MenuListAdapter(this, menuList, "save");
+    	slideMenuList.setAdapter(menuAdapter);
+    	
+    	setListViewHeightBasedOnChildren(slideMenuList);
+    	
+    	slideMenuList.setOnItemClickListener(new OnItemClickListener() {
+			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3)
+			{
+				switch (arg2)
+				{
+				case 0:
+					saveAllPlans();
+					break;
+				case 1:
+					if (startNeed == false)
+						longMessage("Please select a plan first!");
+					else
+						exAdapter.optionDialog();
+						//saveData();
+					break;
+				}
+				slidingMenu.toggleRightDrawer();
+			}
+    	});
+    }
+    
+    private void slideMenuShare()
+    {
+    	ListView slideMenuList = (ListView) findViewById(R.id.shareOptionListView);
+
+    	String[] menuItems = new String[]
+    	{
+    		"Share the Current Viewing Plan",
+    	};
+    	int[] menuIcons = new int[]
+    	{
+    		R.drawable.share_icon,
+    	};
+    	List<Map<String, Object>> menuList = new ArrayList<Map<String, Object>>();
+    	for (int i = 0; i < menuItems.length; i++)
+    	{
+    		HashMap<String, Object> items = new HashMap<String, Object>();
+    		items.put("menuItems", menuItems[i]);
+    		items.put("menuIcons", menuIcons[i]);
+    		menuList.add(items);
+    	}
+    	MenuListAdapter menuAdapter = new MenuListAdapter(this, menuList, "share");
+    	slideMenuList.setAdapter(menuAdapter);
+    	
+    	setListViewHeightBasedOnChildren(slideMenuList);
+    	
+    	slideMenuList.setOnItemClickListener(new OnItemClickListener() {
+			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+				if (startNeed == false)
+					longMessage("You haven't select a plan yet~");
+				else {
+					new sharePlan().execute();
+				}
+			}
+    	});
+    	
+    	final ExpandableListView mySharedList = (ExpandableListView) findViewById(R.id.alreadySharedList);
+    	
+    	final List<Map<String, Object>> planGroup = new ArrayList<Map<String, Object>>();
+		final List<List<Map<String, String>>> planChild = new ArrayList<List<Map<String, String>>>();
+		
+		Map<String, Object> planGroupTitle = new HashMap<String, Object>();
+		planGroupTitle.put("itemTitle", "My Shared Plans");
+		planGroupTitle.put("itemIcon", R.drawable.shared_icon);
+		planGroup.add(planGroupTitle);
+		
+		List<Map<String, String>> sharedPlans = new ArrayList<Map<String, String>>();
+		for (int i = 0; i < planArr.length; i++)
+		{
+			for (int j = 0; j < publicListArr.size(); j++)
+			{
+				if (planArr[i].equals(publicListArr.get(j).get("plan")))
+				{
+					Map<String, String> sharedPlan = new HashMap<String, String>();
+					
+					sharedPlan.put("sharedName", planArr[i]);
+					sharedPlans.add(sharedPlan);
+					Log.i("alreadyExists",planArr[i]);
+				}
+			}
+		}
+		planChild.add(sharedPlans);
+		sharedList = planChild;
+		
+		SharedExAdapter sharedAdapter = new SharedExAdapter(this, planGroup, planChild);
+		mySharedList.setAdapter(sharedAdapter);
+		mySharedList.setIndicatorBounds(0, 35);
+		Log.i("planChild", ""+planChild.size());
+		
+		mySharedList.setOnTouchListener(new OnTouchListener() {
+			public boolean onTouch(View v, MotionEvent event) {
+				v.getParent().requestDisallowInterceptTouchEvent(true);
+				return false;
+			}
+    	});
+		mySharedList.setOnGroupExpandListener(new OnGroupExpandListener() {
+			public void onGroupExpand(int groupPosition) {
+				setExListViewHeightBasedOnChildren(mySharedList, 65);
+			}
+		});
+		mySharedList.setOnGroupCollapseListener(new OnGroupCollapseListener() {
+			public void onGroupCollapse(int groupPosition) {
+				setExListViewHeightBasedOnChildren(mySharedList, 0);
+			}
+		});
+    }
+    
+    public void refreshList(String change, int position)
+    {
+    	ExpandableListView mySharedList = (ExpandableListView) findViewById(R.id.alreadySharedList);
+
+    	final List<Map<String, Object>> planGroup = new ArrayList<Map<String, Object>>();
+
+    	Map<String, Object> planGroupTitle = new HashMap<String, Object>();
+    	planGroupTitle.put("itemTitle", "My Shared Plans");
+    	planGroupTitle.put("itemIcon", R.drawable.shared_icon);
+    	planGroup.add(planGroupTitle);
+
+    	if (change.equals("add"))
+    	{
+    		Map<String, String> sharedPlan = new HashMap<String, String>();
+
+    		sharedPlan.put("sharedName", Pid + " " + planTitle);
+    		Log.i("alreadyExists", Pid + " " + planTitle);
+
+    		sharedList.get(0).add(sharedPlan);
+    	}
+    	if (change.equals("remove"))
+    	{
+    		String sharedPlan = sharedList.get(0).get(position).get("sharedName");
+    		Log.i("RemovePlan", sharedPlan);
+    		for (int i = 0; i < publicListArr.size(); i++)
+    		{
+    			if (publicListArr.get(i).get("plan").contains(sharedPlan))
+    			{
+    				Log.i("RemovePublicList", publicListArr.get(i).get("plan"));
+    				publicListArr.remove(i);    				
+    			}
+    		}
+    		sharedList.get(0).remove(position);
+    	}
+    	SharedExAdapter sharedAdapter = new SharedExAdapter(this, planGroup, sharedList);
+    	mySharedList.setAdapter(sharedAdapter);
+    	mySharedList.expandGroup(0);
+    	setTitle(0, false);
+    }
+    
+    private void slideMenuGeneral()
+    {
+    	ListView slideMenuList = (ListView) findViewById(R.id.generalListView);
+
+    	String[] menuItems = new String[]
+    	{
+    		"Show Attractions List",
+    		"About",
+        	"Back to Login Screen",
+        	"Logout",
+    	};
+    	int[] menuIcons = new int[]
+    	{
+    		R.drawable.attraction_icon,
+    		R.drawable.info_icon,
+        	R.drawable.go_back_icon,
+        	R.drawable.logout_icon,
+    	};
+    	List<Map<String, Object>> menuList = new ArrayList<Map<String, Object>>();
+    	for (int i = 0; i < menuItems.length; i++)
+    	{
+    		HashMap<String, Object> items = new HashMap<String, Object>();
+    		items.put("menuItems", menuItems[i]);
+    		items.put("menuIcons", menuIcons[i]);
+    		menuList.add(items);
+    	}
+    	MenuListAdapter menuAdapter = new MenuListAdapter(this, menuList, "general");
+    	slideMenuList.setAdapter(menuAdapter);
+    	
+    	setListViewHeightBasedOnChildren(slideMenuList);
+    	
+    	slideMenuList.setOnItemClickListener(new OnItemClickListener() {
+			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+				switch (arg2)
+				{
+				case 0:
+					slidingMenu.toggleRightDrawer();
+					showSpotWindow();
+					break;
+				case 1:
+					AlertDialog.Builder infos = new AlertDialog.Builder(Map2Activity.this);
+					
+					TextView infoTitle = new TextView(Map2Activity.this);
+					infoTitle.setText("Screen Info");
+					infoTitle.setTextColor(getResources().getColor(R.color.DeepSkyBlue));
+					infoTitle.setGravity(Gravity.CENTER);
+					infoTitle.setPadding(0, 20, 0, 20);
+					
+	    			if (screenSize >= 6.5)
+	    			{
+	    				infoTitle.setTextSize(30);
+	    				infos.setCustomTitle(infoTitle);
+	    			} else {
+	    				infoTitle.setTextSize(22);
+	    				infos.setCustomTitle(infoTitle);
+	    			}
+	    			infos.setMessage("Screen Size = "+screenSize +
+	    										"\nScreen Width = "+screenWidth + "\nScreen Height = "+screenHeight);
+	    			infos.setPositiveButton("OK!", new DialogInterface.OnClickListener()
+	                {  
+	    				public void onClick(DialogInterface arg0, int arg1)
+	    				{  
+	    				} 
+	               });
+	               	AlertDialog dialogStyle = infos.create();
+	    			dialogStyle.show();
+	    			
+	    			dialogStyle.getWindow().getAttributes();
+	    			TextView infoText = (TextView) dialogStyle.findViewById(android.R.id.message);
+					Button okBtn = (Button) dialogStyle.getButton(DialogInterface.BUTTON_POSITIVE);
+					okBtn.setTextColor(getResources().getColor(R.drawable.DarkOrange));
+	    			
+	    			if (screenSize >= 6.5)
+					{
+	    				infoText.setTextSize(28);
+	    				infoText.setPadding(10, 15, 10, 15);
+						okBtn.setTextSize(28);
+						okBtn.setPadding(0, 15, 0, 15);
+					} else {
+						infoText.setTextSize(18);
+						infoText.setPadding(10, 15, 10, 15);
+						okBtn.setTextSize(18);
+						okBtn.setPadding(0, 15, 0, 15);
+					}
+					break;
+				case 2:
+					Intent goBack = new Intent();
+	    			goBack.setClass(Map2Activity.this, Login.class);
+	    			Map2Activity.this.startActivity(goBack);
+	    			finish();
+					break;
+				case 3:
+					AlertDialog.Builder infoDialog = new AlertDialog.Builder(Map2Activity.this);
+					
+					TextView title = new TextView(Map2Activity.this);
+        			title.setText("Are you sure?!");
+        			title.setTextColor(getResources().getColor(R.color.DeepSkyBlue));
+    				title.setGravity(Gravity.CENTER);
+    				title.setPadding(0, 20, 0, 20);
+					
+	    			if (screenSize >= 6.5)
+	    			{
+	    				title.setTextSize(30);
+	    				infoDialog.setCustomTitle(title);
+	    			} else {
+	    				title.setTextSize(22);
+	    				infoDialog.setCustomTitle(title);
+	    			}
+	    			infoDialog.setPositiveButton("No~", new DialogInterface.OnClickListener()
+	                {  
+	    				public void onClick(DialogInterface arg0, int arg1)
+	    				{  
+	    				} 
+	               }).setNegativeButton("Yes!", new DialogInterface.OnClickListener()
+	               	{  
+	            	   public void onClick(DialogInterface arg0, int arg1)
+	            	   {
+	            		   Intent goBack = new Intent();
+	            		   Bundle clear = new Bundle();
+	            		   goBack.setClass(Map2Activity.this, Login.class);
+	            		   clear.putString("Clear", "");
+	            		   goBack.putExtras(clear);
+	            		   Map2Activity.this.startActivity(goBack);
+	            		   finish();
+	            	   } 
+	               	});
+	               	AlertDialog dialog = infoDialog.create();
+	    			dialog.show();
+	    			
+	    			dialog.getWindow().getAttributes();
+					Button positive = (Button) dialog.getButton(DialogInterface.BUTTON_POSITIVE);
+					Button negative = (Button) dialog.getButton(DialogInterface.BUTTON_NEGATIVE);
+					positive.setTextColor(getResources().getColor(R.drawable.DarkOrange));
+					negative.setTextColor(getResources().getColor(R.drawable.Brown));
+	    			
+	    			if (screenSize >= 6.5)
+					{
+						positive.setTextSize(28);
+						positive.setPadding(0, 15, 0, 15);
+						negative.setTextSize(28);
+						negative.setPadding(0, 15, 0, 15);
+					} else {
+						positive.setTextSize(18);
+						positive.setPadding(0, 15, 0, 15);
+						negative.setTextSize(18);
+						negative.setPadding(0, 15, 0, 15);
+					}
+					break;
+				}
+			}
+    	});
     }
     
     
@@ -2649,10 +3284,18 @@ public class Map2Activity extends MapActivity implements LocationListener
     	super.openOptionsMenu();
     }
     
-    @SuppressWarnings("deprecation")
-	@Override
+    @Override
     public boolean onMenuOpened(int featureId, Menu menu)
     {
+    	if (alreadyPop) {
+    		if (popUp.isShowing()) {
+    			ImageButton pathBtn = (ImageButton) findViewById(R.id.pathBtn);
+    			pathBtn.setImageResource(R.drawable.path_icon);
+    			popUp.dismiss();
+    		}
+    	}
+    	slidingMenu.toggleRightDrawer();
+    	/*
     	String[] menuItems = new String[]
     	{
     		"Save All Plans for Offline",
@@ -2685,7 +3328,7 @@ public class Map2Activity extends MapActivity implements LocationListener
     		items.put("menuIcons", menuIcons[i]);
     		menuList.add(items);
     	}
-    	MenuListAdapter menuAdapter = new MenuListAdapter(this, menuList);
+    	MenuListAdapter menuAdapter = new MenuListAdapter(this, menuList, "traditional");
     	
     	LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		view = inflater.inflate(R.layout.menu_listview, null);
@@ -2871,7 +3514,7 @@ public class Map2Activity extends MapActivity implements LocationListener
 				popMenu.dismiss();
 			}
 		});
-    	
+		*/
     	return false;
     }
     

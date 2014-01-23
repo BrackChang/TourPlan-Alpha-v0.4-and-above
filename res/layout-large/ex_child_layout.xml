@@ -26,6 +26,7 @@
         android:layout_width="55dp"
         android:layout_height="55dp"
         android:layout_below="@+id/exLine1"
+        android1:layout_marginLeft="3dp"
         android:src="@drawable/tour_icon" />
 
     <ImageView

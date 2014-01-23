@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/slidingLayout"
+    style="@style/rightBehindMenuScroll"
+    android:layout_width="320dp"
+    android:layout_height="fill_parent"
+    android:background="@drawable/menu_style"
+    android:orientation="vertical" >
+
+    <RelativeLayout
+        android:id="@+id/RelativeLayout1"
+        style="@style/behindMenuScrollContent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" >
+
+        <TextView
+            android:id="@+id/menuHeadline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="25dp"
+            android:layout_marginTop="20dp"
+            android:layout_toRightOf="@+id/menuHeadIcon"
+            android:text="@string/menuHeadline"
+            android:textColor="@drawable/Ivory"
+            android:textSize="30sp" />
+
+        <ImageView
+            android:id="@+id/menuHeadIcon"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_alignParentLeft="true"
+            android:layout_marginTop="8dp"
+            android:src="@drawable/tour_icon" />
+        
+    </RelativeLayout>
+
+    <ScrollView
+        android:id="@+id/scrollView1"
+        android:layout_width="match_parent"
+        android:layout_height="fill_parent" >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical" >
+
+            <TextView
+                android:id="@+id/PositionOptions"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="5dp"
+                android:layout_marginTop="2dp"
+                android:text="Position Options"
+                android:textColor="@drawable/White"
+                android:textSize="24sp" />
+
+            <View
+                android:id="@+id/Line1"
+                android:layout_width="fill_parent"
+                android:layout_height="1dp"
+                android:background="@drawable/Ivory" />
+
+            <ListView
+                android:id="@+id/positionOptionListView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:dividerHeight="1dp" >
+            </ListView>
+
+            <TextView
+                android:id="@+id/saveOptions"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="5dp"
+                android:layout_marginTop="2dp"
+                android:text="Save Options"
+                android:textColor="@drawable/White"
+                android:textSize="24sp" />
+
+            <View
+                android:id="@+id/Line2"
+                android:layout_width="fill_parent"
+                android:layout_height="1dp"
+                android:background="@drawable/Ivory" />
+
+            <ListView
+                android:id="@+id/saveOptionListView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:dividerHeight="1dp" >
+            </ListView>
+
+            <TextView
+                android:id="@+id/shareOptions"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="5dp"
+                android:layout_marginTop="2dp"
+                android:text="Share Options"
+                android:textColor="@drawable/White"
+                android:textSize="24sp" />
+
+            <View
+                android:id="@+id/Line3"
+                android:layout_width="fill_parent"
+                android:layout_height="1dp"
+                android:background="@drawable/Ivory" />
+
+            <ListView
+                android:id="@+id/shareOptionListView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" >
+            </ListView>
+
+            <ExpandableListView
+                android:id="@+id/alreadySharedList"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" >
+            </ExpandableListView>
+            
+            <TextView
+                android:id="@+id/general"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="5dp"
+                android:layout_marginTop="2dp"
+                android:text="General"
+                android:textColor="@drawable/White"
+                android:textSize="24sp" />
+            
+            <View
+                android:id="@+id/Line4"
+                android:layout_width="fill_parent"
+                android:layout_height="1dp"
+                android:background="@drawable/Black" />
+
+            <ListView
+                android:id="@+id/generalListView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:dividerHeight="1dp" >
+
+            </ListView>
+
+        </LinearLayout>
+
+    </ScrollView>
+
+</LinearLayout>

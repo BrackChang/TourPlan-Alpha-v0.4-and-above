@@ -19,11 +19,13 @@ public class MenuListAdapter extends BaseAdapter {
 	
 	private Context context;
 	List<Map<String, Object>> items;
+	private String feature;
 	
-	public MenuListAdapter (Context context,  List<Map<String, Object>> items)
+	public MenuListAdapter (Context context,  List<Map<String, Object>> items, String feature)
 	{
 		this.context = context;
 		this.items = items;
+		this.feature = feature;
 	}
 
 	@Override
@@ -50,27 +52,46 @@ public class MenuListAdapter extends BaseAdapter {
 		LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		LinearLayout layout = (LinearLayout) inflater.inflate(R.layout.menu_list, null);
 		
-		TextView menuText = (TextView) layout.findViewById(R.id.menuItem);
+		TextView menuText = (TextView) layout.findViewById(R.id.menuText);
 		ImageView menuImage = (ImageView) layout.findViewById(R.id.menuIcon);
 		
 		String menuItem = (String) items.get(position).get("menuItems");
 		int menuIcon = (Integer) items.get(position).get("menuIcons");
-		
-		if (position == 0)
-			menuText.setTextColor(context.getResources().getColor(R.drawable.DarkOrange));
-		if (position == 1)
+
+		if (feature.equals("position"))
 		{
-			menuText.setTextColor(context.getResources().getColor(R.drawable.Gray));
-			double size = menuText.getTextSize() * 0.9;
-			Log.i("TextSize", ""+size);
-			menuText.setTextSize(TypedValue.COMPLEX_UNIT_PX, (float) size);
+			if (position == 0)
+				menuText.setTextColor(context.getResources().getColor(R.drawable.anotherBlue));
 		}
-		if (position == 2)
-			menuText.setTextColor(context.getResources().getColor(R.drawable.SteelBlue));
-		if (position == 3)
-			menuText.setTextColor(context.getResources().getColor(R.drawable.SeeGreen));
-		if (position == 6)
-			menuText.setTextColor(context.getResources().getColor(R.drawable.Brown));
+		if (feature.equals("save"))
+		{
+			menuText.setTextColor(context.getResources().getColor(R.drawable.AliceBlue));
+		}
+		if (feature.equals("general"))
+		{
+			if (position == 3)
+				menuText.setTextColor(context.getResources().getColor(R.drawable.Brown));
+		}
+		if (feature.equals("traditional"))
+		{
+			menuText.setTextColor(context.getResources().getColor(R.drawable.Black));
+			
+			if (position == 0)
+				menuText.setTextColor(context.getResources().getColor(R.drawable.DarkOrange));
+			if (position == 1)
+			{
+				menuText.setTextColor(context.getResources().getColor(R.drawable.Gray));
+				double size = menuText.getTextSize() * 0.9;
+				Log.i("TextSize", ""+size);
+				menuText.setTextSize(TypedValue.COMPLEX_UNIT_PX, (float) size);
+			}
+			if (position == 2)
+				menuText.setTextColor(context.getResources().getColor(R.drawable.SteelBlue));
+			if (position == 3)
+				menuText.setTextColor(context.getResources().getColor(R.drawable.SeeGreen));
+			if (position == 6)
+				menuText.setTextColor(context.getResources().getColor(R.drawable.Brown));
+		}
 		
 		menuText.setText(menuItem);
 		menuText.setTypeface(null, Typeface.ITALIC);

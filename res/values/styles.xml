@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
 
     <!--
         Base application theme, dependent on API level. This theme is replaced
@@ -59,10 +59,26 @@
         <item name="android:textColor">@drawable/Ivory</item>
     </style>
 
-    <style name="dialog_LargeText" parent="@android:style/Theme.Dialog">
-        <item name="android:textSize">30sp</item>
+    <style name="dialog_smallText" parent="@android:style/Theme.Dialog">
+        <item name="android:textSize">22sp</item>
+        <item name="android:gravity">center</item>
     </style>
     
+    <style name="dialog_LargeText" parent="@android:style/Theme.Dialog">
+        <item name="android:textSize">32sp</item>
+        <item name="android:gravity">center</item>
+    </style>
+    <!--
+    <style name="HoloDialog_smallText" parent="@android:style/Theme.Holo.Dialog">
+        <item name="android:textSize">22sp</item>
+        <item name="android:gravity">center</item>
+    </style>
+    
+    <style name="HoloDialog_LargeText" parent="@android:style/Theme.Holo.Dialog">
+        <item name="android:textSize">32sp</item>
+        <item name="android:gravity">center</item>
+    </style>
+    -->
     <style name="leftBehindMenuScroll">
         <item name="android:layout_width">240dp</item>
         <item name="android:layout_height">fill_parent</item>
