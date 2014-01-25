@@ -238,7 +238,18 @@ public class Login extends Activity {
 					longMessage(IP);
 				}
 				else if (IP.contains("Exception"))
+				{
+					Button SignInBtn = (Button) findViewById(R.id.SignInBtn);
+					TextView SignUp = (TextView) findViewById(R.id.Register);
+					TextView goWeb = (TextView) findViewById(R.id.goWeb);
+					
+					SignInBtn.setClickable(false);
+					SignUp.setClickable(false);
+					goWeb.setClickable(false);
+					
+					noConnection();
 					longMessage(IP);
+				}
 				else
 					longMessage("External IP¡G" + IP);
 				
@@ -484,7 +495,7 @@ public class Login extends Activity {
 			title.setTextSize(22);
 			warning.setCustomTitle(title);
 		}
-		warning.setMessage("Can't connect to Internet!\n" +
+		warning.setMessage("Unable connect to Internet!\n" +
 				"The WiFi you currently connected may need to log on,\n" +
 				"And restart this App for using online mode.")
 		.setPositiveButton("Alright~", new DialogInterface.OnClickListener() {

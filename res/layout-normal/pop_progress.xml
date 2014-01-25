@@ -34,7 +34,7 @@
         android:layout_toRightOf="@+id/loadingBar"
         android:gravity="center"
         android:textColor="@drawable/SeeGreen"
-        android:textSize="18sp"
+        android:textSize="17sp"
         android:textStyle="bold|italic" />
 
 </RelativeLayout>

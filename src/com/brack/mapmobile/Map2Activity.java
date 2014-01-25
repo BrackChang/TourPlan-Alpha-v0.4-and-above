@@ -187,6 +187,7 @@ public class Map2Activity extends MapActivity implements LocationListener
     private boolean listExpanded;
 	private String mapStatus;
 	private boolean mapFocusMove;
+	private boolean hasPlan;
     private float posX;
 	private float posY;
 	private float currentPosX;
@@ -785,60 +786,114 @@ public class Map2Activity extends MapActivity implements LocationListener
 				typingText.setFocusable(true);
 		        typingText.setFocusableInTouchMode(true);
    				
-		        planXml = xmlString;
-		        
-   				PlanVO planVO = XmlParser.parse(xmlString);
-   				
-   		        String res = "";
-   		        StringTokenizer stPlan = new StringTokenizer(planVO.getPlan(),",");
-   		        StringTokenizer stPid = new StringTokenizer(planVO.getPid(),",");
-   				stPlan.nextToken();
-   				stPid.nextToken();
-   					while (stPlan.hasMoreTokens() & stPid.hasMoreTokens()) {
-   							res = res + stPid.nextToken()+ " " + stPlan.nextToken() + " ";
-   					}
-   				StringBuffer planBuf = new StringBuffer(res);
-   				planBuf.deleteCharAt(0);
-   				String res2 = new String(planBuf);
-   				
-   				final String[] plans = res2.split(":");
-   				
-   				String planDays = planVO.getPlanDays();
-   				StringBuffer planDaysBuf = new StringBuffer(planDays);
-   				planDaysBuf.delete(0, 5);
-   				String planDays2 = new String(planDaysBuf);
-   				String[] daysList = planDays2.split(",");
-   				
-   				String planStart = planVO.getPlanStart();
-   				StringBuffer planStartBuf = new StringBuffer(planStart);
-   				planStartBuf.delete(0, 5);
-   				String planStart2 = new String(planStartBuf);
-   				String[] startList = planStart2.split(",");
-   				
-   				String planEnd = planVO.getPlanEnd();
-   				StringBuffer planEndBuf = new StringBuffer(planEnd);
-   				planEndBuf.delete(0, 5);
-   				String planEnd2 = new String(planEndBuf);
-   				String[] endList = planEnd2.split(",");
-   				
-   				for (int i = 0; i < endList.length; i++)
-   				{
-   					endList[i] = endList[i].replace(Integer.toString(new Date().getYear()+1900)+"-", "");
-   				}
-   				
-   				planArr = plans;
-   				planDaysArr = daysList;
-   				planStartArr = startList;
-   				planEndArr = endList;
-   				
-   				startCountDown();
-   				longMessage("Now, Please choose your plan!");
-   				loadingBarStop();
-   				
+		        if (xmlString.contains("no plan found :3"))
+		        	noPlanFound();
+		        else
+		        {
+		        	hasPlan = true;
+		        	
+		        	planXml = xmlString;
+		        	PlanVO planVO = XmlParser.parse(xmlString);
+		        	
+		        	String res = "";
+		        	StringTokenizer stPlan = new StringTokenizer(planVO.getPlan(),",");
+		        	StringTokenizer stPid = new StringTokenizer(planVO.getPid(),",");
+		        	stPlan.nextToken();
+		        	stPid.nextToken();
+		        	while (stPlan.hasMoreTokens() & stPid.hasMoreTokens()) {
+		        		res = res + stPid.nextToken()+ " " + stPlan.nextToken() + " ";
+		        	}
+		        	StringBuffer planBuf = new StringBuffer(res);
+		        	planBuf.deleteCharAt(0);
+		        	String res2 = new String(planBuf);
+		        	
+		        	final String[] plans = res2.split(":");
+		        	
+		        	String planDays = planVO.getPlanDays();
+		        	StringBuffer planDaysBuf = new StringBuffer(planDays);
+		        	planDaysBuf.delete(0, 5);
+		        	String planDays2 = new String(planDaysBuf);
+		        	String[] daysList = planDays2.split(",");
+		        	
+		        	String planStart = planVO.getPlanStart();
+		        	StringBuffer planStartBuf = new StringBuffer(planStart);
+		        	planStartBuf.delete(0, 5);
+		        	String planStart2 = new String(planStartBuf);
+		        	String[] startList = planStart2.split(",");
+		        	
+		        	String planEnd = planVO.getPlanEnd();
+		        	StringBuffer planEndBuf = new StringBuffer(planEnd);
+		        	planEndBuf.delete(0, 5);
+		        	String planEnd2 = new String(planEndBuf);
+		        	String[] endList = planEnd2.split(",");
+		        	
+		        	for (int i = 0; i < endList.length; i++)
+		        	{
+		        		endList[i] = endList[i].replace(Integer.toString(new Date().getYear()+1900)+"-", "");
+		        	}
+		        	
+		        	planArr = plans;
+		        	planDaysArr = daysList;
+		        	planStartArr = startList;
+		        	planEndArr = endList;
+		        	
+		        	startCountDown();
+		        	longMessage("Now, Please choose your plan!");
+		        	loadingBarStop();
+		        }
    				break;
    			}
    		}
    	};
+   	
+   	public void noPlanFound()
+    {
+    	AlertDialog.Builder warning = new AlertDialog.Builder(Map2Activity.this);
+		
+		TextView title = new TextView(this);
+		title.setText("No Plan Found!");
+		title.setTextColor(getResources().getColor(R.color.DeepSkyBlue));
+		title.setGravity(Gravity.CENTER);
+		title.setPadding(0, 20, 0, 20);
+		
+		if (screenSize >= 6.5)
+		{
+			title.setTextSize(30);
+			warning.setCustomTitle(title);
+		} else {
+			title.setTextSize(22);
+			warning.setCustomTitle(title);
+		}
+		warning.setMessage("You didn't establish any plan yet! \n" +
+							"But you can still view the public plan. \n" +
+							"Howerver, create your own plan would be Awesome! \n" +
+							"Go check¡uhttp://labm406.serveftp.com/TP¡v(£½_>£¿)")
+		.setPositiveButton("I Got It!", new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int which) {
+				startCountDown();
+			}
+		});
+		AlertDialog dialog = warning.create();
+		dialog.show();
+		dialog.setCancelable(false);
+		dialog.getWindow().getAttributes();
+		
+		TextView msgText = (TextView) dialog.findViewById(android.R.id.message);
+		msgText.setGravity(Gravity.CENTER);
+		Button positive = (Button) dialog.getButton(DialogInterface.BUTTON_POSITIVE);
+		positive.setTextColor(getResources().getColor(R.drawable.DarkOrange));
+		
+		if (screenSize >= 6.5)
+		{
+			msgText.setTextSize(28);
+			msgText.setPadding(10, 15, 10, 15);
+			positive.setTextSize(28);
+		} else {
+			msgText.setTextSize(18);
+			msgText.setPadding(10, 15, 10, 15);
+			positive.setTextSize(18);
+		}
+    }
    	
    	Handler planChosen = new Handler()
    	{
@@ -944,13 +999,13 @@ public class Map2Activity extends MapActivity implements LocationListener
 					
 					startNeed = true;
 					
-					if (mapAutoNone == true) 
+					if (mapAutoNone) 
 						mapNoneCountDown();
 					
 					mapControl.setZoom(8);
 					mapView.getOverlays().remove(drawOverlay);
 					
-					if (alreadyPop == true)
+					if (alreadyPop)
 					{
 						popUp.dismiss();
 						ImageButton pathBtn = (ImageButton) findViewById(R.id.pathBtn);
@@ -992,7 +1047,7 @@ public class Map2Activity extends MapActivity implements LocationListener
 				textSize = 13;
 				markerWidth = 40;
 				markerHeight = 45;
-				btnHeight = 48;
+				btnHeight = 52;
 			} 
 			else if (screenWidth >= 720 && screenWidth < 800)
 			{
@@ -1122,7 +1177,7 @@ public class Map2Activity extends MapActivity implements LocationListener
 						typingText.setText(dayString);
 					}
 				});
-			} else if (day0Tag == true)
+			} else if (day0Tag)
 			{
 				if (dayArr[i].equals("0"))
 				{
@@ -1176,7 +1231,7 @@ public class Map2Activity extends MapActivity implements LocationListener
 		mapView.getOverlays().add(Marker);
 		mapView.invalidate();	
 		
-   		exAdapter = new ExAdapter(this, spotGroup, spotChild, true);
+   		exAdapter = new ExAdapter(this, spotGroup, spotChild, true, MyName, Pid);
    		exSpotList.setIndicatorBounds(0, 40);
    		exSpotList.setAdapter(exAdapter);
 
@@ -1752,112 +1807,117 @@ public class Map2Activity extends MapActivity implements LocationListener
 	@SuppressWarnings("deprecation")
 	public void showPlanWindow()
 	{
-		putPlanArr();
-		
-		LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		view = inflater.inflate(R.layout.popup_list, null);
-		final ListView extanded_list = (ListView) view.findViewById(R.id.exList1); 
-		RelativeLayout SayHiLayout = (RelativeLayout) findViewById(R.id.SayHi);
-
-		final SimpleAdapter planAdapter = new SimpleAdapter
-				(Map2Activity.this, planListArr, R.layout.simple_plan_layout,
-						new String[] {"planName", "planInfos"}, new int[] {R.id.textView_1_1, R.id.textView_1_2});
-		
-		extanded_list.setAdapter(planAdapter);
-		
-		new CountDownTimer(800, 800)
+		if (!hasPlan)
+			showPublicWindow();
+		else
 		{
-			public void onFinish()
+			putPlanArr();
+			
+			LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+			view = inflater.inflate(R.layout.popup_list, null);
+			final ListView extanded_list = (ListView) view.findViewById(R.id.exList1); 
+			RelativeLayout SayHiLayout = (RelativeLayout) findViewById(R.id.SayHi);
+			
+			final SimpleAdapter planAdapter = new SimpleAdapter
+					(Map2Activity.this, planListArr, R.layout.simple_plan_layout,
+							new String[] {"planName", "planInfos"}, new int[] {R.id.textView_1_1, R.id.textView_1_2});
+			
+			extanded_list.setAdapter(planAdapter);
+			
+			new CountDownTimer(800, 800)
 			{
-				HashMap<String, String> publicOption1 = new HashMap<String, String>();
-				publicOption1.put("planName", "");
-				publicOption1.put("planInfos", "      ¡õ   ¡õ   ¡õ   ¡õ   ¡õ   ¡õ    ");
-				planListArr.add(publicOption1);
-				
-				HashMap<String, String> publicOption2 = new HashMap<String, String>();
-				publicOption2.put("planName", "   Check Public Plans");
-				if (publicListArr.size() == 0)
-					publicOption2.put("planInfos", "Currently no plans shared.");
-				else if (publicListArr.size() == 1)
-					publicOption2.put("planInfos", "Currently only have " + publicListArr.size() + " plan shared.");
-				else
-					publicOption2.put("planInfos", "There are " + publicListArr.size() + " Plans have been shared.");
-				
-				planListArr.add(publicOption2);
-				
-				extanded_list.setAdapter(planAdapter);
-			}
-			public void onTick(long millisUntilFinished) {}
-		}.start();
-		
-		double width = screenWidth / 1.35;
-		double height = screenHeight / 1.5;
-
-		final PopupWindow planPop = new PopupWindow (view, (int)width, (int)height);	//(view, width, height)
-		
-		//popUp.setAnimationStyle(R.style.PopupAnimation);
-		planPop.setFocusable(true);
-		planPop.setOutsideTouchable(true);
-		planPop.setBackgroundDrawable(new BitmapDrawable());
-		
-		int xpos = screenWidth / 2 - planPop.getWidth() / 2;
-		double ypos = (screenHeight / 2) - (planPop.getHeight() / 1.55);
-		
-		Log.i("Coder", "xPos:" + xpos);
-		Log.i("Coder", "yPos:" + ypos);
-		
-		planPop.showAsDropDown(SayHiLayout, xpos, (int)ypos);
-		
-		extanded_list.setOnItemClickListener(new AdapterView.OnItemClickListener() { 
-            public void onItemClick(AdapterView<?> ar0, View arg1, int arg2, long arg3)
-            {  
-            	String viewText = ((TextView) arg1.findViewById(R.id.textView_1_1)).getText().toString();
-            	String shareText = ((TextView) arg1.findViewById(R.id.textView_1_2)).getText().toString();
-            	
-            	if (viewText.length() == 0)
-            	{
-            		shortMessage("Ker Ker...");
-            	}
-            	else if (viewText.contains("Public"))
-            	{
-            		if (shareText.contains("no plans"))
-            			shortMessage("(£½_>£¿)");
-            		else
-            		{
-            			showPublicWindow();
-            			planPop.dismiss();
-            		}
-            	}
-            	else
-            	{
-            		String selected = planArr[arg2];
-            		String onlyPlanString = planArr[arg2]
-            				.substring(planArr[arg2].indexOf(" "), planArr[arg2].lastIndexOf(" ")).trim();
-            		planTitle = onlyPlanString;
-            		currentChose = arg2;
-
-            		shortMessage("Plan: " + planArr[arg2]);
-
-            		String pid = selected.substring(0,selected.indexOf(" "));
-            		Pid = pid;
-            		final String xmlPidUrl = tourURL + MyName +"/" + pid;
-
-            		new Thread()
-            		{
-            			public void run()
-            			{
-            				String xmlPidString = getStringByUrl(xmlPidUrl);
-            				planChosen.obtainMessage(REFRESH_DATA, xmlPidString).sendToTarget();
-            			}
-            		}.start();
-
-            		if (planPop != null)
-            			planPop.dismiss();
-            		
-            		loadingBarRun();
-            	}
-            }
-		});
+				public void onFinish()
+				{
+					HashMap<String, String> publicOption1 = new HashMap<String, String>();
+					publicOption1.put("planName", "");
+					publicOption1.put("planInfos", "      ¡õ   ¡õ   ¡õ   ¡õ   ¡õ   ¡õ    ");
+					planListArr.add(publicOption1);
+					
+					HashMap<String, String> publicOption2 = new HashMap<String, String>();
+					publicOption2.put("planName", "   Check Public Plans");
+					if (publicListArr.size() == 0)
+						publicOption2.put("planInfos", "Currently no plans shared.");
+					else if (publicListArr.size() == 1)
+						publicOption2.put("planInfos", "Currently only have " + publicListArr.size() + " plan shared.");
+					else
+						publicOption2.put("planInfos", "There are " + publicListArr.size() + " Plans have been shared.");
+					
+					planListArr.add(publicOption2);
+					
+					extanded_list.setAdapter(planAdapter);
+				}
+				public void onTick(long millisUntilFinished) {}
+			}.start();
+			
+			double width = screenWidth / 1.35;
+			double height = screenHeight / 1.5;
+			
+			final PopupWindow planPop = new PopupWindow (view, (int)width, (int)height);	//(view, width, height)
+			
+			//popUp.setAnimationStyle(R.style.PopupAnimation);
+			planPop.setFocusable(true);
+			planPop.setOutsideTouchable(true);
+			planPop.setBackgroundDrawable(new BitmapDrawable());
+			
+			int xpos = screenWidth / 2 - planPop.getWidth() / 2;
+			double ypos = (screenHeight / 2) - (planPop.getHeight() / 1.55);
+			
+			Log.i("Coder", "xPos:" + xpos);
+			Log.i("Coder", "yPos:" + ypos);
+			
+			planPop.showAsDropDown(SayHiLayout, xpos, (int)ypos);
+			
+			extanded_list.setOnItemClickListener(new AdapterView.OnItemClickListener() { 
+				public void onItemClick(AdapterView<?> ar0, View arg1, int arg2, long arg3)
+				{  
+					String viewText = ((TextView) arg1.findViewById(R.id.textView_1_1)).getText().toString();
+					String shareText = ((TextView) arg1.findViewById(R.id.textView_1_2)).getText().toString();
+					
+					if (viewText.length() == 0)
+					{
+						shortMessage("Ker Ker...");
+					}
+					else if (viewText.contains("Public"))
+					{
+						if (shareText.contains("no plans"))
+							shortMessage("(£½_>£¿)");
+						else
+						{
+							showPublicWindow();
+							planPop.dismiss();
+						}
+					}
+					else
+					{
+						String selected = planArr[arg2];
+						String onlyPlanString = planArr[arg2]
+								.substring(planArr[arg2].indexOf(" "), planArr[arg2].lastIndexOf(" ")).trim();
+						planTitle = onlyPlanString;
+						currentChose = arg2;
+						
+						shortMessage("Plan: " + planArr[arg2]);
+						
+						String pid = selected.substring(0,selected.indexOf(" "));
+						Pid = pid;
+						final String xmlPidUrl = tourURL + MyName +"/" + pid;
+						
+						new Thread()
+						{
+							public void run()
+							{
+								String xmlPidString = getStringByUrl(xmlPidUrl);
+								planChosen.obtainMessage(REFRESH_DATA, xmlPidString).sendToTarget();
+							}
+						}.start();
+						
+						if (planPop != null)
+							planPop.dismiss();
+						
+						loadingBarRun();
+					}
+				}
+			});
+		}
 	}
 	
 	@SuppressWarnings("deprecation")
@@ -2055,35 +2115,39 @@ public class Map2Activity extends MapActivity implements LocationListener
 	
 	public void saveData()
 	{
-		File dir = getDir("offLine", Context.MODE_PRIVATE);
-		File userFolder = new File(dir, MyName);
-		if(!userFolder.exists())
-			userFolder.mkdir();
-		File planList = new File (userFolder, "planList.xml");
-		File planWithPid = new File (userFolder, "plan"+Pid+".xml");
-		
-		try
+		if (hasPlan)
 		{
-			FileOutputStream FOS_planList = new FileOutputStream(planList);
-			FileOutputStream FOS_spots = new FileOutputStream(planWithPid);
-			//FOS = openFileOutput("plans", Context.MODE_PRIVATE);	//Create file in the folder "files".
-			FOS_planList.write(planXml.getBytes());
-			FOS_spots.write(spotXml.getBytes());
-			FOS_planList.close();
-			FOS_spots.close();
+			File dir = getDir("offLine", Context.MODE_PRIVATE);
+			File userFolder = new File(dir, MyName);
+			if(!userFolder.exists())
+				userFolder.mkdir();
+			File planList = new File (userFolder, "planList.xml");
+			File planWithPid = new File (userFolder, "plan"+Pid+".xml");
+			
+			try
+			{
+				FileOutputStream FOS_planList = new FileOutputStream(planList);
+				FileOutputStream FOS_spots = new FileOutputStream(planWithPid);
+				//FOS = openFileOutput("plans", Context.MODE_PRIVATE);	//Create file in the folder "files".
+				FOS_planList.write(planXml.getBytes());
+				FOS_spots.write(spotXml.getBytes());
+				FOS_planList.close();
+				FOS_spots.close();
+			}
+			catch (FileNotFoundException e)
+			{
+				e.printStackTrace();
+				Log.e("FileNotFound",e.getMessage().toString());
+			}
+			catch (IOException e)
+			{
+				e.printStackTrace();
+				Log.e("IOException", e.getMessage().toString());
+			}
+			longMessage(planTitle + "\n" + "Save completed!");
 		}
-		catch (FileNotFoundException e)
-		{
-			e.printStackTrace();
-			Log.e("FileNotFound",e.getMessage().toString());
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-			Log.e("IOException", e.getMessage().toString());
-		}
-		longMessage(planTitle + "\n" + "Save completed!");
-		
+		else
+			longMessage("That's not Gonna happen!");
 		//External storage!!
 		/*
 		File SDCard = null;
@@ -2127,28 +2191,33 @@ public class Map2Activity extends MapActivity implements LocationListener
 	
 	public void saveAllPlans()
 	{
-		loadingBarRun();
-		
-		planCount = 0;
-		
-		TextView loadNum = (TextView) findViewById(R.id.downloadCount);
-		loadNum.setVisibility(View.VISIBLE);
-		loadNum.setText(planCount + "/" + planArr.length);
-		
-		for (int i = 0; i < planArr.length; i++)
+		if (hasPlan)
 		{
-			final String pid = planArr[i].substring(0, planArr[i].indexOf(" "));
-			final String xmlUrl = tourURL + MyName + "/" + pid;
+			loadingBarRun();
 			
-			new Thread()
+			planCount = 0;
+			
+			TextView loadNum = (TextView) findViewById(R.id.downloadCount);
+			loadNum.setVisibility(View.VISIBLE);
+			loadNum.setText(planCount + "/" + planArr.length);
+			
+			for (int i = 0; i < planArr.length; i++)
 			{
-				public void run()
+				final String pid = planArr[i].substring(0, planArr[i].indexOf(" "));
+				final String xmlUrl = tourURL + MyName + "/" + pid;
+				
+				new Thread()
 				{
-					String xmlString = pid + " " + getStringByUrl(xmlUrl);
-					saveAll.obtainMessage(REFRESH_DATA, xmlString).sendToTarget();
-				}
-			}.start();
+					public void run()
+					{
+						String xmlString = pid + " " + getStringByUrl(xmlUrl);
+						saveAll.obtainMessage(REFRESH_DATA, xmlString).sendToTarget();
+					}
+				}.start();
+			}
 		}
+		else
+			longMessage("Oops~~You got Nothing!!");
 	}
 	
 	Handler saveAll = new Handler()
@@ -2230,7 +2299,6 @@ public class Map2Activity extends MapActivity implements LocationListener
 	
 	public void saveMapImage(String queue)
 	{
-		boolean drawingEnable = mapView.isDrawingCacheEnabled();
 		mapView.setDrawingCacheEnabled(true);
 		Bitmap bm = mapView.getDrawingCache();
 		
@@ -2253,10 +2321,11 @@ public class Map2Activity extends MapActivity implements LocationListener
 			boolean success = bm.compress(CompressFormat.PNG, 100, outStream);
 			outStream.flush();
 			outStream.close();
+			bm.recycle();
 			
-			mapView.setDrawingCacheEnabled(drawingEnable);
+			mapView.setDrawingCacheEnabled(false);
 			
-			longMessage("Map Image Saved!");
+			shortMessage("Map Image Saved!");
 			
 			if (success)
 			{
@@ -2905,7 +2974,8 @@ public class Map2Activity extends MapActivity implements LocationListener
         
         slideMenuPos();
         slideMenuSave();
-        slideMenuShare();
+        if (hasPlan)
+        	slideMenuShare();
         slideMenuGeneral();
     }
     

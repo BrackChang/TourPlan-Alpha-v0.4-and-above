@@ -6,7 +6,7 @@
 
     <CheckedTextView
         android:id="@+id/offlinePlanText"
-        style="?android:attr/spinnerDropDownItemStyle"
+        style="@style/mySpinnerDropDown"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/Transparent3"
@@ -19,7 +19,7 @@
 
     <CheckedTextView
         android:id="@+id/offlinePlanInfoText"
-        style="?android:attr/spinnerDropDownItemStyle"
+        style="@style/mySpinnerDropDown"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/Transparent3"

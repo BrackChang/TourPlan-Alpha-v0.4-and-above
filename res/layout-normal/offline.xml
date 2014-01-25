@@ -90,6 +90,7 @@
 
         <Spinner
             android:id="@+id/userNameSelector"
+            style="@style/myHoloLightSpinner"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -106,6 +107,7 @@
 
         <Spinner
             android:id="@+id/planSelector"
+            style="@style/myHoloLightSpinner"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="2"
@@ -144,6 +146,48 @@
         android:layout_width="fill_parent"
         android:layout_height="1dp"
         android:background="#000000" />
+
+    <RelativeLayout
+        android:id="@+id/controlLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+       
+        <ImageButton
+            android:id="@+id/offlineListControlBtn"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_alignParentLeft="true"
+            android:background="@drawable/button_style_white"
+            android:onClick="listControl"
+            android:scaleType="centerCrop"
+            android:src="@drawable/list_expand"
+            android:visibility="gone" />
+
+        <HorizontalScrollView
+            android:id="@+id/DayScrollArea"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@+id/offlineListControlBtn"
+            android:fillViewport="true" >
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" >
+
+                <TableRow
+                    android:id="@+id/offlineDayRow"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="-3dp"
+                    android:layout_marginTop="-2dp"
+                    android:background="@drawable/Transparent1"
+                    android:gravity="center"
+                    android:scrollbars="horizontal" >
+                </TableRow>
+            </LinearLayout>
+        </HorizontalScrollView>
+
+    </RelativeLayout>
 
     <LinearLayout
         android:id="@+id/PlanLayout"

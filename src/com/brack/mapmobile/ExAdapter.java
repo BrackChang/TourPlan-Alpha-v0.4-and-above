@@ -29,7 +29,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Matrix;
+//import android.graphics.Matrix;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -38,7 +38,7 @@ import android.os.CountDownTimer;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
-import android.support.v4.util.LruCache;
+//import android.support.v4.util.LruCache;
 import android.text.format.Formatter;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -55,6 +55,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
+import android.widget.PopupWindow.OnDismissListener;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -64,6 +65,8 @@ private Context context;
 private List<Map<String, Object>> spotGroup;
 private List<List<Map<String, String>>> spotChild;
 
+private String userName;
+private String Pid;
 boolean online;
 private ArrayList<String> thumbList;
 protected static final int REFRESH_DATA = 0x00000001;
@@ -81,9 +84,7 @@ private double screenSize;
 @SuppressWarnings("deprecation")
 int SDKVersion = Integer.parseInt(VERSION.SDK);
 
-private boolean done;
 private CountDownTimer cd;
-private int rounds;
 private String spotName;
 private int imageNum;
 private int downloadCount;
@@ -95,15 +96,18 @@ private boolean needBackup;
 private boolean notFinishYet;
 
 private TextView loadNum;
+private Bitmap mapBitmap;
 
-private LruCache<String, Bitmap> memCache;
+//private LruCache<String, Bitmap> memCache;
 
 	public ExAdapter (Context context, List<Map<String, Object>> groups, List<List<Map<String, String>>> childs,
-						boolean online)
+						boolean online, String userName, String Pid)
 	{
 		this.spotGroup = groups;
 		this.spotChild = childs;
 		this.online = online;
+		this.userName = userName;
+		this.Pid = Pid;
 		this.context = context;
 		
 		this.originalList = new ArrayList<Map<String, Object>>();
@@ -175,7 +179,7 @@ private LruCache<String, Bitmap> memCache;
 		Log.i("FreeMemory",""+ freeMemory / 1024 + " MB");
 		Log.i("CacheSize",""+ cacheSize / 1024 + " MB");
 		Log.i("AvailableRam",""+ Formatter.formatFileSize(context, availableMem));
-		
+		/*
 		memCache = new LruCache<String, Bitmap>(cacheSize) {
 			@SuppressLint("NewApi")
 			@Override
@@ -183,6 +187,7 @@ private LruCache<String, Bitmap> memCache;
 				return bitmap.getByteCount() / 1024;
 			}
 		};
+		*/
 	}
 
 	@Override
@@ -330,12 +335,10 @@ private LruCache<String, Bitmap> memCache;
 					spotImage1.setVisibility(View.INVISIBLE);
 					spotImage2.setVisibility(View.INVISIBLE);
 					spotName = titleText;
-					done = false;
 					notFinishYet = true;
-					rounds = 0;
 					imageNum = 0;
 					new getImageSource().execute();
-
+					/*
 					cd = new CountDownTimer(500, 500){
 						public void onFinish()
 						{
@@ -375,6 +378,7 @@ private LruCache<String, Bitmap> memCache;
 						public void onTick(long millisUntilFinished){}
 					};
 					cd.start();
+					*/
 				}
 			}
 		});
@@ -604,18 +608,20 @@ private LruCache<String, Bitmap> memCache;
 		if (pic4 != null) sceneFlag.setImageResource(R.drawable.scene_icon);
 		if (pic5 != null) transFlag.setImageResource(R.drawable.transport_icon);
 		
-		showMap.setOnClickListener(new OnClickListener() {
-			public void onClick(View arg0) {
-				((Map2Activity) context).exListMapMove(lat, lng);
-				
-				String queue = titleDescrText.substring(0, titleDescrText.indexOf("-"));
-				((Map2Activity) context).laterSave(queue + "-" + titleText);
-				
-				InputMethodManager imm = (InputMethodManager)arg0.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-				imm.hideSoftInputFromWindow(arg0.getApplicationWindowToken(), 0);
-			}
-		});
-		
+		final String queue = titleDescrText.substring(0, titleDescrText.indexOf("-"));
+		if (online)
+		{
+			showMap.setOnClickListener(new OnClickListener() {
+				public void onClick(View arg0) {
+					((Map2Activity) context).exListMapMove(lat, lng);
+
+					((Map2Activity) context).laterSave(queue + "-" + titleText);
+
+					InputMethodManager imm = (InputMethodManager)arg0.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+					imm.hideSoftInputFromWindow(arg0.getApplicationWindowToken(), 0);
+				}
+			});
+		}
 		final ImageView tbImage = (ImageView) layout.findViewById(R.id.thumbNail);
 		
 		final Handler loadThumb = new Handler()
@@ -672,6 +678,8 @@ private LruCache<String, Bitmap> memCache;
 				if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED))
 				{
 					File thumbFile = new File(SDpath + "/tourPlanSaved/thumbNailSaved/" + titleText + "0.jpg");
+					File mapImagePath = new File(SDpath + "/tourPlanSaved/" + userName +"/"+ Pid +"/");
+					File[] mapImages = mapImagePath.listFiles();
 					
 					if (thumbFile.exists())
 					{
@@ -680,6 +688,20 @@ private LruCache<String, Bitmap> memCache;
 						Bitmap bitmap = BitmapFactory.decodeStream(FIS1);
 						tbImage.setImageBitmap(bitmap);
 					}
+					if (mapImagePath.exists())
+					{
+						for (int i = 0; i < mapImages.length; i++)
+						{
+							if (mapImages[i].getName().contains(queue + "-" + titleText))
+								showMap.setVisibility(View.VISIBLE);
+						}
+					}
+					showMap.setOnClickListener(new OnClickListener() {
+						public void onClick(View v) {
+							popMapImage(queue + "-" + titleText);
+							Log.i("sendMapName", queue + "-" + titleText);
+						}
+					});
 				}
 			}
 			catch (FileNotFoundException e) {
@@ -701,6 +723,60 @@ private LruCache<String, Bitmap> memCache;
 	public boolean isChildSelectable(int groupPosition, int childPosition) {
 		// TODO Auto-generated method stub
 		return false;
+	}
+	
+	@SuppressWarnings("deprecation")
+	public void popMapImage(String title)
+	{
+		LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		View view = inflater.inflate(R.layout.map_image, null);
+		RelativeLayout controlLayout = (RelativeLayout) ((OffLineMode) context).findViewById(R.id.controlLayout);
+		ImageView mapImageView = (ImageView) view.findViewById(R.id.mapImage);
+		
+		final File SDpath = new File(Environment.getExternalStorageDirectory().getPath());
+		try
+		{
+			if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED))
+			{
+				
+				final File mapImage = new File(SDpath + "/tourPlanSaved/" + userName +"/"+ Pid +"/" + title + ".png");
+
+				FileInputStream FIS1 = new FileInputStream(mapImage);
+				//Bitmap bitmap1 = BitmapFactory.decodeStream(FIS1);
+
+				BitmapFactory.Options option = new BitmapFactory.Options();
+				option.inSampleSize = 1;
+				mapBitmap = BitmapFactory.decodeStream(FIS1, null, option);
+				Log.i("reSizeBitmap1", mapBitmap.getWidth() + " x " + mapBitmap.getHeight());
+
+				mapImageView.setImageBitmap(mapBitmap);
+				
+				mapImageView.setOnClickListener(new OnClickListener() {
+					public void onClick(View v) {
+						Intent intent = new Intent();
+						intent.setAction(Intent.ACTION_VIEW);
+						intent.setDataAndType(Uri.parse("file://"+mapImage), "image/*");
+						context.startActivity(intent);
+					}
+				});
+			}
+		}
+		catch (FileNotFoundException e) {
+			e.printStackTrace();
+			Log.e("FileNotFound", e.toString());
+		}
+		
+		PopupWindow popUp = new PopupWindow (view, screenWidth, (int)(screenHeight/2.75));
+		popUp.setFocusable(true);
+		popUp.setOutsideTouchable(true);
+		popUp.setBackgroundDrawable(new BitmapDrawable());
+		
+		popUp.showAsDropDown(controlLayout, 0, 8);
+		popUp.setOnDismissListener(new OnDismissListener() {
+			public void onDismiss() {
+				mapBitmap.recycle();
+			}
+		});
 	}
 	
 	public void getAllThumbUrl()
@@ -949,7 +1025,7 @@ private LruCache<String, Bitmap> memCache;
 					imageHeight2 = height2;
 
 					needBackup = false;
-					Bitmap imageA = getBitmap(url, width1, height1);
+					getBitmap(url, width1, height1);
 					if (needBackup == true){
 						String url3 = ja.getJSONObject(2).getString("url");
 						String width3 = ja.getJSONObject(2).getString("width");
@@ -957,10 +1033,10 @@ private LruCache<String, Bitmap> memCache;
 
 						imageWidth1 = width3;
 						imageHeight1 = height3;
-						imageA = getBitmap(url3, width1, height1);
+						getBitmap(url3, width1, height1);
 					}
 					needBackup = false;
-					Bitmap imageB = getBitmap(url2, width2, height2);
+					getBitmap(url2, width2, height2);
 					if (needBackup == true){
 						String url4 = ja.getJSONObject(3).getString("url");
 						String width4 = ja.getJSONObject(3).getString("width");
@@ -968,12 +1044,14 @@ private LruCache<String, Bitmap> memCache;
 
 						imageWidth2 = width4;
 						imageHeight2 = height4;
-						imageB = getBitmap(url4, width2, height2);
+						getBitmap(url4, width2, height2);
 					}
+					/*
 					memCache.remove("image1");
 					memCache.remove("image2");
 					addBitmapToMemCache("image1", imageA);
 					addBitmapToMemCache("image2", imageB);
+					*/
 				}
 				else {
 					Log.e("API Url Error", Url);
@@ -1004,7 +1082,6 @@ private LruCache<String, Bitmap> memCache;
 				Log.i("imageTitle2", imageTitle2);
 				Log.i("imageSize1", imageWidth1 + " x " + imageHeight1);
 				Log.i("imageSize2", imageWidth2 + " x " + imageHeight2);
-				done = true;
 				notFinishYet = false;
 				notifyDataSetChanged();
 			}
@@ -1012,7 +1089,7 @@ private LruCache<String, Bitmap> memCache;
 		}
 	}
 	
-	private Bitmap getBitmap(String url, String bitmapWidth, String bitmapHeight)
+	private void getBitmap(String url, String bitmapWidth, String bitmapHeight)
 	{
 		int width = Integer.parseInt(bitmapWidth);
 		int height = Integer.parseInt(bitmapHeight);
@@ -1044,7 +1121,6 @@ private LruCache<String, Bitmap> memCache;
 			{
 				Log.w("ImageDownloader", "Error " + statusCode + ", While retrieving bitmap from " + url);
 				needBackup = true;
-				return null;
 			}
 			HttpEntity entity = HR.getEntity();
 			
@@ -1057,21 +1133,18 @@ private LruCache<String, Bitmap> memCache;
 					is = entity.getContent();
 					 // Decoding stream data back into image Bitmap that android understands
 					Bitmap bitmap = BitmapFactory.decodeStream(is);
-					
+					/*
 					float scaleWidth = ((float) width) / bitmap.getWidth();
 					float scaleHeight = ((float) height) / bitmap.getHeight();
-					
 					Matrix matrix = new Matrix();
 					matrix.postScale(scaleWidth, scaleHeight);
-					
 					Bitmap resizeBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+					*/
 					//bitmap.recycle();
 					
 					imageNum ++;
 					String num = Integer.toString(imageNum);
 					saveToSD(bitmap, num);
-					
-					return resizeBitmap;
 				}
 				finally
 				{
@@ -1086,7 +1159,6 @@ private LruCache<String, Bitmap> memCache;
 			getRequest.abort();
 			Log.e("ImageDownloader", "Something went wrong while retrieving bitmap from " + url +", "+ e.toString());
 		}
-		return null;
 	}
 	
 	public void saveToSD(Bitmap bmp, String num)
@@ -1124,28 +1196,20 @@ private LruCache<String, Bitmap> memCache;
 	
 	public void optionDialog()
 	{
-		final String[] options = {"Plan and Thumbnails", "Only Plan"};
+		final String[] options = {"This Plan and Thumbnails", "Only This Plan"};
 		
 		ContextThemeWrapper CTW;
-		if (SDKVersion > 10)
-		{
-			if (screenSize >= 6.5)
-				CTW = new ContextThemeWrapper(context, R.style.dialog_LargeText);
-			else
-				CTW = new ContextThemeWrapper(context, R.style.dialog_smallText);
-		}
+		
+		if (screenSize >= 6.5)
+			CTW = new ContextThemeWrapper(context, R.style.dialog_LargeText);
 		else
-		{
-			if (screenSize >= 6.5)
-				CTW = new ContextThemeWrapper(context, R.style.dialog_LargeText);
-			else
-				CTW = new ContextThemeWrapper(context, R.style.dialog_smallText);
-		}
+			CTW = new ContextThemeWrapper(context, R.style.dialog_smallText);
+		
 		AlertDialog.Builder builder = new AlertDialog.Builder(CTW);
 		
 		TextView title = new TextView(context);
 		title.setText("Plan Saving Options");
-		title.setTextColor(context.getResources().getColor(R.drawable.Ivory));
+		title.setTextColor(context.getResources().getColor(R.color.DeepSkyBlue));
 		title.setGravity(Gravity.CENTER);
 		title.setPadding(0, 20, 0, 20);
 		
@@ -1173,23 +1237,6 @@ private LruCache<String, Bitmap> memCache;
 			}
 		});
 		builder.show();
-		/*
-		AlertDialog dialogStyle = builder.create();
-		dialogStyle.show();
-		
-		dialogStyle.getWindow().getAttributes();
-		TextView text = new TextView(context.getApplicationContext());
-		
-		if (screenSize >= 6.5)
-		{
-			text.setTextSize(30);
-			text.setPadding(0, 15, 0, 15);
-		} else {
-			text.setTextSize(22);
-			text.setPadding(0, 10, 0, 10);
-		}
-		text.setGravity(Gravity.CENTER);
-		*/
 	}
 	
 	public void downloadAllClick ()
@@ -1246,7 +1293,7 @@ private LruCache<String, Bitmap> memCache;
 			}
 		};
 	};
-	
+	/*
 	public void addBitmapToMemCache(String key, Bitmap bitmap)
 	{
 		if (getBitmapFromMemCache(key) == null)
@@ -1257,20 +1304,46 @@ private LruCache<String, Bitmap> memCache;
 	{
 		return (Bitmap) memCache.get(key);
 	}
-	
+	*/
 	@SuppressLint("DefaultLocale")
 	public void filterData(String query)
 	{
-		if (filterable)
+		if (online)
+		{
+			if (filterable)
+			{
+				spotGroup.clear();
+				thumbList.clear();
+
+				if(query.equals(""))
+				{
+					spotGroup.addAll(originalList);
+					thumbList.addAll(originalThumbList);
+				}
+				else
+				{
+					for (int i = 0; i < originalList.size(); i++)
+					{
+						if (originalList.get(i).get("title").toString().toLowerCase().contains(query.toLowerCase()) ||
+								originalList.get(i).get("titleDescribe").toString().contains(query.toUpperCase()))
+						{
+							spotGroup.add(originalList.get(i));
+							thumbList.add(originalThumbList.get(i));
+						}
+					}
+				}
+				notifyDataSetChanged();			
+			}
+			else {
+				((Map2Activity) context).shortMessage("Wait a second! Not so fast~");
+			}
+		}
+		else
 		{
 			spotGroup.clear();
-			thumbList.clear();
-			
+
 			if(query.equals(""))
-			{
 				spotGroup.addAll(originalList);
-				thumbList.addAll(originalThumbList);
-			}
 			else
 			{
 				for (int i = 0; i < originalList.size(); i++)
@@ -1279,14 +1352,10 @@ private LruCache<String, Bitmap> memCache;
 							originalList.get(i).get("titleDescribe").toString().contains(query.toUpperCase()))
 					{
 						spotGroup.add(originalList.get(i));
-						thumbList.add(originalThumbList.get(i));
 					}
 				}
 			}
-			notifyDataSetChanged();			
-		}
-		else {
-			((Map2Activity) context).shortMessage("Wait a second! Not so fast~");
+			notifyDataSetChanged();		
 		}
 	}
 }

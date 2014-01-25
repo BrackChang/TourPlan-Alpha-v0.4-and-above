@@ -28,6 +28,7 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
+import android.view.View.OnClickListener;
 import android.view.View.OnKeyListener;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.AdapterView;
@@ -35,12 +36,14 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.Button;
 import android.widget.ExpandableListView;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 import android.widget.SimpleAdapter;
 import android.widget.Spinner;
+import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -66,6 +69,12 @@ public class OffLineMode extends MapActivity
 	private String[] plansArr, planDaysArr, planStartArr, planEndArr;
 	private String[] latArr, lngArr, dayArr, queArr, spotArr, spotInfoArr,
 					flagFoodArr, flagHotelArr, flagShopArr, flagSceneArr, flagTransArr;
+	private String userName;
+	private String Pid;
+	
+	private ExAdapter exAdapter;
+	private int dayCount;
+	private boolean listExpanded;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState)
@@ -247,7 +256,7 @@ public class OffLineMode extends MapActivity
 	
 	public void userSpinner(int i, final boolean hasPlan)
 	{
-		final TextView userName = (TextView) findViewById(R.id.UserName2);
+		final TextView nameText = (TextView) findViewById(R.id.UserName2);
 		userNameSelector = (Spinner) findViewById(R.id.userNameSelector);
 		LinearLayout userLayout = (LinearLayout) findViewById(R.id.userNameLayout);
 		
@@ -262,7 +271,8 @@ public class OffLineMode extends MapActivity
 		userAdapter.notifyDataSetChanged();
 		userNameSelector.setAdapter(userAdapter);
 		userNameSelector.setSelection(i);
-		userName.setText(userInfoList.get(i).get("userName"));
+		nameText.setText(userInfoList.get(i).get("userName"));
+		userName = userInfoList.get(i).get("userName");
 		currentUser = i;
 		if (hasPlan)
 		{
@@ -277,7 +287,7 @@ public class OffLineMode extends MapActivity
 							Log.i("Spinner NO PLAN", "YOOOOO~~");
 						}
 					} else {
-						userName.setText(userInfoList.get(arg2).get("userName"));
+						nameText.setText(userInfoList.get(arg2).get("userName"));
 						putPlan(userInfoList.get(arg2).get("userName"));
 						currentUser = arg2;
 					}
@@ -460,12 +470,13 @@ public class OffLineMode extends MapActivity
 				} else
 				{
 					currentPlan = arg2;
-					String Pid = planList.get(arg2).get("planName").toString();
-					Pid = Pid.substring(0, Pid.indexOf(" "));
+					String pid = planList.get(arg2).get("planName").toString();
+					pid = pid.substring(0, pid.indexOf(" "));
+					Pid = pid;
 
 					File dir = getDir("offLine", Context.MODE_PRIVATE);
 					File userFolder = new File(dir, userInfoList.get(currentUser).get("userName"));
-					File spotListXml = new File(userFolder, "plan" + Pid + ".xml");
+					File spotListXml = new File(userFolder, "plan" + pid + ".xml");
 					StringBuilder fileContent_spots = new StringBuilder();
 
 					try
@@ -585,11 +596,80 @@ public class OffLineMode extends MapActivity
 	public void showSpotList()
 	{
 		LinearLayout planLayout = (LinearLayout) findViewById(R.id.PlanLayout);
-		planLayout.setVisibility(View.VISIBLE);
+		ImageButton listControlBtn = (ImageButton) findViewById(R.id.offlineListControlBtn);
+		TableRow dayRow = (TableRow) findViewById(R.id.offlineDayRow);
 		exSpotList = (ExpandableListView) findViewById(R.id.exSpotList);
+		
+		planLayout.setVisibility(View.VISIBLE);
+   		listControlBtn.setVisibility(View.VISIBLE);
+		
+		double btnHeight = screenHeight / 16;
+		int textSize = screenHeight / 55;
+		
+		Log.i("ButtonHeight1", ""+btnHeight);
+		Log.i("TextSize1", ""+textSize);
+		
+		if (screenSize < 6.5)
+		{
+			if (screenWidth >= 480 && screenWidth < 720)
+			{
+				textSize = 13;
+				btnHeight = 52;
+			} 
+			else if (screenWidth >= 720 && screenWidth < 800)
+			{
+				textSize = 16;
+			}
+			else
+			{
+				textSize = 16;
+				btnHeight = 108;
+			}
+		}
+		else {
+			if (screenWidth <= 800)
+			{
+				textSize = 24;
+				btnHeight = 68;
+			} else
+			{
+				textSize = 25;
+				btnHeight = 68;
+			}
+		}
+		Log.i("TextSize2", ""+textSize);
+		Log.i("ButtonHeight2", ""+btnHeight);
+		
+		LayoutParams listBtnParams = listControlBtn.getLayoutParams();
+		listBtnParams.height = (int) (btnHeight);
+		listControlBtn.setLayoutParams(listBtnParams);
+		
+		dayRow.removeAllViews();
 		
 		final List<Map<String, Object>> spotGroup = new ArrayList<Map<String, Object>>();
 		final List<List<Map<String, String>>> spotChild = new ArrayList<List<Map<String, String>>>();
+		
+		Button allDayBtn = new Button(OffLineMode.this);
+		allDayBtn.setText("ALL");
+		allDayBtn.setTextColor(getResources().getColor(R.drawable.Ivory));
+		allDayBtn.setGravity(Gravity.CENTER);
+		allDayBtn.setTextSize(textSize);
+		
+		dayRow.addView(allDayBtn);
+		
+		LayoutParams params = allDayBtn.getLayoutParams();
+		params.width = LayoutParams.WRAP_CONTENT;
+		params.height = (int) btnHeight;
+		allDayBtn.setLayoutParams(params);
+		
+		allDayBtn.setOnClickListener(new OnClickListener() {
+			public void onClick(View v) {
+				exAdapter.filterData("");
+			}
+		});
+		
+		boolean day0Tag = true;
+		dayCount = 1;
 		
 		for (int i = 0; i < spotArr.length; i++)
 		{
@@ -629,8 +709,49 @@ public class OffLineMode extends MapActivity
 			spotInfo.put("info", "Info: \n" + spotInfoArr[i]);
 			spotInfos.add(spotInfo);
 			spotChild.add(spotInfos);
+			
+			String d = Integer.toString(dayCount);
+			if (dayArr[i].equals(d))
+			{
+				final Button dayBtn = new Button(OffLineMode.this);
+				dayBtn.setText("Day " + dayArr[i]);
+				dayBtn.setTextColor(getResources().getColor(R.drawable.Ivory));
+				dayBtn.setGravity(Gravity.CENTER);
+				dayBtn.setTextSize(textSize);
+				
+				dayRow.addView(dayBtn);
+				dayCount++;
+				dayBtn.setLayoutParams(params);
+				
+				dayBtn.setOnClickListener(new OnClickListener() {
+					public void onClick(View v) {
+						exAdapter.filterData(dayBtn.getText().toString());
+					}
+				});
+			} else if (day0Tag)
+			{
+				if (dayArr[i].equals("0"))
+				{
+					final Button dayBtn = new Button(OffLineMode.this);
+					dayBtn.setText("Day " + dayArr[i]);
+					dayBtn.setTextColor(getResources().getColor(R.drawable.Ivory));
+					dayBtn.setGravity(Gravity.CENTER);
+					dayBtn.setTextSize(textSize);
+
+					dayRow.addView(dayBtn);
+					dayBtn.setLayoutParams(params);
+
+					day0Tag = false;
+
+					dayBtn.setOnClickListener(new OnClickListener() {
+						public void onClick(View v) {
+							exAdapter.filterData(dayBtn.getText().toString());
+						}
+					});
+				}
+			}
 		}
-		ExAdapter exAdapter = new ExAdapter(this, spotGroup, spotChild, false);
+		exAdapter = new ExAdapter(this, spotGroup, spotChild, false, userName, Pid);
    		exSpotList.setIndicatorBounds(0, 20);
    		exSpotList.setAdapter(exAdapter);
 	}
@@ -930,6 +1051,31 @@ public class OffLineMode extends MapActivity
 			positive.setTextSize(18);
 		}
  	}
+ 	
+ 	public void listControl(View listCtrl)
+	{
+		int spotCount = exSpotList.getExpandableListAdapter().getGroupCount();
+		Log.i("SpotCount", ""+spotCount);
+		ImageButton listControl = (ImageButton) findViewById(R.id.offlineListControlBtn);
+		
+		if (!listExpanded)
+		{
+			for (int i = 0; i < spotCount; i++)
+			{
+				exSpotList.expandGroup(i);
+			}
+			listExpanded = true;
+			listControl.setImageResource(R.drawable.list_collapse);
+		} else
+		{
+			for (int i = 0; i < spotArr.length; i++)
+			{
+				exSpotList.collapseGroup(i);
+			}
+			listExpanded = false;
+			listControl.setImageResource(R.drawable.list_expand);
+		}
+	}
  	
  	public void mapHalf()
 	{
