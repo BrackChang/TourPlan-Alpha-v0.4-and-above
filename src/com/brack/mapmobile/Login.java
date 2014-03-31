@@ -19,7 +19,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.drawable.BitmapDrawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -58,12 +57,14 @@ public class Login extends Activity {
 //	private WifiInfo wifiInfo;
 	protected static final int REFRESH_DATA = 0x00000001;
 	private PopupWindow popUp;
+	private View view;
 	/*
 	protected static final int STOP = 0x10000;  
     protected static final int NEXT = 0x10001;  
     private int iCount = 0;
     */
-    private String loading;
+    private CountDownTimer cd;
+	private String loading;
 	
 	 /** Called when the activity is first created. */ 
     @Override
@@ -139,8 +140,8 @@ public class Login extends Activity {
     	{
     		public void run()
     		{
-    			String ipMsg = getCurrentIP();
-    			showIP.obtainMessage(REFRESH_DATA, ipMsg).sendToTarget();
+    			String testMsg = getConnectTest();
+    			showConnectTest.obtainMessage(REFRESH_DATA, testMsg).sendToTarget();
     		}
     	}.start();
     }
@@ -165,11 +166,11 @@ public class Login extends Activity {
 		return false;
 	}
 	*/
-    public String getCurrentIP ()
+    public String getConnectTest ()
     {
     	try
     	{
-    		GetStringByUrl urlString = new GetStringByUrl("http://api.externalip.net/ip");
+    		GetStringByUrl urlString = new GetStringByUrl("http://140.128.198.44/mobileApp/good.php");
     		String response = urlString.getString();
     		return response;
     		/*
@@ -210,7 +211,7 @@ public class Login extends Activity {
     	}
     }
     
-    Handler showIP = new Handler()
+    Handler showConnectTest = new Handler()
 	{
 		@Override
 		public void handleMessage(Message msg)
@@ -219,12 +220,12 @@ public class Login extends Activity {
 			{
 			case REFRESH_DATA:
 				
-				String IP = null;
+				String testResult = null;
 				
 				if (msg.obj instanceof String)
-					IP = (String) msg.obj;
+					testResult = (String) msg.obj;
 				
-				if (IP.contains("ProtocolException") || IP.contains("IllegalStateException"))
+				if (testResult.contains("ProtocolException") || testResult.contains("IllegalStateException"))
 				{
 					Button SignInBtn = (Button) findViewById(R.id.SignInBtn);
 					TextView SignUp = (TextView) findViewById(R.id.Register);
@@ -234,10 +235,12 @@ public class Login extends Activity {
 					SignUp.setClickable(false);
 					goWeb.setClickable(false);
 					
-					noConnection();
-					longMessage(IP);
+					noConnection("Unable to make the connection!\n" +
+								"The WiFi you currently connected may need to log on,\n" +
+								"And restart this App for using online mode.");
+					longMessage(testResult);
 				}
-				else if (IP.contains("Exception"))
+				else if (testResult.contains("Exception"))
 				{
 					Button SignInBtn = (Button) findViewById(R.id.SignInBtn);
 					TextView SignUp = (TextView) findViewById(R.id.Register);
@@ -247,11 +250,26 @@ public class Login extends Activity {
 					SignUp.setClickable(false);
 					goWeb.setClickable(false);
 					
-					noConnection();
-					longMessage(IP);
+					noConnection("Unable to make the connection!\n" +
+								"The WiFi you currently connected may need to log on,\n" +
+								"And restart this App for using online mode.");
+					longMessage(testResult);
+				}
+				else if (testResult.equals("Connection Failed!"))
+				{
+					Button SignInBtn = (Button) findViewById(R.id.SignInBtn);
+					TextView SignUp = (TextView) findViewById(R.id.Register);
+					TextView goWeb = (TextView) findViewById(R.id.goWeb);
+					
+					SignInBtn.setClickable(false);
+					SignUp.setClickable(false);
+					goWeb.setClickable(false);
+					
+					noConnection("Unable to Connect to Server!\n" +
+								"Perhaps the machine in the lab was been shut down.");
 				}
 				else
-					longMessage("External IP¡G" + IP);
+					shortMessage(testResult);
 				
 				break;
 			}
@@ -291,8 +309,9 @@ public class Login extends Activity {
     		longMessage("Your Network is NOT Available!");
     	else 
     	{
+    		popLoadingBar();
     		final String[] msg = new String[2];
-
+    		
     		if (email_input != null && pass_input != null)
     		{
     			msg[0] = email_input.getEditableText().toString();
@@ -342,38 +361,52 @@ public class Login extends Activity {
 				
 				if (msg.obj instanceof String)
 					echoResult = (String) msg.obj;
-				
-				if (echoResult.contains("Dude! Who the hell are you?!"))
-    			{
-    				longMessage(echoResult);
-    			} else if (echoResult.contains("You SUCK"))
-    				{
-    					longMessage("CANNOT Connect to Database!");
-    				} else if (echoResult.contains("The database is SUCKS"))
-    				{
-    					longMessage("The Database is Not Found!");
-    				} else {
-    					popLoadingBar(echoResult);
-    					/*
-    					longMessage("You are logged!");
 
-    					Intent goMap = new Intent();
-    					goMap.setClass(Login.this, Map2Activity.class);
+				if (echoResult.contains("Dude! Who the hell are you?!")) {
+					longMessage(echoResult);
+					cd.cancel();
+					popUp.dismiss();
+				}
+				else if (echoResult.contains("You SUCK")) {
+					longMessage("CANNOT Connect to Database!");
+					cd.cancel();
+					popUp.dismiss();
+				}
+				else if (echoResult.contains("The database is SUCKS")) {
+					longMessage("The Database is Not Found!");
+					cd.cancel();
+					popUp.dismiss();
+				}
+				else {
+					TextView loadingDone = (TextView) view.findViewById(R.id.loadingDone);
+					loadingDone.setText("Successful Logged!!");
+					cd.cancel();
 
-    					//Set the parameter to send
-    					Bundle userName = new Bundle();
-    					userName.putString("name",echoResult);
-    					goMap.putExtras(userName);				//Put parameter into bundle
-
-    					Login.this.startActivity(goMap);
-
-    					finish();
-    					*/
-    				}
+					goMapCountDown(echoResult);
+				}
 				break;
 			}
 		}
 	};
+	
+	private void goMapCountDown(final String echoResult)
+	{
+		new CountDownTimer (700,700) {
+			public void onFinish() {
+				Intent goMap = new Intent();
+				goMap.setClass(Login.this, Map2Activity.class);
+				//Set the parameter to send
+				Bundle userName = new Bundle();
+				userName.putString("name",echoResult);
+				goMap.putExtras(userName);				//Put parameter into bundle
+
+				Login.this.startActivity(goMap);
+				
+				finishCountDown();
+			}
+			public void onTick(long millisUntilFinished) {}
+		}.start();
+	}
 	
 	public void reTypeClick(View reType)
 	{
@@ -421,17 +454,17 @@ public class Login extends Activity {
     
     
     @SuppressWarnings("deprecation")
-	public void popLoadingBar(final String echo)
+	public void popLoadingBar()
     {
     	LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-    	View view = inflater.inflate(R.layout.pop_progress, null);
+    	view = inflater.inflate(R.layout.pop_progress, null);
     	LinearLayout Header = (LinearLayout) findViewById(R.id.Header);
     	
     	WindowManager wm = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
     	
     	final ProgressBar loadingBar = (ProgressBar) view.findViewById(R.id.loadingBar);
     	final TextView loadingText = (TextView) view.findViewById(R.id.loadingText);
-    	final TextView loadingDone = (TextView) view.findViewById(R.id.loadingDone);
+    	
     	loading = "Fetching Data";
     	loadingText.setText(loading);
     	
@@ -441,8 +474,6 @@ public class Login extends Activity {
 		popUp = new PopupWindow (view, (int)width, (int)height);
 		
 		popUp.setFocusable(true);
-		popUp.setOutsideTouchable(true);
-		popUp.setBackgroundDrawable(new BitmapDrawable());
 		
 		int xpos = wm.getDefaultDisplay().getWidth() / 2 - popUp.getWidth() / 2;
 		double ypos = (wm.getDefaultDisplay().getHeight() / 4) - (popUp.getHeight());
@@ -453,36 +484,27 @@ public class Login extends Activity {
     	loadingText.setVisibility(View.VISIBLE);
     	loadingBar.setProgress(0);
     	
-    	new CountDownTimer(2000,400){
+    	cd = new CountDownTimer(2000,400){
    			public void onFinish() {
-   				loadingDone.setText("Successful Logged!!");
-   				
-   				Intent goMap = new Intent();
-				goMap.setClass(Login.this, Map2Activity.class);
-
-				//Set the parameter to send
-				Bundle userName = new Bundle();
-				userName.putString("name",echo);
-				goMap.putExtras(userName);				//Put parameter into bundle
-
-				Login.this.startActivity(goMap);
-				
-				finishCountDown();
+   				loading = loading.replace(".", "");
+   				loadingText.setText(loading);
+   				cd.start();
    			}
    			public void onTick(long millisUntilFinished) {
    				String loads = loading + ".";
    				loadingText.setText(loads);
    				loading = loads;
    			}
-   		}.start();
+   		};
+   		cd.start();
     }
     
-    public void noConnection()
+    public void noConnection(String msg)
     {
     	AlertDialog.Builder warning = new AlertDialog.Builder(Login.this);
 		
 		TextView title = new TextView(this);
-		title.setText("Network Error!!");
+		title.setText("Connection Error!!");
 		title.setTextColor(getResources().getColor(R.color.DeepSkyBlue));
 		title.setGravity(Gravity.CENTER);
 		title.setPadding(0, 20, 0, 20);
@@ -495,9 +517,7 @@ public class Login extends Activity {
 			title.setTextSize(22);
 			warning.setCustomTitle(title);
 		}
-		warning.setMessage("Unable connect to Internet!\n" +
-				"The WiFi you currently connected may need to log on,\n" +
-				"And restart this App for using online mode.")
+		warning.setMessage(msg)
 		.setPositiveButton("Alright~", new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int which) {
 				
@@ -525,7 +545,18 @@ public class Login extends Activity {
 		}
     }
     
-    
+    private void shortMessage (String message)
+    {
+		View toastRoot = getLayoutInflater().inflate(R.layout.toast, null);
+    	TextView toastText = (TextView) toastRoot.findViewById(R.id.myToast);
+    	toastText.setText(message);
+    	
+    	Toast toastStart = new Toast(Login.this);
+    	toastStart.setGravity(Gravity.BOTTOM, 0, 60);
+    	toastStart.setDuration(Toast.LENGTH_SHORT);
+    	toastStart.setView(toastRoot);
+    	toastStart.show();
+    }
     private void longMessage(String message)
     {
     	View toastRoot = getLayoutInflater().inflate(R.layout.toast, null);

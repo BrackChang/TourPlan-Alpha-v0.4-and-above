@@ -11,11 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
-import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapActivity;
-import com.google.android.maps.MapController;
-import com.google.android.maps.MapView;
-
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -53,10 +49,11 @@ public class OffLineMode extends MapActivity
 	private int screenWidth;
 	private int screenHeight;
 	private int cantStart;
+	/*
 	private MapView mapView;
 	private MapController mapControl;
 	private GeoPoint GP;
-	
+	*/
 	private PopupWindow popUp;
 	private View view;
 	private Spinner userNameSelector;
@@ -176,7 +173,7 @@ public class OffLineMode extends MapActivity
 		//mapHalf();
 		
 	}
-	
+	/*
 	public void findMapControl()
 	{
 		mapView = (MapView) findViewById(R.id.MapView);
@@ -193,7 +190,7 @@ public class OffLineMode extends MapActivity
         mapControl.animateTo(GP);
         mapControl.setZoom(8);
 	}
-	
+	*/
 	public void popUserList()
 	{
 		TextView userName = (TextView) findViewById(R.id.UserName2);
@@ -613,7 +610,7 @@ public class OffLineMode extends MapActivity
 		{
 			if (screenWidth >= 480 && screenWidth < 720)
 			{
-				textSize = 13;
+				textSize = 14;
 				btnHeight = 52;
 			} 
 			else if (screenWidth >= 720 && screenWidth < 800)
@@ -778,7 +775,7 @@ public class OffLineMode extends MapActivity
 		}
 
 		infoDialog.setMessage("It will delete this user and all of the saved data of him, are you sure about this?");
-		infoDialog.setPositiveButton("YES", 
+		infoDialog.setPositiveButton("Whatever~", 
 				new DialogInterface.OnClickListener()
 				{
 					public void onClick(DialogInterface dialog, int which)

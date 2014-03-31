@@ -141,6 +141,7 @@ public class Map2Activity extends MapActivity implements LocationListener
     private Criteria criteria;
     
     private String MyName;
+    private String nameCheck;
     private String planTitle;
     private String planXml;
     private String Pid;
@@ -266,7 +267,7 @@ public class Map2Activity extends MapActivity implements LocationListener
         mapControl.setZoom(8);
         
         locManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        //getLocationProvider();
+        getLocationProvider();
         //findMyLocation();
     }
     
@@ -348,14 +349,14 @@ public class Map2Activity extends MapActivity implements LocationListener
     protected void onResume()
     {
     	super.onResume();
-    	getLocationProvider();
+    	//getLocationProvider();
     	providerType = locManager.getBestProvider(criteria, true);
+    	locManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000, 1, Map2Activity.this);
     	locManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 1, Map2Activity.this);
-    	locManager.requestLocationUpdates(providerType, 1000, 1, Map2Activity.this);
+    	//locManager.requestLocationUpdates(providerType, 1000, 1, Map2Activity.this);
+    	//if (locManager.isProviderEnabled(LocationManager.GPS_PROVIDER))
     	if (enableTool)
     	{
-    		//locManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 0, Map2Activity.this);
-    		//locManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000, 0, Map2Activity.this);
     		myLayer.enableMyLocation();
     		myLayer.enableCompass();
     		Log.i("ProviderType", providerType);
@@ -366,6 +367,7 @@ public class Map2Activity extends MapActivity implements LocationListener
     		GPSinit();
     		Log.i("onState", "Resume else");
     	}
+    	shortMessage("LocationProvider : " + providerType);
     }
     @Override
     protected void onPause()
@@ -393,6 +395,7 @@ public class Map2Activity extends MapActivity implements LocationListener
         myLayer = new MyLocationOverlay(this, mapView);
         myLayer.enableCompass();
         myLayer.enableMyLocation();
+        
         myLayer.runOnFirstFix(new Runnable()
         {
         	public void run()
@@ -438,7 +441,6 @@ public class Map2Activity extends MapActivity implements LocationListener
     		Log.i("myLocationInfo", ""+myLocation);
     		
     		Log.i("LocProviderType", providerType);
-    		shortMessage("LocationProvider = " + providerType);
     	}
     	catch (Exception e)
     	{
@@ -451,7 +453,7 @@ public class Map2Activity extends MapActivity implements LocationListener
     public void routeFromMyPosition(String toLat, String toLng)
     {
     	if ((""+myLocation).equals("null") && locManager.isProviderEnabled(LocationManager.GPS_PROVIDER))
-    		longMessage("Unable to get the position value! Please turn off the GPS and try again.");
+    		longMessage("Unable to get the position value! Please wait for locating or turn off GPS.");
     	else {
     		double lat = myLocation.getLatitude();
     		double lng = myLocation.getLongitude();
@@ -471,7 +473,7 @@ public class Map2Activity extends MapActivity implements LocationListener
     public void routeToSearch(String searchLat, String searchLng)
     {
     	if ((""+myLocation).equals("null") && locManager.isProviderEnabled(LocationManager.GPS_PROVIDER))
-    		longMessage("Unable to get the position value! Please turn off the GPS and try again.");
+    		longMessage("Unable to get the position value! Please wait for locating or turn off GPS.");
     	else {
     		double lat = myLocation.getLatitude();
     		double lng = myLocation.getLongitude();
@@ -501,9 +503,10 @@ public class Map2Activity extends MapActivity implements LocationListener
     private class GoogleDirection extends AsyncTask<String, Integer, String>
     {
     	private final String mapAPI = 
-    	"http://maps.google.com/maps/api/directions/json?" + "origin={0}&destination={1}&language=zh-TW&sensor=true";
+    	"http://maps.google.com/maps/api/directions/json?" + "origin={0}&destination={1}&language={2}&sensor=true";
     	private String from;
     	private String to;
+    	private String language;
     	private String POLY;
     	
     	@Override
@@ -514,8 +517,9 @@ public class Map2Activity extends MapActivity implements LocationListener
     		
     		from = params[0];
     		to = params[1];
+    		language = getLocaleLanguage();
     		
-    		String Url = MessageFormat.format(mapAPI, from, to);
+    		String Url = MessageFormat.format(mapAPI, from, to, language);
     		Log.i("mapUrl", Url);
     		
     		HttpGet get = new HttpGet(Url);
@@ -574,7 +578,7 @@ public class Map2Activity extends MapActivity implements LocationListener
     			loadingBarStop();
     		} else {
     			loadingBarStop();
-    			longMessage("Oops~Routed failed!!\nThe path is NOT drawable, it may caused by the sea crossing path.");
+    			longMessage("Oops~Routed failed!!\nUnable to draw the path, it may caused by the sea crossing path.");
     		}
     	}
     }
@@ -870,7 +874,7 @@ public class Map2Activity extends MapActivity implements LocationListener
 							"Go check¡uhttp://labm406.serveftp.com/TP¡v(£½_>£¿)")
 		.setPositiveButton("I Got It!", new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int which) {
-				startCountDown();
+				new getSharedPlan().execute();
 			}
 		});
 		AlertDialog dialog = warning.create();
@@ -1044,7 +1048,7 @@ public class Map2Activity extends MapActivity implements LocationListener
 		{
 			if (screenWidth >= 480 && screenWidth < 720)
 			{
-				textSize = 13;
+				textSize = 14;
 				markerWidth = 40;
 				markerHeight = 45;
 				btnHeight = 52;
@@ -1909,6 +1913,7 @@ public class Map2Activity extends MapActivity implements LocationListener
 								planChosen.obtainMessage(REFRESH_DATA, xmlPidString).sendToTarget();
 							}
 						}.start();
+						nameCheck = MyName;
 						
 						if (planPop != null)
 							planPop.dismiss();
@@ -1932,6 +1937,11 @@ public class Map2Activity extends MapActivity implements LocationListener
 				(Map2Activity.this, publicListArr, R.layout.simple_public_layout,
 						new String[] {"plan","days","user"}, new int[] {R.id.textView_plan,R.id.textView_info,R.id.textView_name});
 		
+		HashMap<String, String> backOption = new HashMap<String, String>();
+		backOption.put("plan", "¡ö Back to your plan list");
+		backOption.put("days", "¡ö  ¡ö  ¡ö  ¡ö  ¡ö  ¡ö  ¡ö  ¡ö  ¡ö");
+		publicListArr.add(backOption);
+		
 		extanded_list.setAdapter(publicPlanAdapter);
 		
 		double width = screenWidth / 1.35;
@@ -1952,34 +1962,45 @@ public class Map2Activity extends MapActivity implements LocationListener
 		extanded_list.setOnItemClickListener(new AdapterView.OnItemClickListener() { 
             public void onItemClick(AdapterView<?> ar0, View arg1, int arg2, long arg3)
             {  
-            	String name = publicListArr.get(arg2).get("user").toString().replace("Shared by ", "");
             	String plan = publicListArr.get(arg2).get("plan").toString();
             	
-            	Log.i("publicName", name);
-            	Log.i("publicPlan", plan);
-            	
-            	String onlyPlanString = plan.substring(plan.indexOf(" "), plan.lastIndexOf(" ")).trim();
-            	planTitle = onlyPlanString;
-
-            	shortMessage("Plan: " + plan);
-
-            	String pid = plan.substring(0,plan.indexOf(" "));
-            	Pid = pid;
-            	final String xmlPidUrl = tourURL + name +"/" + pid;
-
-            	new Thread()
+            	if (plan.contains("Back to your plan list"))
             	{
-            		public void run()
-            		{
-            			String xmlPidString = getStringByUrl(xmlPidUrl);
-            			planChosen.obtainMessage(REFRESH_DATA, xmlPidString).sendToTarget();
-            		}
-            	}.start();
-
-            	if (publicPop != null)
             		publicPop.dismiss();
+            		publicListArr.remove(arg2);
+            		showPlanWindow();
+            	}
+            	else
+            	{            	
+            		String name = publicListArr.get(arg2).get("user").toString().replace("Shared by ", "");
 
-            	loadingBarRun();
+            		Log.i("publicName", name);
+            		Log.i("publicPlan", plan);
+
+            		String onlyPlanString = plan.substring(plan.indexOf(" "), plan.lastIndexOf(" ")).trim();
+            		planTitle = onlyPlanString;
+
+            		shortMessage("Plan: " + plan);
+
+            		String pid = plan.substring(0,plan.indexOf(" "));
+            		Pid = pid;
+            		final String xmlPidUrl = tourURL + name +"/" + pid;
+
+            		new Thread()
+            		{
+            			public void run()
+            			{
+            				String xmlPidString = getStringByUrl(xmlPidUrl);
+            				planChosen.obtainMessage(REFRESH_DATA, xmlPidString).sendToTarget();
+            			}
+            		}.start();
+            		nameCheck = name;
+
+            		if (publicPop != null)
+            			publicPop.dismiss();
+
+            		loadingBarRun();
+            	}
             }
 		});
 	}
@@ -2115,7 +2136,7 @@ public class Map2Activity extends MapActivity implements LocationListener
 	
 	public void saveData()
 	{
-		if (hasPlan)
+		if (hasPlan && nameCheck.equals(MyName))
 		{
 			File dir = getDir("offLine", Context.MODE_PRIVATE);
 			File userFolder = new File(dir, MyName);
@@ -2884,10 +2905,14 @@ public class Map2Activity extends MapActivity implements LocationListener
     @Override
     public void onProviderDisabled(String provider) {
     	// TODO Auto-generated method stub
+    	//locManager.requestLocationUpdates(providerType, 1000, 1, Map2Activity.this);
+    	shortMessage("DisabledProvider : " + provider);
     }
     @Override
     public void onProviderEnabled(String provider) {
     	// TODO Auto-generated method stub
+    	//locManager.requestLocationUpdates(provider, 1000, 1, Map2Activity.this);
+    	shortMessage("EnableProvider : " + provider);
     }
     @Override
     public void onStatusChanged(String provider, int status, Bundle extras) {
@@ -2964,6 +2989,11 @@ public class Map2Activity extends MapActivity implements LocationListener
     
     public void menuSliding()
     {
+    	ImageButton menuBtn = (ImageButton) findViewById(R.id.popWindow);
+    	ImageButton planBtn = (ImageButton) findViewById(R.id.planBtn);
+    	menuBtn.setVisibility(View.VISIBLE);
+    	planBtn.setVisibility(View.VISIBLE);
+    	
         slidingMenu = new SimpleSideDrawer(this);
         slidingMenu.setRightBehindContentView(R.layout.sliding_menu);
         

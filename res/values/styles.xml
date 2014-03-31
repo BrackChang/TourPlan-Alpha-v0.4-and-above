@@ -94,13 +94,13 @@
     </style>
     
     <style name="dialog_smallText" parent="myDialogTheme">
-        <item name="android:textSize">22sp</item>
+        <item name="android:textSize">20sp</item>
         <item name="android:padding">4dp</item>
         <item name="android:gravity">center</item>
     </style>
     
     <style name="dialog_LargeText" parent="myDialogTheme">
-        <item name="android:textSize">32sp</item>
+        <item name="android:textSize">30sp</item>
         <item name="android:padding">10dp</item>
         <item name="android:gravity">center</item>
     </style>

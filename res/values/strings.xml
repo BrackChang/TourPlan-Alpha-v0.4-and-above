@@ -2,7 +2,7 @@
 <resources>
     <string name="app_name">tourPlan-Beta</string>
     <string name="TitleText">TourPlan-Beta</string>
-    <string name="emailLabel">E-Mail</string>
+    <string name="emailLabel">e-Mail</string>
     <string name="passLabel">Password</string>
     <string name="SignIn">Sign In</string>
     <string name="to">To:</string>
@@ -22,7 +22,7 @@
     <string name="searchBotton">GO</string>
     <string name="goOffLine">Offline Mode</string>
     <string name="rememberMe">Remember Me</string>
-    <string name="SearchSomething">Do Something~</string><string name="Version">1.0.1</string><string name="VersionName">TourPlan-Beta_v</string>
+    <string name="SearchSomething">Do Something~</string><string name="Version">1.0.3</string><string name="VersionName">TourPlan-Beta_v</string>
     <string name="Options">Options</string>
     <string name="Actions">Actions</string>
     <string name="Clear">Clear</string>

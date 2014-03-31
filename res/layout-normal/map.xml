@@ -38,7 +38,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
-            android:layout_marginLeft="4dp"
+            android:layout_marginLeft="3dp"
             android:layout_toRightOf="@+id/UserName"
             android:indeterminate="false"
             android:visibility="gone" />
@@ -136,7 +136,8 @@
             android:background="@drawable/image_button_style"
             android:onClick="planBtnClick"
             android:scaleType="centerCrop"
-            android:src="@drawable/plan_icon" />
+            android:src="@drawable/plan_icon"
+            android:visibility="gone" />
 
         <View
             android:id="@+id/headerLine1"
@@ -159,7 +160,8 @@
             android:background="@drawable/menu_press_style01"
             android:onClick="popUpClick"
             android:scaleType="fitCenter"
-            android:src="@drawable/options" />
+            android:src="@drawable/options"
+            android:visibility="gone" />
 
     </RelativeLayout>
 

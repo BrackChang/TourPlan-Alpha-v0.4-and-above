@@ -642,7 +642,6 @@ private Bitmap mapBitmap;
 		};
 		tbImage.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
-				
 				new Thread()
 				{
 					public void run()
@@ -683,7 +682,6 @@ private Bitmap mapBitmap;
 					
 					if (thumbFile.exists())
 					{
-						
 						FileInputStream FIS1 = new FileInputStream(thumbFile);
 						Bitmap bitmap = BitmapFactory.decodeStream(FIS1);
 						tbImage.setImageBitmap(bitmap);
@@ -709,7 +707,6 @@ private Bitmap mapBitmap;
 				Log.e("ThumbNotFound", e.toString());
 			}
 		}
-		
 		return layout;
 	}
 
