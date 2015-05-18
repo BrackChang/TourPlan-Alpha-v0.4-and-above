@@ -14,8 +14,8 @@ import android.util.Log;
 
 public class XmlParser extends Activity {
 	
-	public static PlanVO parse(String xmlString) {
-
+	public static PlanVO parse(String xmlString)
+	{
 		Log.i("XmlParser", "StartParse");
 		
 		PlanVO planVO = new PlanVO();
@@ -33,9 +33,10 @@ public class XmlParser extends Activity {
 
 			int eventType = parser.getEventType();
 
-			while (eventType != XmlPullParser.END_DOCUMENT) {
-				switch (eventType) {
-				
+			while (eventType != XmlPullParser.END_DOCUMENT)
+			{
+				switch (eventType)
+				{
 				case XmlPullParser.START_DOCUMENT:
 					break;
 
@@ -142,9 +143,11 @@ public class XmlParser extends Activity {
 			ISR.close();
 			bin.close();
 			
-		} catch (XmlPullParserException e) {
+		}
+		catch (XmlPullParserException e) {
 			e.printStackTrace();
-		} catch (IOException e) {
+		}
+		catch (IOException e) {
 			e.printStackTrace();
 		}
 		

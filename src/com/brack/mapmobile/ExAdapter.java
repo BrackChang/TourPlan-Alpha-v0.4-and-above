@@ -75,6 +75,7 @@ protected static final int REFRESH_DATA = 0x00000001;
 public ImageLoader imageLoader;
 
 private List<Map<String, Object>> originalList;
+private List<List<Map<String, String>>> originalChild;
 private ArrayList<String> originalThumbList;
 private boolean filterable;
 
@@ -111,8 +112,10 @@ private Bitmap mapBitmap;
 		this.context = context;
 		
 		this.originalList = new ArrayList<Map<String, Object>>();
+		this.originalChild = new ArrayList<List<Map<String, String>>>();
 		this.originalThumbList = new ArrayList<String>();
 		this.originalList.addAll(spotGroup);
+		this.originalChild.addAll(spotChild);
 		
 		//imageLoader_bean = new ImageLoader_bean(context.getApplicationContext());
 		imageLoader = new ImageLoader(context.getApplicationContext());
@@ -212,8 +215,31 @@ private Bitmap mapBitmap;
 		@SuppressWarnings("unchecked")
 		String itemText = ((Map<String, String>)getChild(groupPosition,childPosition)).get("info");
 		
+		TextView durationInfo = (TextView) layout.findViewById(R.id.durationInfo);
+		TextView transInfo = (TextView) layout.findViewById(R.id.transportationInfo);
+		
 		TextView itemContent = (TextView) layout.findViewById(R.id.spotInfo);
-		itemContent.setText(itemText);
+		
+		if (itemText.contains("(time),"))
+		{
+			StringBuffer sb = new StringBuffer(itemText);
+			sb.delete(0, itemText.indexOf("(trans)")+7);
+			String spotInfo = sb.toString();
+			itemContent.setText("Info:\n" + spotInfo);
+			
+			String durText = itemText.substring(0, itemText.indexOf("(time)"));
+			String transText = itemText.substring(itemText.indexOf(",")+1, itemText.indexOf("(trans)"));
+			transText = transText.replace("<br>", "\n");
+			
+			durationInfo.setText("Duration:\n" + durText);
+			transInfo.setText("Transportation:\n" + transText);
+		}
+		else
+		{
+			itemContent.setText("Info:\n" + itemText);
+			durationInfo.setText("Duration:\n");
+			transInfo.setText("Transportation:\n");
+		}
 		
 		final ImageView spotImage1 = (ImageView) layout.findViewById(R.id.spotImage1);
 		final ImageView spotImage2 = (ImageView) layout.findViewById(R.id.spotImage2);
@@ -328,7 +354,7 @@ private Bitmap mapBitmap;
 			public void onClick(View v)
 			{	
 				if (notFinishYet)
-					((Map2Activity) context).longMessage("Please wait until the current job is done.");
+					((Map2Activity) context).longMessage("Please wait until the current job has done.");
 				else
 				{
 					((Map2Activity) context).loadingBarRun();
@@ -1310,11 +1336,13 @@ private Bitmap mapBitmap;
 			if (filterable)
 			{
 				spotGroup.clear();
+				spotChild.clear();
 				thumbList.clear();
 
 				if(query.equals(""))
 				{
 					spotGroup.addAll(originalList);
+					spotChild.addAll(originalChild);
 					thumbList.addAll(originalThumbList);
 				}
 				else
@@ -1325,6 +1353,7 @@ private Bitmap mapBitmap;
 								originalList.get(i).get("titleDescribe").toString().contains(query.toUpperCase()))
 						{
 							spotGroup.add(originalList.get(i));
+							spotChild.add(originalChild.get(i));
 							thumbList.add(originalThumbList.get(i));
 						}
 					}
@@ -1338,9 +1367,13 @@ private Bitmap mapBitmap;
 		else
 		{
 			spotGroup.clear();
-
+			spotChild.clear();
+			
 			if(query.equals(""))
+			{
 				spotGroup.addAll(originalList);
+				spotChild.addAll(originalChild);
+			}
 			else
 			{
 				for (int i = 0; i < originalList.size(); i++)
@@ -1349,6 +1382,7 @@ private Bitmap mapBitmap;
 							originalList.get(i).get("titleDescribe").toString().contains(query.toUpperCase()))
 					{
 						spotGroup.add(originalList.get(i));
+						spotChild.add(originalChild.get(i));
 					}
 				}
 			}

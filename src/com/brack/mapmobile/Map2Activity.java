@@ -1017,6 +1017,10 @@ public class Map2Activity extends MapActivity implements LocationListener
 			    	}
 					ImageButton downloadAllBtn = (ImageButton) findViewById(R.id.downloadAllBtn);
 					downloadAllBtn.setVisibility(View.GONE);
+					
+					ImageButton listControl = (ImageButton) findViewById(R.id.listControlBtn);
+					listExpanded = false;
+					listControl.setImageResource(R.drawable.list_expand);
    			}
    		}
    	};
@@ -1154,7 +1158,7 @@ public class Map2Activity extends MapActivity implements LocationListener
 			List<Map<String, String>> spotInfos = new ArrayList<Map<String, String>>();
 			Map<String, String> spotInfo = new HashMap<String, String>();
 			
-			spotInfo.put("info", "Info:\n" + spotInfoArr[i]);
+			spotInfo.put("info", spotInfoArr[i]);
 			spotInfos.add(spotInfo);
 			spotChild.add(spotInfos);
 			

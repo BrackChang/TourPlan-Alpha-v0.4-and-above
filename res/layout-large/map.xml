@@ -218,7 +218,6 @@
             android:layout_below="@+id/NearestRow"
             android:layout_toRightOf="@+id/listControlBtn"
             android:background="@drawable/button_style_white"
-            android:onClick="downloadAll"
             android:scaleType="centerCrop"
             android:src="@drawable/download_icon"
             android:visibility="gone" />

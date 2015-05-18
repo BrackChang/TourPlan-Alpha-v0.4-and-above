@@ -240,7 +240,7 @@ public class Login extends Activity {
 								"And restart this App for using online mode.");
 					longMessage(testResult);
 				}
-				else if (testResult.contains("Exception"))
+				else if (!testResult.equals("Good!"))
 				{
 					Button SignInBtn = (Button) findViewById(R.id.SignInBtn);
 					TextView SignUp = (TextView) findViewById(R.id.Register);
@@ -266,7 +266,7 @@ public class Login extends Activity {
 					goWeb.setClickable(false);
 					
 					noConnection("Unable to Connect to Server!\n" +
-								"Perhaps the machine in the lab was been shut down.");
+								"Perhaps the machine in the lab was been shutdown.");
 				}
 				else
 					shortMessage(testResult);

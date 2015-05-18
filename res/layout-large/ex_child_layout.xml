@@ -5,6 +5,39 @@
     android:layout_height="match_parent"
     android:animateLayoutChanges="true"
     android1:background="@drawable/AliceBlue" >
+    
+    <View
+        android1:id="@+id/exLine0"
+        android1:layout_width="fill_parent"
+        android1:layout_height="1dp"
+        android1:layout_alignParentTop="true"
+        android1:background="@drawable/Gray" />
+    
+      <LinearLayout
+        android1:id="@+id/dtLayout"
+        android1:layout_width="match_parent"
+        android1:layout_height="wrap_content"
+        android1:layout_below="@+id/exLine0" >
+
+        <TextView
+            android1:id="@+id/durationInfo"
+            android1:layout_width="0dp"
+            android1:layout_height="match_parent"
+            android1:layout_weight="1"
+            android1:background="@drawable/PaleGreen"
+            android1:paddingLeft="5dp"
+            android1:textSize="26sp" />
+
+        <TextView
+            android1:id="@+id/transportationInfo"
+            android1:layout_width="0dp"
+            android1:layout_height="match_parent"
+            android1:layout_weight="2"
+            android1:background="@drawable/SkyBlue"
+            android1:paddingLeft="5dp"
+            android1:textSize="26sp" />
+
+    </LinearLayout>
  
     <TextView
         android:id="@+id/spotInfo"
@@ -12,6 +45,7 @@
         android:layout_height="match_parent"
         android:layout_alignParentLeft="true"
         android:layout_marginLeft="6dp"
+        android1:layout_below="@+id/dtLayout"
         android:textSize="24sp" />
     
     <View
